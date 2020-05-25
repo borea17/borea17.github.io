@@ -11,9 +11,7 @@
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
     </script>
-    <!-- <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css"> -->
-
-    <title>Probability Theory (01): Conditional Joint Probability</title>
+    <title>Probability Theory (00): Introduction</title>
   </head>
 
   <body>
@@ -60,36 +58,38 @@
                     <div class="header">
                         <h2 style="margin-left:10vw">PROBABILITY THEORY</h2>
                     </div>
-
                     <div class="flex-container">
-                      <!-- Question Box -->
-                      <div class="outer-box">
-                        <div class="box">
-                            <div class="text" >
-                                How can the <b>conditional joint probability</b> be
-                                calculated?
+
+
+                        <section class="block">
+                            <header class="hd">
+                                <h1 class="textblock">Introductory Notes</h1>
+                            </header>
+                            <div class="bd">
+                                <div class="text">
+
+                                Hello World! <br>
+                                <br>
+                                I build this deck over the years while studying Machine Learning, Bayesian Interference and
+                                Deep Learning. It is aimed to contain the fundamentals of probabiltiy theory and some
+                                of its applications in the datascience area.
+                                <br><br>
+                                Hope you have fun going through it! Let me know, when there is something unclear or if
+                                you would like to add an interesting question.
+                                </div>
                             </div>
-                        </div>
-                      </div>
-                      <!-- Answer Box -->
-                      <div class="outer-box" id="answer">
-                          <div class="answer-box">
-                              <div class="text" >
-                                  Remember for joint probabilites:
-                                  $$
-                                  P(A,B) = P(A|B) \cdot P(B) = P(B|A) \cdot P(A)
-                                  $$
-                                  Thus, the <b>conditional joint probability</b> is
-                                  $$
-                                  \fbox{$P(A,B|C) = P(A|B,C) \cdot P(B|C) = P(B|A,C) \cdot P(A|C)$} 
-                                  $$
-                                  Any probability result that is true for unconditional probability remains
-                                  true if everything is conditioned on some event.
-                              </div>
-                          </div>
-                      </div>
-                      <!-- Button -->
-                      <button onclick="show_hide_answer()" id="show_answer_button">Show Answer</button>
+                        </section>
+
+                        <section class="block">
+                            <header class="hd">
+                                <h1 class="textblock">Overview: All Questions</h1>
+                            </header>
+                            <div class="bd">
+                                <!-- <ol class="list">
+                                     ...
+                                     </ol> -->
+                            </div>
+                        </section>
                     </div>
 
                 </div>
@@ -99,21 +99,5 @@
 
     <script src="../../../dist/JS/classie.js"></script>
     <script type="text/javascript" src="../../../dist/JS/sidebar.js"></script>
-    <script>
-      function show_hide_answer() {
-         var x = document.getElementById("answer");
-         var button = document.getElementById("show_answer_button"); 
-         if (x.style.display === "none") {
-            x.style.display = "block";
-            button.innerHTML = "Hide Answer";
-         } else {
-            x.style.display = "none";
-            button.innerHTML = "Show Answer";
-         }
-      }
-      show_hide_answer();
-    </script>
-
-
   </body>
 </html>

@@ -33,6 +33,77 @@ a {
     text-decoration: none;
 }
 
+
+.blockold {
+    border-radius: 25px;
+    box-sizing:border-box;
+    border: 3px solid #666666;
+    border-top: 35px solid #252583;
+    width: 80vw;
+    background-color: white;
+    text-align: center;
+    font-size: 150%;
+    /* padding: 10px; */
+}
+
+.block {
+    background:#252583;
+    width: 80vw;
+    border:0.2em solid #99c;
+    border-top-left-radius:0.8em;
+    border-top-right-radius:0.8em;
+    border-bottom-left-radius:0.8em;
+    border-bottom-right-radius:0.8em;
+    display:block;
+    margin-bottom:2em;
+    overflow:hidden;
+    position:relative;
+}
+.block fieldset,
+.block legend {
+    border:none;
+    margin:0;
+    padding:0;
+    color: white;
+}
+.block .hd {
+    display:block;
+    padding:0.1em 0 0.1em;
+    width:100%; /* For IE8 */
+}
+.block .hd .textblock {
+    padding-left: 5vw;
+    padding-right: 5vw;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+
+    color:white;
+    font-size:150%;
+    font-weight:bold;
+    margin:0;
+    white-space:normal;
+    display:block;zoom:1; /* For IE7 */
+}
+.block .bd {
+    background: #eef;
+    border-top:0.2em solid #99c;
+
+    text-align: left;
+    font-size: 150%;
+    padding: 10px;
+}
+
+
+
+.legend_cl {
+    background-color: #252583;
+    /* height: 35px; */
+    /* width: 100%; */
+    border-top: 3px solid #666666;
+    /* padding-left: 10px; */
+    color: white;
+}
+
 .flex-container {
     display: flex;
     flex-direction: column;
@@ -40,6 +111,9 @@ a {
     justify-content: center;
     height: 80vh;
     justify-content: space-around;
+    position: absolute;
+    top: 13.5vh;
+    left: 10vw;
 }
 
 .outer-box{
@@ -47,6 +121,20 @@ a {
     flex-wrap: wrap; /* Optional. only if you want the items to wrap */
     justify-content: center; /* For horizontal alignment */
     align-items: center; /* For vertical alignment */
+}
+
+.header {
+    width: 100vw;
+    color: white;
+    font-size: 130%;
+    background-color: rgba(0, 0, 0, 0.4);
+    position: absolute;
+    top: 3.5vh;
+}
+
+.header-text{
+    position: absolute;
+    left: 10vh;
 }
 
 .box {
@@ -60,6 +148,13 @@ a {
     text-align: center;
     font-size: 150%;
     padding: 10px;
+}
+
+.text {
+    padding-left: 5vw;
+    padding-right: 5vw;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
 
 }
 
@@ -199,7 +294,7 @@ a {
 .codrops-top {
   width: 100%;
   font-size: 100%;
-  line-height: 180%;
+  line-height: 3.5vh;
   font-weight: 100;
   background: #686965;
 }
@@ -267,14 +362,6 @@ a {
 }
 
 .buttonClass {
-    /*background-color: #272822;
-
-    font-size: 2vw;
-    height: 3vw;
-    width: 3vw;
-    border: none;
-    color: white;*/
-
     line-height: 180%;
     font-size: 100%;
     font-weight: 400;

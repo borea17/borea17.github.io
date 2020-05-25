@@ -57,39 +57,30 @@
                             </span>
                           </div>
                     </div>
-                    <div class="header">
-                        <h2 style="margin-left:10vw">PROBABILITY THEORY</h2>
-                    </div>
 
                     <div class="flex-container">
                       <!-- Question Box -->
                       <div class="outer-box">
                         <div class="box">
-                            <div class="text" >
-                                How can the <b>conditional joint probability</b> be
-                                calculated?
-                            </div>
+                          How can a <b>conditional joint probability</b> be
+                          calculated?
                         </div>
                       </div>
+                      <button onclick="show_hide_answer()" id="show_answer_button">Show Answer</button>
                       <!-- Answer Box -->
                       <div class="outer-box" id="answer">
-                          <div class="answer-box">
-                              <div class="text" >
-                                  Remember for joint probabilites:
-                                  $$
-                                  P(A,B) = P(A|B) \cdot P(B) = P(B|A) \cdot P(A)
-                                  $$
-                                  Thus, the <b>conditional joint probability</b> is
-                                  $$
-                                  \fbox{$P(A,B|C) = P(A|B,C) \cdot P(B|C) = P(B|A,C) \cdot P(A|C)$} 
-                                  $$
-                                  Any probability result that is true for unconditional probability remains
-                                  true if everything is conditioned on some event.
-                              </div>
-                          </div>
+                        <div class="answer-box">
+                          Remember for joint probabilites:
+                          $$
+                          P(A,B) = P(A|B) \cdot P(B) = P(B|A) \cdot P(A)
+                          $$
+                          Thus, the <b>conditional joint probability</b> is
+                          $$
+                          \fbox{$P(A,B|C) = P(A|B,C) \cdot P(B|C) = P(B|A,C) \cdot P(A|C)$} 
+                          $$
+                          Any probability result that is true for unconditional probability remains true if everything is conditioned on some event.
+                        </div>
                       </div>
-                      <!-- Button -->
-                      <button onclick="show_hide_answer()" id="show_answer_button">Show Answer</button>
                     </div>
 
                 </div>
