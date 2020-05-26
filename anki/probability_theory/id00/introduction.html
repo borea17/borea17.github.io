@@ -60,33 +60,43 @@
                     </div>
                     <div class="flex-container">
 
-
-                        <section class="block">
-                            <header class="hd">
-                                <h1 class="textblock">Introductory Notes</h1>
-                            </header>
-                            <div class="bd">
-                                <div class="text">
-                                This deck was built over the years while studying Machine Learning, Bayesian Interference and
-                                Deep Learning. It is aimed to contain the fundamentals of probabiltiy theory and some
-                                of its applications in the datascience area.
-                                <br><br>
-                                Hope you have fun going through it! Let me know, when there is something unclear or if
-                                you would like to add an interesting question.
+                        <div class="outer-box" id="answer">
+                            <div class="answer-box">
+                                <div class="text" >
+                                    This deck was built over the years while studying Machine Learning, Bayesian Interference and
+                                    Deep Learning. It is aimed to contain the fundamentals of probabiltiy theory and some
+                                    of its applications in the datascience area.
+                                    <br><br>
+                                    Hope you have fun going through it! Let me know, when there is something unclear or if
+                                    you would like to add an interesting question.
                                 </div>
                             </div>
-                        </section>
+                        </div>
 
-                        <section class="block">
-                            <header class="hd">
-                                <h1 class="textblock">Overview: All Questions</h1>
-                            </header>
-                            <div class="bd">
-                                <!-- <ol class="list">
-                                     ...
-                                     </ol> -->
+                        <!-- <section class="block">
+                             <header class="hd">
+                             <h1 class="textblock">Introductory Notes</h1>
+                             </header>
+                             <div class="bd">
+                             <div class="text">
+                             This deck was built over the years while studying Machine Learning, Bayesian Interference and
+                             Deep Learning. It is aimed to contain the fundamentals of probabiltiy theory and some
+                             of its applications in the datascience area.
+                             <br><br>
+                             Hope you have fun going through it! Let me know, when there is something unclear or if
+                             you would like to add an interesting question.
+                             </div>
+                             </div>
+                             </section> -->
+
+                        <div class="outer-box" id="answer">
+                            <div class="answer-box">
+                                <div class="text" >
+                                    <b>Overview: All Questions</b><br><br>
+                                    <div id="questions" ></div>
+                                </div>
                             </div>
-                        </section>
+                        </div>
 
                         <div>
                             <button id="show_random_question">Start (randomly)</button>
@@ -106,5 +116,19 @@
 
     <script src="../../../dist/JS/classie.js"></script>
     <script type="text/javascript" src="../../../dist/JS/sidebar.js"></script>
+    <script type="text/javascript" src="../all_slides.js"></script>
+
+    <script>
+     var text = document.getElementById("questions");
+     write_down_all_slides(text);
+
+     /* newlink = document.createElement('a');
+      * newlink.innerHTML = 'Google';
+      * newlink.setAttribute('title', 'Google');
+      * newlink.setAttribute('href', 'http://google.com');
+      * newlink.setAttribute('style', 'color: blue;');
+      * text.appendChild(newlink); */
+     /* document.body.appendChild(newlink); */
+    </script>
   </body>
 </html>

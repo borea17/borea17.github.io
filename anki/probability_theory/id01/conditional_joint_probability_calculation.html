@@ -99,9 +99,10 @@
 
     <script src="../../../dist/JS/classie.js"></script>
     <script type="text/javascript" src="../../../dist/JS/sidebar.js"></script>
+    <script type="text/javascript" src="../all_slides.js"></script>
     <script>
       function show_hide_answer() {
-         var x = document.getElementById("answer");
+          var x = document.getElementById("answer");
          var button = document.getElementById("show_answer_button"); 
          if (x.style.display === "none") {
             x.style.display = "block";
@@ -112,6 +113,8 @@
          }
       }
       show_hide_answer();
+
+      write_down_all_slides();
     </script>
 
 
