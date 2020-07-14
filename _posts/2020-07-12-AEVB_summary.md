@@ -314,7 +314,7 @@ class CoderNetwork(nn.Module):
         
         self.coder = nn.Sequential(OrderedDict([
             ('h', nn.Linear(input_dim, hidden_dim)),
-            ('ReLU', nn.ReLU()) # ReLU instead of Tanh proposed by Kingma and Welling       
+            ('ReLU', nn.ReLU()) # ReLU instead of Tanh proposed by K. and W.       
         ]))
         self.fc_mu = nn.Linear(hidden_dim, output_dim)
         
