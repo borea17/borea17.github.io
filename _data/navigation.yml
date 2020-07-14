@@ -6,8 +6,8 @@ main:
   #   url: https://mmistakes.github.io/minimal-mistakes/about/
   - title: Blog
     url: /blog/
-  - title: ML FAQ
-    url: /ML_FAQ/
+  # - title: ML FAQ
+  #   url: /ML_FAQ/
   # - title: "Sample Collections"
   #   url: /collection-archive/
   # - title: "Sitemap"
