@@ -700,3 +700,10 @@ small. Thus, using the logarithmized variance as network output increases
 stability and performance (see [this
 answer](https://stats.stackexchange.com/a/353222) for details).
 
+---------------------------------------------------------------------------
+
+#### Acknowledgement
+
+[Daniel Daza's](https://dfdazac.github.io/) blog is really helpful
+and the presented code is highly inspired by his [summary on
+VAEs](https://dfdazac.github.io/01-vae.html).
