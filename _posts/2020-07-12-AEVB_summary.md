@@ -2,6 +2,7 @@
 title: "Auto-Encoding Variational Bayes"
 author: "Markus Borea"
 tags: [machine learning, variational autoencoder, dimensionality reduction, generalization]
+github_link: "https://nextjournal.com/borea17/paper_summaries%2Fauto-encoding-variational-bayes"
 ---
 
 [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) introduced the
@@ -335,7 +336,7 @@ class CoderNetwork(nn.Module):
             return mu
         elif self.coder_type == 'Bernoulli':
             return self.sigma_mu(mu)
-    return
+        return
 ```
 
 **Reconstruction Accuracy**: Sampling from the encoder distribution is
@@ -441,7 +442,7 @@ estimated distribution parameters:
   with the original observation $\textbf{x}^{(i)} \in \\{0, 1\\}^{D}$.
   In this case the reconstruction accuracy equals the
   negative binary cross entropy loss. Note that there are plenty of
-  autoencoder implementations that use the binary cross entropy loss
+  VAE implementations that use the binary cross entropy loss
   on non-binary observations, see discussions in [this
   thread](https://stats.stackexchange.com/questions/394582/why-is-binary-cross-entropy-or-log-loss-used-in-autoencoders-for-non-binary-da). 
   
@@ -550,7 +551,7 @@ def train(decoder_type, dataset, x_dim, hid_dim, z_dim, batch_size, L, epochs):
                                    output_dim=z_dim,
                                    coder_type='Gaussian')
     decoder_network = CoderNetwork(input_dim=z_dim, 
-                                   hidden_dim=hidden_dim, 
+                                   hidden_dim=hid_dim, 
                                    output_dim=x_dim,
                                    coder_type=decoder_type)
     
@@ -636,11 +637,11 @@ Average loss: 21.301
 Done!
 ```
 
-Note how the Gaussian distribution with diagonal covariance structure
-(i.e., `Gaussian`) as decoder distribution approaches huge negative
-losses. These would further increase towards negative infinity when
-training for more epochs. In contrast, the `Bernoulli` and `I-Gaussian`
-distribution losses clearly saturate.
+<!-- Note how the Gaussian distribution with diagonal covariance structure -->
+<!-- (i.e., `Gaussian`) as decoder distribution approaches huge negative -->
+<!-- losses. These would further increase towards negative infinity when -->
+<!-- training for more epochs. In contrast, the `Bernoulli` and `I-Gaussian` -->
+<!-- distribution losses clearly saturate. -->
 
 Let's look at the differences in the reconstructions:
 
@@ -704,6 +705,6 @@ answer](https://stats.stackexchange.com/a/353222) for details).
 
 #### Acknowledgement
 
-[Daniel Daza's](https://dfdazac.github.io/) blog is really helpful
+[Daniel Daza's](https://dfdazac.github.io/) blog was really helpful
 and the presented code is highly inspired by his [summary on
 VAEs](https://dfdazac.github.io/01-vae.html).
