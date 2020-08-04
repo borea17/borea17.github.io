@@ -6,6 +6,8 @@ author: "Markus Borea"
 tags: [machine learning, variational autoencoder, disentanglement, generalization]
 ---
 
+NOTE: THIS IS CURRENTLY WIP
+
 [Watters et al. (2019)](https://arxiv.org/abs/1901.07017) introduce
 the *Spatial Broadcast Decoder (SBD)* as an architecture for the
 decoder in Variational Auto-Encoders
