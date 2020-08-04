@@ -44,8 +44,8 @@ layout: default
             </nav>
           </aside>
         {% endif %}
-        {% if page.github_link %}
-    <a href="{{page.github_link}}" target="_blank"><img src="/assets/img/github_button.png" alt="Download from GitHub" width="165" height="65"></a><br><br>
+        {% if page.nextjournal_link %}
+          <a href="{{page.nextjournal_link}}" target="_blank"><img src="/assets/img/nextjournal_button.png" alt="Download from GitHub" width="165" height="65"></a><br><br>
 {% endif %}
         {{ content }}
         {% if page.link %}<div><a href="{{ page.link }}" class="btn btn--primary">{{ site.data.ui-text[site.locale].ext_link_label | default: "Direct Link" }}</a></div>{% endif %}

@@ -1,8 +1,10 @@
 ---
 title: "Auto-Encoding Variational Bayes"
+abb_title: "Auto-Encoding Variational Bayes"
+permalink: "/blog/auto-encoding_variational_bayes"
 author: "Markus Borea"
 tags: [machine learning, variational autoencoder, dimensionality reduction, generalization]
-github_link: "https://nextjournal.com/borea17/paper_summaries%2Fauto-encoding-variational-bayes"
+nextjournal_link: "https://nextjournal.com/borea17/paper_summaries%2Fauto-encoding-variational-bayes"
 ---
 
 [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) introduced the
@@ -322,7 +324,7 @@ class CoderNetwork(nn.Module):
         if coder_type == 'Gaussian':
             self.fc_log_var = nn.Linear(hidden_dim, output_dim)
         elif coder_type == 'Bernoulli':
-            self.sigma_mu = nn.Sigmoid()
+            self.sigmoid_mu = nn.Sigmoid()
         return
     
     def forward(self, inp):
@@ -335,7 +337,7 @@ class CoderNetwork(nn.Module):
         elif self.coder_type == 'I-Gaussian':
             return mu
         elif self.coder_type == 'Bernoulli':
-            return self.sigma_mu(mu)
+            return self.sigmoid_mu(mu)
         return
 ```
 
@@ -378,7 +380,7 @@ estimated distribution parameters:
 - *Gaussian distribution with diagonal covariance structure* 
   $$
     p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime |
-  \boldsymbol{\mu}_D^{(i)} , \boldsymbol{\sigma}_D^{2(i)} \textbf{I} \right)
+  \boldsymbol{\mu}_D^{(i)} , \text{diag} \left( \boldsymbol{\sigma}_D^{2(i)} \right) \right)
   $$
   
   $$

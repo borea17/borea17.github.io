@@ -1,5 +1,7 @@
 ---
 title: "Interaction Networks for Learning about Objects, Relations and Physics"
+abb_title: "Interaction Networks for Learning about Objects, Relations and Physics"
+permalink: "/blog/interaction_networks"
 author: "Markus Borea"
 tags: [machine learning, interaction network, graph networks, generalization]
 ---
