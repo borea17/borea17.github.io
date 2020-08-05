@@ -71,11 +71,10 @@ The presented architecture is mainly motivated by two reasons:
   equivariance (i.e., shifting an object in the input equally shifts its
   representation in the output) in CNNs<sup>[2](#myfootnote2)</sup>
   hinders learning this task: The filters have by design no 
-  information about their position. Thus, the network must learn to decode
-  spatial information without having them resulting in a complicated function
-  which makes optimization difficult. E.g., changing the input coordinate
-  slighlty might push the resulting function in a completelty different
-  direction.
+  information about their position. Thus, coordinate transformations
+  result in complicated functions which makes optimization difficult.
+  E.g., changing the input coordinate slighlty might push the
+  resulting function in a completelty different direction. 
 
     **CoordConv Solution**: To overcome this problem, [Liu et al.
   (2018)](https://arxiv.org/abs/1807.03247) propose to
@@ -104,7 +103,7 @@ The presented architecture is mainly motivated by two reasons:
   the positions in the latent space with the fixed coordinate channels and
   applying a threshold operation. Thus, [Watters
    et al. (2019)](https://arxiv.org/abs/1901.07017) argue that the
-  Spatial Broadcast decoder architecture puts an inductive bias of dissociating 
+  Spatial Broadcast decoder architecture puts a prior on dissociating 
   positional from non-positional features in the latent distribution.  
   Datasets without positional variation in turn seem unlikely to benefit from this
   architecture. However, [Watters et al.
