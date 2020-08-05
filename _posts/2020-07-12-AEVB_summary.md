@@ -4,7 +4,7 @@ abb_title: "Auto-Encoding Variational Bayes"
 permalink: "/blog/auto-encoding_variational_bayes"
 author: "Markus Borea"
 tags: [machine learning, variational autoencoder, dimensionality reduction, generalization]
-nextjournal_link: "https://nextjournal.com/borea17/paper_summaries%2Fauto-encoding-variational-bayes"
+nextjournal_link: "https://nextjournal.com/borea17/auto-encoding-variational-bayes"
 ---
 
 [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) introduced the
