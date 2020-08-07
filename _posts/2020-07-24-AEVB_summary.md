@@ -50,13 +50,21 @@ $p\_{\boldsymbol{\theta}}(\textbf{x}|\textbf{z}^{(i)})$. Note that we
 do not know $\boldsymbol{\theta}$ nor do we have information about
 $\textbf{z}^{(i)}$. In order to recover this generative process, they
 introduce $q\_{\boldsymbol{\phi}}(\textbf{z}|\textbf{x})$ as an
-approximation to the intractable true posterior<sup>[1](#myfootnote1)</sup>
+approximation to the intractable true posterior[^1]
 $p\_{\boldsymbol{\theta}} (\textbf{z}|\textbf{x})$. The marginal log likelihood of
 each individual datapoint $\textbf{x}^{(i)}$ can then be stated as
 follows (see [Eric Jang's amazing blog
 post](https://blog.evjang.com/2016/08/variational-bayes.html) for
 detailed derivation)
 
+[^1]: The true posterior could be calculated via Bayes theorem
+    $\displaystyle p\_{\boldsymbol{\theta}} (\textbf{z}|\textbf{x}) =
+    \frac {p\_{\boldsymbol{\theta}} (\textbf{x}|\textbf{z})
+    p\_{\boldsymbol{\theta}} (\textbf{z})} {\int
+    p\_{\boldsymbol{\theta}} (\textbf{x}|\textbf{z})
+    p\_{\boldsymbol{\theta}} (\textbf{z}) d\textbf{z}}$. However, the
+    integral in the denominator is intractable in practice. 
+    
 $$
   \log p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)}\right) =
   \underbrace{D_{KL} \left(q_{\boldsymbol{\phi}}\left(\textbf{z} | \textbf{x}^{(i)}\right)
@@ -274,7 +282,13 @@ $$
 $$
 
 Note that using the logarithmized version of the variance increases
-stability and simplifies the training<sup>[2](#myfootnote2)</sup>.  
+stability and simplifies the training[^2].  
+
+[^2]: Note that the variance is by definition greater than zero.
+    Furthermore, the variance is typically relatively small. Thus,
+    using the logarithmized variance as network output increases
+    stability and performance (see [this
+    answer](https://stats.stackexchange.com/a/353222) for details).
 
 In principle, the encoder and decoder network are very similar only
 that the dimension of the input and output are reversed. While the
@@ -685,28 +699,11 @@ plot_results(I_Gaussian_VAE, dataset, n_samples)
   
 ![plot results](/assets/img/02_AEVB/plot_results.png "plot results")
 
-
-
----------------------------------------------------------------------------
-
-<a name="myfootnote1">1</a>: The true posterior could be calculated
-via Bayes theorem 
-$\displaystyle p\_{\boldsymbol{\theta}} (\textbf{z}|\textbf{x}) =
-\frac {p\_{\boldsymbol{\theta}} (\textbf{x}|\textbf{z})
-p\_{\boldsymbol{\theta}} 
-(\textbf{z})} {\int p\_{\boldsymbol{\theta}} (\textbf{x}|\textbf{z}) 
-p\_{\boldsymbol{\theta}} (\textbf{z}) d\textbf{z}}$.
-  However, the integral in the denominator is intractable in practice.  
-<a name="myfootnote2">2</a>: Note that the variance is by definition
-greater than zero. Furthermore, the variance is typically relatively
-small. Thus, using the logarithmized variance as network output increases
-stability and performance (see [this
-answer](https://stats.stackexchange.com/a/353222) for details).
-
----------------------------------------------------------------------------
-
 #### Acknowledgement
 
 [Daniel Daza's](https://dfdazac.github.io/) blog was really helpful
 and the presented code is highly inspired by his [summary on
 VAEs](https://dfdazac.github.io/01-vae.html).
+
+
+---------------------------------------------------------------------------

@@ -11,10 +11,10 @@ NOTE: THIS IS CURRENTLY WIP
 [Watters et al. (2019)](https://arxiv.org/abs/1901.07017) introduce
 the *Spatial Broadcast Decoder (SBD)* as an architecture for the
 decoder in Variational Auto-Encoders
-[(VAEs)](https://borea17.github.io/blog/auto-encoding_variational_bayes/) 
+[(VAEs)](https://borea17.github.io/blog/auto-encoding_variational_bayes) 
 to improve 
 disentanglement in the latent
-space<sup>[1](#myfootnote1)</sup>, reconstruction accuracy and
+space[^1], reconstruction accuracy and
 generalization in limited datasets  (i.e., held-out regions in data
 space). Motivated by the limitations of deconvolutional layers in traditional decoders,
 these upsampling layers are replaced by a tiling operation in the Spatial
@@ -27,6 +27,8 @@ variation such as position, size, shape), Chairs and 3D Object-in-Room datasets
 dataset with dependent factors. They could show that the Spatial Broadcast
 decoder can be used complementary or as an improvement to state-of-the-art
 disentangling techniques.
+
+[^1]: As outlined by [Watters et al. (2019)](https://arxiv.org/abs/1901.07017), there is "yet no consensus on the definition of a disentangled representation". However, in their paper they focus on *feature compositionality* (i.e., composing a scene in terms of independent features such as color and object) and refer to it as *disentangled representation*.  
 
 
 ## Model Description
@@ -69,7 +71,7 @@ The presented architecture is mainly motivated by two reasons:
   into one-hot pixel space or vice versa). This behavior may seem
   counterintuitive (easy task, small dataset), however the feature of translational
   equivariance (i.e., shifting an object in the input equally shifts its
-  representation in the output) in CNNs<sup>[2](#myfootnote2)</sup>
+  representation in the output) in CNNs[^2]
   hinders learning this task: The filters have by design no 
   information about their position. Thus, coordinate transformations
   result in complicated functions which makes optimization difficult.
@@ -110,37 +112,27 @@ The presented architecture is mainly motivated by two reasons:
   (2019)](https://arxiv.org/abs/1901.07017) showed that the Spatial 
   Broadcast decoder could still help in these datasets and attribute this to the
   replacement of deconvolutional layers. 
+  
+[^2]: In typical image classification problems, translational equivariance is highly valued since it ensures that if a filter detects an object (e.g., edges), it will detect it irrespective of its position.  
     
 ## Learning the Model
 
 Basically, the Spatial Broadcast decoder is a function approximator for
 probabilistic decoder in a VAE. Thus, learning the model works exactly
 as in VAEs (see my
-[post](https://borea17.github.io/blog/auto-encoding_variational_bayes/)):
+[post](https://borea17.github.io/blog/auto-encoding_variational_bayes)):
 The optimal parameters are learned jointly 
 by training the VAE using the AEVB algorithm. 
 
 ### Implementation
 
+In the  
 
 
-------------------------------------------------------------
-
-<a name="myfootnote1">1</a>: As outlined by [Watters et al.
-  (2019)](https://arxiv.org/abs/1901.07017), there is "yet no
-  consensus on the definition of a disentangled representation".
-  However, in their paper they focus on *feature
-  compositionality* (i.e., composing a scene in terms of independent
-  features such as color and object) and refer to it as
-  *disentangled representation*.  
-<a name="myfootnote2">2</a>: In typical image classification
-    problems, translational equivariance is highly valued since it ensures that
-    if a filter detects an object (e.g., edges), it will detect it irrespective of its
-    position.  
-
------------------------------------------------------------
 
 #### Acknowledgement
 
 [Daniel Daza's](https://dfdazac.github.io/) blog was really helpful
 and the presented code is highly inspired by his [VAE-SBD implementation](https://github.com/dfdazac/vaesbd).
+
+-----------------------------------------------------------

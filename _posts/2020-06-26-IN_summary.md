@@ -37,12 +37,19 @@ represents objects and the set of edges $R = \\{ \langle i, j , r_k
 between the objects, i.e., the triplet $\langle i,j, r_k \rangle_k$ defines the
 $k^{\text{th}}$ relation from sender $o_i$ to receiver $o_j$ with relation
 attribute $r_k$. Each object $o_i$ may have several
-attributes<sup>[1](#myfootnote1)</sup>, an object state $o_i^{(t)}$ at
+attributes[^1], an object state $o_i^{(t)}$ at
 time $t$ can be understood as a value assignment to all of its
 attributes. Additionally, let $X=\\{ x_j \\}\_{1 \dots N_O}$ denote
 external effects (e.g., active control or gravitation) which are applied to each
 object separately.  
 
+[^1]: In their implementation, [Battaglia et al.
+    (2016)](https://arxiv.org/abs/1612.00222) assume that all objects
+    share the same attributes, i.e., are instances from the same
+    class. <a name="myfootnote2">2</a>: Schematic is taken from the
+    original paper of [Battaglia et al.
+    (2016)](https://arxiv.org/abs/1612.00222).
+    
 __*Intuition*__: The ultimate goal of the IN is to predict all future
 object states $o_i^{(t+1)}$ based on the graph $G$, the current
 external effects per object $x_i^{(t)}$ and all current object states
@@ -197,9 +204,3 @@ The figure below summarizes the implementation of the IN.
 - object states could blow up since all objects share the same attributes
 
 -------------------------------------------------------------------------------
-
-<a name="myfootnote1">1</a>: In their implementation, [Battaglia et al.
-(2016)](https://arxiv.org/abs/1612.00222) assume that all objects share
-the same attributes, i.e., are instances from the same class.  
-<a name="myfootnote2">2</a>: Schematic is taken from the original
-paper of [Battaglia et al. (2016)](https://arxiv.org/abs/1612.00222).

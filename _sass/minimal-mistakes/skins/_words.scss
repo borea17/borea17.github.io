@@ -51,3 +51,24 @@ $base0f: #b18a3d !default;
 .page__footer-follow .social-icons .svg-inline--fa {
   color: inherit;
 }
+
+
+// footnotes {
+//     // margin: -10px 20px;
+//     font-size: 500%;
+// }
+
+.footnotes p {
+    margin: 10px;
+    font-size: 39px;
+    color: black;
+    // font-style: italic;
+}
+
+a.footnote:before {
+    content: "[";
+}
+
+a.footnote:after {
+    content: "]";
+}
