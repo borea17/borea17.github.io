@@ -122,11 +122,34 @@ probabilistic decoder in a VAE. Thus, learning the model works exactly
 as in VAEs (see my
 [post](https://borea17.github.io/blog/auto-encoding_variational_bayes)):
 The optimal parameters are learned jointly 
-by training the VAE using the AEVB algorithm. 
+by training the VAE using the AEVB algorithm. The remaining
+part of this post aims to reproduce some of results
+by [Watters et al. (2019)](https://arxiv.org/abs/1901.07017), i.e.,
+comparing the Spatial Broadcast decoder with a standard
+deconvolutional decoder. 
 
 ### Implementation
 
-In the  
+[Watters et al. (2019)](https://arxiv.org/abs/1901.07017) conducted
+experiments with several huge datasets and could show that
+incorporating the Spatial Broadcast decoder into state-of-the-art VAE
+architectures consistently increased their perfomance. While this is
+impressive, it is always frustrating to not being able to reproduce
+results due to missing implementation details, less computing
+resources or simply not having enough time to work on a
+reimplementation.
+
+
+
+#### Data Generation
+
+##### Colored Sprites 
+
+##### Dataset with small Objects
+
+#### Model Implementation
+
+#### Results
 
 
 

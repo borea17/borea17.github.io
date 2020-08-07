@@ -9,7 +9,7 @@ tags: [machine learning, graph networks, generalization]
 Few years after the IN paper, [Battaglia et al.
 (2018)](https://arxiv.org/abs/1806.01261) showed that the IN can be
 cast into a special case of a broader framework, termed *Graph
-Networks (GN)*. They hypothesize that despite the recent successes in
+Networks (GNs)*. They hypothesize that despite the recent successes in
 deep learning with minimal representational biases, key ingredients of
 human-like intelligence such as *combinatorial
   generalization*[^1] remain out of reach.
