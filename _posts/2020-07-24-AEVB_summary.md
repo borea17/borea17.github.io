@@ -392,10 +392,10 @@ distribution, the log-likelihood can be stated in terms of the
 estimated distribution parameters:
 
 - *Gaussian distribution with diagonal covariance structure* 
-  $$
+  $
     p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime |
   \boldsymbol{\mu}_D^{(i)} , \text{diag} \left( \boldsymbol{\sigma}_D^{2(i)} \right) \right)
-  $$
+  $
   
   $$
    \log_e p_{\boldsymbol{\theta}}\left(
@@ -419,11 +419,10 @@ estimated distribution parameters:
   encoder distribution (i.e., the mean and variance).
 
 - *Gaussian distribution with identity as covariance variance* 
-
-  $$
+  $
     p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime |
   \boldsymbol{\mu}_D^{(i)} , \textbf{I} \right)
-  $$
+  $
   
   $$
    \log_e p_{\boldsymbol{\theta}}\left(
@@ -442,12 +441,12 @@ estimated distribution parameters:
   
 
 - *Bernoulli distribution*
-  $$
-     p_{\boldsymbol{\theta}}\sim\text{Bern} \left(\textbf{x}^\prime |
-\boldsymbol{\mu}_D^{(i)} \right) =  \prod_{k=1}^{D} \left(
-\mu_{D_k}^{(i)}\right)^{x_k^\prime} \left( 1 - \mu_{D_k}^{(i)}\right)^{1 -
+  $
+     p_{\boldsymbol{\theta}} \sim\text{Bern} \left(\textbf{x}^\prime |
+\boldsymbol{\mu}_D^{(i)} \right) =  \prod\_{k=1}^{D} \left(
+\mu\_{D_k}^{(i)}\right)^{x_k^\prime} \left( 1 - \mu\_{D_k}^{(i)}\right)^{1 -
      x_k^\prime}
-  $$  
+  $  
   
   $$
      \log_e p_{\boldsymbol{\theta}}\left(
