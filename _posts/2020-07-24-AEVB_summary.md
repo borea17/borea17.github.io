@@ -419,6 +419,7 @@ estimated distribution parameters:
   encoder distribution (i.e., the mean and variance).
 
 - *Gaussian distribution with identity as covariance variance* 
+
   $$
     p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime |
   \boldsymbol{\mu}_D^{(i)} , \textbf{I} \right)
