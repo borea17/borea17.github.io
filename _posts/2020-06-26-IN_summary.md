@@ -4,6 +4,9 @@ abb_title: "Interaction Networks for Learning about Objects, Relations and Physi
 permalink: "/blog/interaction_networks"
 author: "Markus Borea"
 tags: [machine learning, interaction network, graph networks, generalization]
+toc: true
+toc_sticky: true
+toc_label: "Table of Contents"
 ---
 
 [Battaglia et al. (2016)](https://arxiv.org/abs/1612.00222) introduce

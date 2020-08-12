@@ -5,6 +5,9 @@ permalink: "/blog/auto-encoding_variational_bayes"
 author: "Markus Borea"
 tags: [machine learning, variational autoencoder, dimensionality reduction, generalization]
 nextjournal_link: "https://nextjournal.com/borea17/auto-encoding-variational-bayes"
+toc: true
+toc_sticky: true
+toc_label: "Table of Contents"
 ---
 
 [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) introduced the
@@ -227,7 +230,7 @@ be summarized in 5 steps:
     ascent step.
 5. Repeat steps 2$-$4 until model parameters converged
 
-### VAE Implementation
+## VAE Implementation
 
 A VAE simply uses deep neural networks (DNNs)
 as function approximators to parametrize the probabilistic encoder
@@ -699,7 +702,7 @@ plot_results(I_Gaussian_VAE, dataset, n_samples)
   
 ![plot results](/assets/img/02_AEVB/plot_results.png "plot results")
 
-#### Acknowledgement
+## Acknowledgement
 
 [Daniel Daza's](https://dfdazac.github.io/) blog was really helpful
 and the presented code is highly inspired by his [summary on
