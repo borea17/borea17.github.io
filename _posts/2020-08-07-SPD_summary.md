@@ -7,7 +7,7 @@ tags: [machine learning, variational autoencoder, disentanglement, generalizatio
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
-published: false
+published: false 
 ---
 
 NOTE: THIS IS CURRENTLY WIP
@@ -563,7 +563,7 @@ hyperparmeters. These can be divided into three two broader categories:
 * **Training Parameters**: Lastly, training neural networks itself
   consists of several hyperparmeters. Again, we are using the same
   setup as defined in Appendix A.1 of [Watters et
-  al.](https://arxiv.org/abs/1901.07017), see code below.
+  al. (2019)](https://arxiv.org/abs/1901.07017), see code below.
 
   ```python
   from livelossplot import PlotLosses
@@ -606,10 +606,169 @@ hyperparmeters. These can be divided into three two broader categories:
 
 ### Visualization Functions
 
-Evaluating the trained models
+Evaluating the representation quality of trained models is a difficult
+task, since we are not only interested in the reconstruction accuracy
+but also in the latent space and its properties. Ideally the latent
+space offers a disentangled representation such that each latent
+variable represents a factor of variation with perfect reconstruction
+accuracy (i.e., for evaluation it is very helpful to know in advance
+how many and what factors of variation exist). Although there are some
+metrics to quantify disentanglement, `many of them have serious
+shortcomings and there is yet no consensus in the literature which to
+use` ([Watters et al., 2019](https://arxiv.org/abs/1901.07017)). 
+Instead of focusing on some metric, we are going to visualize the
+results by using two approaches:
 
-* **Reconstructions and Latent Traversals**
-* **Latent Space Geometry**
+* **Reconstructions and Latent Traversals**: A very popular and
+  helpful plot is to show some (arbitrarly chosen) reconstructions
+  compared to the original input together with a series of latent
+  space traversals. I.e., taking some encoded input and looking at the
+  reconstructions when sweeping each coordinate in the latent space in
+  a predefined interval (here from -2 to +2) while keeping all other
+  coordinates constant. Ideally, each sweep can be associated with
+  a factor of variation. The code below will be used to generate these
+  plots. Note that the reconstructions are clamped into $[0, 1]$ as
+  this is the allowed image range.
+  
+  ```python
+  def reconstructions_and_latent_traversals(STD_VAE, SBD_VAE, dataset, SEED=1):
+      np.random.seed(SEED)
+      device = 'cuda' if torch.cuda.is_available() else 'cpu'
+      latent_dims = STD_VAE.encoder.latent_dim
+
+      n_samples = 7
+      i_samples = np.random.choice(range(len(dataset)), n_samples, replace=False)
+
+      # preperation for latent traversal
+      i_latent = i_samples[n_samples//2]
+      lat_image = dataset[i_latent][0]
+      sweep = np.linspace(-2, 2, n_samples)
+
+      fig = plt.figure(constrained_layout=False, figsize=(2*n_samples, 2+latent_dims))
+      grid = plt.GridSpec(latent_dims + 5, n_samples*2 + 3, 
+                          hspace=0.2, wspace=0.02, figure=fig)
+      # standard VAE
+      for counter, i_sample in enumerate(i_samples):
+          orig_image = dataset[i_sample][0]
+          # original
+          main_ax = fig.add_subplot(grid[1, counter + 1])
+          main_ax.imshow(transforms.ToPILImage()(orig_image))
+          main_ax.axis('off')
+          main_ax.set_aspect('equal')
+
+          # reconstruction
+          x_rec = STD_VAE.reconstruct(orig_image.unsqueeze(0).to(device))
+          # clamp output into [0, 1] and prepare for plotting
+          recons_image =  torch.clamp(x_rec, 0, 1).squeeze(0).cpu()
+
+          main_ax = fig.add_subplot(grid[2, counter + 1])
+          main_ax.imshow(transforms.ToPILImage()(recons_image))
+          main_ax.axis('off')
+          main_ax.set_aspect('equal')
+      # latent dimension traversal
+      z, mu_E, log_var_E = STD_VAE.encode(lat_image.unsqueeze(0).to(device))
+      for latent_dim in range(latent_dims):
+          for counter, z_replaced in enumerate(sweep):
+              z_new = z.detach().clone()
+              z_new[0][latent_dim] = z_replaced
+
+              # clamp output into [0, 1] and prepare for plotting
+              img_rec = torch.clamp(STD_VAE.decode(z_new), 0, 1).squeeze(0).cpu()
+
+              main_ax = fig.add_subplot(grid[4 + latent_dim, counter + 1])
+              main_ax.imshow(transforms.ToPILImage()(img_rec))
+              main_ax.axis('off')
+      # SBD VAE
+      for counter, i_sample in enumerate(i_samples):
+          orig_image = dataset[i_sample][0]
+          # original
+          main_ax = fig.add_subplot(grid[1, counter + n_samples + 2])
+          main_ax.imshow(transforms.ToPILImage()(orig_image))
+          main_ax.axis('off')
+          main_ax.set_aspect('equal')
+          # reconstruction
+          x_rec = SBD_VAE.reconstruct(orig_image.unsqueeze(0).to(device))
+          # clamp output into [0, 1] and prepare for plotting
+          recons_image = torch.clamp(x_rec, 0, 1).squeeze(0).cpu()
+
+          main_ax = fig.add_subplot(grid[2, counter + n_samples + 2])
+          main_ax.imshow(transforms.ToPILImage()(recons_image))
+          main_ax.axis('off')
+          main_ax.set_aspect('equal')
+      # latent dimension traversal
+      z, mu_E, log_var_E = SBD_VAE.encode(lat_image.unsqueeze(0).to(device))
+      for latent_dim in range(latent_dims):
+          for counter, z_replaced in enumerate(sweep):
+              z_new = z.detach().clone()
+              z_new[0][latent_dim] = z_replaced
+              # clamp output into [0, 1] and prepare for plotting
+              img_rec = torch.clamp(SBD_VAE.decode(z_new), 0, 1).squeeze(0).cpu()
+
+              main_ax = fig.add_subplot(grid[4+latent_dim, counter+n_samples+2])
+              main_ax.imshow(transforms.ToPILImage()(img_rec))
+              main_ax.axis('off')
+      # prettify by adding annotation texts
+      fig = prettify_with_annotation_texts(fig, grid, n_samples, latent_dims)
+      return fig
+
+  def prettify_with_annotation_texts(fig, grid, n_samples, latent_dims):
+      # figure titles
+      titles = ['Deconv Reconstructions', 'Spatial Broadcast Reconstructions',
+                'Deconv Traversals', 'Spatial Broadcast Traversals']
+      idx_title_pos = [[0, 1, n_samples+1], [0, n_samples+2, n_samples*2+2],
+                      [3, 1, n_samples+1], [3, n_samples+2, n_samples*2+2]]
+      for title, idx_pos in zip(titles, idx_title_pos):
+          fig_ax = fig.add_subplot(grid[idx_pos[0], idx_pos[1]:idx_pos[2]])
+          fig_ax.annotate(title, xy=(0.5, 0), xycoords='axes fraction', 
+                          fontsize=14, va='bottom', ha='center')
+          fig_ax.axis('off')
+      # left annotations
+      fig_ax = fig.add_subplot(grid[1, 0])
+      fig_ax.annotate('input', xy=(1, 0.5), xycoords='axes fraction', 
+                      fontsize=12,  va='center', ha='right')
+      fig_ax.axis('off')
+      fig_ax = fig.add_subplot(grid[2, 0])
+      fig_ax.annotate('recons', xy=(1, 0.5), xycoords='axes fraction', 
+                      fontsize=12, va='center', ha='right')
+      fig_ax.axis('off')
+      fig_ax = fig.add_subplot(grid[4:latent_dims + 4, 0])
+      fig_ax.annotate('latent coordinate traversed', xy=(0.9, 0.5), 
+                      xycoords='axes fraction', fontsize=12,
+                      va='center', ha='center', rotation=90)
+      fig_ax.axis('off')
+      # pertubation magnitude
+      for i_y_grid in [[1, n_samples+1], [n_samples+2, n_samples*2+2]]:
+          fig_ax = fig.add_subplot(grid[latent_dims + 4, i_y_grid[0]:i_y_grid[1]])
+          fig_ax.annotate('pertubation magnitude', xy=(0.5, 0), 
+                          xycoords='axes fraction', fontsize=12,
+                          va='bottom', ha='center')
+          fig_ax.set_frame_on(False)
+          fig_ax.axes.set_xlim([-2.5, 2.5])
+          fig_ax.xaxis.set_ticks([-2, 0, 2])
+          fig_ax.xaxis.set_ticks_position('top')
+          fig_ax.xaxis.set_tick_params(direction='inout', pad=-16)
+          fig_ax.get_yaxis().set_ticks([])
+      # latent dim
+      for latent_dim in range(latent_dims):
+          fig_ax = fig.add_subplot(grid[4 + latent_dim, n_samples*2 + 2])
+          fig_ax.annotate('lat dim ' + str(latent_dim + 1), xy=(0, 0.5), 
+                          xycoords='axes fraction', 
+                          fontsize=12, va='center', ha='left')
+          fig_ax.axis('off')
+      return 
+  ```
+  
+* **Latent Space Geometry**: While latent traversals may be helpful, [Watters et al.
+(2019)](https://arxiv.org/abs/1901.07017) note that this techniques
+suffers from two shortcommings:
+   1. Sometimes latent space entanglement might be difficult to
+      see using visual judgment.
+   2. Traversals are only taken at some point in space. It could be
+      that traversals at some points are more disentangled than at
+      other positions. Thus, judging disentanglement by the
+      aforementioned method might be ultimately dependent to randomness.
+   To overcome these limitations, they propose a new method which they
+      term *latent space geometry*.
 
 
 
