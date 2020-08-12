@@ -1,0 +1,643 @@
+---
+title: "Spatial Broadcast Decoder: A Simple Architecture for Learning Disentangled Representations in VAEs"
+abb_title: "Spatial Broadcast Decoder"
+permalink: "/blog/spatial_broadcast_decoder"
+author: "Markus Borea"
+tags: [machine learning, variational autoencoder, disentanglement, generalization]
+toc: true
+toc_sticky: true
+toc_label: "Table of Contents"
+published: false
+---
+
+NOTE: THIS IS CURRENTLY WIP
+
+[Watters et al. (2019)](https://arxiv.org/abs/1901.07017) introduce
+the *Spatial Broadcast Decoder (SBD)* as an architecture for the
+decoder in Variational Auto-Encoders
+[(VAEs)](https://borea17.github.io/blog/auto-encoding_variational_bayes) 
+to improve 
+disentanglement in the latent
+space[^1], reconstruction accuracy and
+generalization in limited datasets  (i.e., held-out regions in data
+space). Motivated by the limitations of deconvolutional layers in traditional decoders,
+these upsampling layers are replaced by a tiling operation in the Spatial
+Broadcast decoder. Furthermore, explicit spatial information (inductive bias) is
+appended in the form of coordinate channels leading to a simplified optimization
+problem and improved positional generalization. As a proof of concept, they
+tested the model on the colored sprites dataset (known factors of
+variation such as position, size, shape), Chairs and 3D Object-in-Room datasets
+(no positional variation), a dataset with small objects and a
+dataset with dependent factors. They could show that the Spatial Broadcast
+decoder can be used complementary or as an improvement to state-of-the-art
+disentangling techniques.
+
+[^1]: As outlined by [Watters et al. (2019)](https://arxiv.org/abs/1901.07017), there is "yet no consensus on the definition of a disentangled representation". However, in their paper they focus on *feature compositionality* (i.e., composing a scene in terms of independent features such as color and object) and refer to it as *disentangled representation*.  
+
+## Model Description
+
+As stated in the title, the model architecture of the Spatial Broadcast decoder
+is very simple: Take a standard VAE decoder and replace all upsampling
+deconvolutional layers by tiling the latent code $\textbf{z}$ across the original
+image space, appending fixed coordinate channels and applying an convolutional
+network with $1 \times 1$ stride, see the figure below. 
+
+| ![Schematic of the Spatial Broadcast VAE](/assets/img/03_SBD/sbd.png "Schematic of the Spatial Broadcast VAE") |
+| :--         |
+| (left) Schematic of the Spatial Broadcast VAE. In the decoder, we broadcast (tile) the latent code $\textbf{z}$ of size $k$ to the image width $w$ adn height $h$, and concatenate two "coordinate" channels. This is then fed to an unstrided convolutional decoder. (right) Pseudo-code of the spatial operation. Taken from [Watters et al. (2019)](https://arxiv.org/abs/1901.07017).|
+
+**Motivation**: The presented architecture is mainly motivated by two reasons:
+1. **Deconvolution layers cause optimization difficulties**: [Watters
+   et al. (2019)](https://arxiv.org/abs/1901.07017) argue that
+   upsampling deconvolutional layers should be avoided, since these
+   are prone to produce checkerboard
+   artifacts, i.e., a
+   checkerboard pattern can be identified on the resulting images
+   (when looking closer), see figure below. These artifacts constrain
+   the reconstruction accuracy and [Watters et al.
+   (2019)](https://arxiv.org/abs/1901.07017) hypothesize that the
+  resulting effects may raise problems for learning a disentangled
+  representation in the latent space. 
+    
+    | ![Checkerboard Artifacts](/assets/img/03_SBD/cherckerboard_artifacts.png "Checkerboard Artifacts") |
+    | :--         |
+    | A checkerboard pattern can often be identified in artifically generated images that use deconvolutional layers. <br>Taken from [Odena et al. (2016)](https://distill.pub/2016/deconv-checkerboard/) (very worth reading).|
+  
+2. **Appended coordinate channels improve positional generalization and
+  optimization**: Previous work by [Liu et al.
+  (2018)](https://arxiv.org/abs/1807.03247) showed that standard
+  convolution/deconvolution networks (CNNs) perform badly when trying to learn trivial
+  coordinate transformations (e.g., learning a mapping from Cartesian space
+  into one-hot pixel space or vice versa). This behavior may seem
+  counterintuitive (easy task, small dataset), however the feature of translational
+  equivariance (i.e., shifting an object in the input equally shifts its
+  representation in the output) in CNNs[^2]
+  hinders learning this task: The filters have by design no 
+  information about their position. Thus, coordinate transformations
+  result in complicated functions which makes optimization difficult.
+  E.g., changing the input coordinate slighlty might push the
+  resulting function in a completelty different direction. 
+
+    **CoordConv Solution**: To overcome this problem, [Liu et al.
+  (2018)](https://arxiv.org/abs/1807.03247) propose to
+  append coordinate channels before convolution and term the resulting layer
+  *CoordConv*, see figure below. In principle, this layer can
+  learn to use or discard translational equivariance and
+  keeps the other advantages of convolutional layers (fast computations, few
+  parameters). Under this modification learning coordinate transformation
+  problems works out of the box with perfect generalization in less time (150
+  times faster) and less memory (10-100 times fewer parameters).
+  As coordinate transformations are implicitely needed in a variaty of tasks (such as
+  producing bounding boxes in object detection) using CoordConv instead of
+  standard convolutions might increase the performance of several other models. 
+
+    | ![CoordConv Layer](/assets/img/03_SBD/CoordConv.png "CoordConv Layer") |
+    | :--         |
+    | Comparison of 2D convolutional and CoordConv layers. <br>Taken from [Liu et al. (2018)](https://arxiv.org/abs/1807.03247). |
+
+    **Positional Generalization**: Appending fixed coordinate channels is
+  mainly beneficial in datasets in which same objects may appear at distinct
+  positions (i.e., there is positional variation). The main idea is that
+  rendering an object at a specific position without spatial information (i.e.,
+  standard convolution/deconvolution) results in a very complicated function. In
+  contrast,the Spatial Broadcast decoder architecture can
+  leverage the spatial information to reveal objects easily: E.g., by convolving
+  the positions in the latent space with the fixed coordinate channels and
+  applying a threshold operation. Thus, [Watters
+   et al. (2019)](https://arxiv.org/abs/1901.07017) argue that the
+  Spatial Broadcast decoder architecture puts a prior on dissociating 
+  positional from non-positional features in the latent distribution.  
+  Datasets without positional variation in turn seem unlikely to benefit from this
+  architecture. However, [Watters et al.
+  (2019)](https://arxiv.org/abs/1901.07017) showed that the Spatial 
+  Broadcast decoder could still help in these datasets and attribute this to the
+  replacement of deconvolutional layers. 
+  
+[^2]: In typical image classification problems, translational equivariance is highly valued since it ensures that if a filter detects an object (e.g., edges), it will detect it irrespective of its position.  
+
+## Learning the Model
+
+Basically, the Spatial Broadcast decoder is a function approximator for
+probabilistic decoder in a VAE. Thus, learning the model works exactly
+as in VAEs (see my
+[post](https://borea17.github.io/blog/auto-encoding_variational_bayes)):
+The optimal parameters are learned jointly 
+by training the VAE using the AEVB algorithm ([Kingma and Welling,
+2013](https://arxiv.org/abs/1312.6114)). The remaining 
+part of this post aims to reproduce some of results
+by [Watters et al. (2019)](https://arxiv.org/abs/1901.07017), i.e.,
+comparing the Spatial Broadcast decoder with a standard
+deconvolutional decoder. 
+
+## Implementation
+
+[Watters et al. (2019)](https://arxiv.org/abs/1901.07017) conducted
+experiments with several datasets and could show that
+incorporating the Spatial Broadcast decoder into state-of-the-art VAE
+architectures consistently increased their perfomance. While this is
+impressive, it is always frustrating to not being able to reproduce
+results due to missing implementation details, less computing
+resources or simply not having enough time to work on a
+reimplementation. 
+
+The following reimplementation intends to eliminate that frustration
+by reproducing some of their experiments on much smaller datasets with
+similar characteristics such that training will take less time
+(less than 5 minutes with a NVIDIA Tesla K80 GPU). 
+
+### Data Generation
+
+Two datasets will be generated that are similar in spirit to 
+* the *colored sprites dataset*, i.e., procedurally generated objects from
+  known factors of variation.
+* a *dataset with small objects*. Note that [Watters et al.
+  (2019)](https://arxiv.org/abs/1901.07017) stated that in this case
+  the use of the Spatial Broadcast decoder `provides a particularly
+  dramatic benefit`.
+
+The code below can be used to create both these datasets. It is kept
+more generic than necessary to allow for more dedicated experiments.
+
+```python
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+import torchvision.transforms as transforms
+import numpy as np
+import torch
+
+
+def generate_img(x_position, y_position, shape, color, img_size, size=20):
+    """Generate an RGB image from the provided latent factors
+    
+    Args:
+        x_position (float): normalized x position
+        y_position (float): normalized y position
+        shape (string): can only be 'circle' or 'square'
+        color (string): color name or rgb string
+        img_size (int): describing the image size (img_size, img_size)
+        size (int): size of shape
+        
+    Returns:
+        torch tensor [3, img_size, img_size] (dtype=torch.float32)
+    """
+    # creation of image
+    img = Image.new('RGB', (img_size, img_size), color='black')
+    # map (x, y) position to pixel coordinates
+    x_position = (img_size - 2 - size) * x_position 
+    y_position = (img_size - 2 - size) * y_position
+    # define coordinates
+    x_0, y_0 = x_position, y_position
+    x_1, y_1 = x_position + size, y_position + size
+    # draw shapes
+    img1 = ImageDraw.Draw(img)
+    if shape == 'square':
+        img1.rectangle([(x_0, y_0), (x_1, y_1)], fill=color)
+    elif shape == 'circle':       
+        img1.ellipse([(x_0, y_0), (x_1, y_1)], fill=color)
+    return transforms.ToTensor()(img).type(torch.float32)
+
+
+def generate_dataset(img_size, shape_sizes, num_pos, shapes, colors):
+    """procedurally generated from 4 ground truth independent latent factors, 
+       these factors are/can be 
+           Position X: num_pos values in [0, 1]
+           Poistion Y: num_pos values in [0, 1]
+           Shape: square, circle
+           Color: standard HTML color name or 'rgb(x, y, z)'
+    
+    Args:
+           img_size (int): describing the image size (img_size, img_size)  
+           shape_sizes (list): sizes of shapes
+           num_pos (int): discretized positions
+           shapes (list): shapes (can only be 'circle', 'square')
+           colors (list): colors
+    
+    Returns:
+           data: torch tensor [n_samples, 3, img_size, img_size]
+           latents: each entry describes the latents of corresp. data entry
+    """
+    num_shapes, num_colors, sizes = len(shapes), len(colors), len(shape_sizes)
+    
+    n_samples = num_pos*num_pos*num_shapes*num_colors*sizes
+    data = torch.empty([n_samples, 3, img_size, img_size])
+    latents = np.empty([n_samples], dtype=object)
+    
+    index = 0
+    for x_pos in np.linspace(0, 1, num_pos):
+        for y_pos in np.linspace(0, 1, num_pos):
+            for shape in shapes:
+                for size in shape_sizes:
+                    for color in colors:
+                        img = generate_img(x_pos, y_pos, shape, color, 
+                                           img_size, size)
+                        data[index] = img
+                        latents[index] = [x_pos, y_pos, shape, color]
+                    
+                        index += 1
+    return data, latents
+```
+
+**Colored Sprites**: [Watters et al.
+(2019)](https://arxiv.org/abs/1901.07017) use a binary 
+[dsprites dataset](https://github.com/deepmind/dsprites-dataset)
+consisting of 737.280 images and transform these 
+during training into colored images by uniformly sampling from a
+predefined HSV space (see Appendix A.3). As a result, the dataset has 8
+factors of variation ($x$-position, $y$-position, size, shape, angle,
+3D-color) with infinite samples (due to sampling of color). They used
+$1.5 \cdot 10^6$ training steps.
+
+To reduce training time, we are going to generate a much simpler
+dataset consisting of $y$ images with a circle
+(fixed size) inside generated from a predefined set of possible colors
+and positions such that there are only 3
+factors of variation ($x$-position, $y$-position, discretized color).
+In this case $z$ training steps suffice for approximate convergence.
+
+Let's create the dataset and plot some examples:
+
+```python
+from torch.utils.data import TensorDataset
+
+
+def plot_examples(dataset, n_samples, SEED=1):
+    np.random.seed(SEED)
+    i_samples = np.random.choice(range(len(dataset)), n_samples, replace=False)
+    
+    fig = plt.figure(figsize=(14, 6))
+    fig.suptitle('Binary Image from dataset (top row) and ' +
+                 'their randomly colorized version (bottom row)')
+    for counter, i_sample in enumerate(i_samples):
+        img = dataset[i_sample][0]
+        
+        plt.subplot(2, n_samples, counter + 1)
+        plt.imshow(transforms.ToPILImage()(img))
+        plt.axis('off')
+        
+        # sample normalized rgb values
+        rgb =torch.rand(size=(3,1, 1))
+        transformed_img =  rgb * img
+      
+        plt.subplot(2, n_samples, counter + n_samples + 1)
+        plt.imshow(transforms.ToPILImage()(transformed_img))
+        plt.axis('off')
+    return
+
+
+binary_circles_data, latents = generate_dataset(img_size=64, shape_size=20, num_pos=25,
+                                 shapes=['circle'],
+                                 colors=['white'])
+sprites_dataset = TensorDataset(binary_circles_data) 
+
+plot_examples(sprites_dataset, n_samples=6)
+```
+
+
+**Dataset with small Objects**:
+
+### Model Implementation
+
+Although in principle implementing a VAE is fairly simple (see [my
+post](https://borea17.github.io/blog/auto-encoding_variational_bayes)
+for details), in practice one must choose lots of
+hyperparmeters. These can be divided into three two broader categories:
+
+* **Encoder/Decoder and Prior Distribution**: As suggested by [Watters et al.
+    (2019)](https://arxiv.org/abs/1901.07017) in Appendix A, we use a
+    Gaussian decoder distribution with fixed diagonal covariance structure
+    $p_{\boldsymbol{\theta}} \left(\textbf{x}^\prime | \textbf{z}^{(i)}\right) = \mathcal{N}\left( \textbf{x}^\prime |
+    \boldsymbol{\mu}_D^{(i)}, \sigma^2 \textbf{I} \right)$, hence the 
+    reconstruction accuracy can be calculated as follows[^3] 
+
+    $$
+    \text{Reconstruction Acc} = \log p_{\boldsymbol{\theta}} \left(
+    \textbf{x}^{(i)} | \textbf{z}^{(i)} \right) = - \frac {1}{2 \sigma^2}
+    \sum_{k=1}^{D} \left(x_k^{(i)} - \mu_{D_k}^{(i)} \right)^2 + \text{const}.
+    $$
+    
+    For the encoder distribution a Gaussian with diagonal covariance
+    $q_{\boldsymbol{\phi}} \sim
+    \mathcal{N} \left( \textbf{z} | \boldsymbol{\mu}_E,
+    \boldsymbol{\sigma}_D^2 \textbf{I} \right)$ and as prior a
+    centered multivariate Gaussian $p\_{\boldsymbol{\theta}}
+    (\textbf{z}) = \mathcal{N}\left( \textbf{z} | \textbf{0}, \textbf{I} \right)$
+     are chosen (both typical choices).
+    
+* **Network Architecture for Encoder/Decoder**: The network
+  architectures for the standard encoder and decoder consist of
+  convolutional and deconvolutional layers (since these perform
+  typically much better on image data). The Spatial Broadcast decoder
+  defines a different kind of architecture, see [Model
+  Description](https://borea17.github.io/blog/spatial_broadcast_decoder#data-generation). 
+  The exact architectures are taken from Appendix A.1 of [Watters et
+  al.](https://arxiv.org/abs/1901.07017), see code below[^4]:
+  
+  ```python
+  from torch import nn
+
+
+  class Encoder(nn.Module):
+      """"Encoder class for use in convolutional VAE
+
+      Attributes:
+          encoder_conv: convolution layers of encoder
+          fc_mu: fully connected layer for mean in latent space
+          fc_log_var: fully connceted layers for log variance in latent space
+          latent_dim: dimensionality of latent distribution
+      """
+
+      def __init__(self, latent_dim=6):
+          super().__init__()
+          self.latent_dim = latent_dim
+
+          self.encoder_conv = nn.Sequential(
+              # shape: [batch_size, 3, 64, 64]
+              nn.Conv2d(3,  64, kernel_size=4, stride=2, padding=1),
+              nn.ReLU(),
+              # shape: [batch_size, 64, 32, 32]
+              nn.Conv2d(64, 64, kernel_size=4, stride=2, padding=1),
+              nn.ReLU(),
+              nn.Conv2d(64, 64, kernel_size=4, stride=2, padding=1),
+              nn.ReLU(),
+              nn.Conv2d(64, 64, kernel_size=4, stride=2, padding=1),
+              nn.ReLU(),
+              # shape: [batch_size, 64, 4, 4],
+              nn.Flatten(),
+              # shape: [batch_size, 1024]
+              nn.Linear(1024, 256),
+              nn.ReLU(),
+              # shape: [batch_size, 256]
+          )
+          self.fc_mu = nn.Sequential(
+              nn.Linear(in_features=256, out_features=self.latent_dim),
+          )
+          self.fc_log_var = nn.Sequential(
+              nn.Linear(in_features=256, out_features=self.latent_dim),
+          )
+          return
+
+      def forward(self, inp):
+          out = self.encoder_conv(inp)
+          mu = self.fc_mu(out)
+          log_var = self.fc_log_var(out)
+          return [mu, log_var]
+
+
+  class Decoder(nn.Module):
+      """(standard) Decoder class for use in convolutional VAE,
+      a Gaussian distribution with fixed variance (identity times fixed variance
+      as covariance matrix) used as the decoder distribution
+
+      Attributes:
+          decoder_upsampling: linear upsampling layer(s)
+          decoder_deconv: deconvolution layers of decoder (also upsampling)
+          latent_dim: dimensionality of latent distribution
+          fixed_variance: variance of distribution
+      """
+
+      def __init__(self, latent_dim, fixed_variance):
+          super().__init__()
+          self.latent_dim = latent_dim
+          self.coder_type = 'Gaussian with fixed variance'
+          self.fixed_variance = fixed_variance
+
+          self.decoder_upsampling = nn.Sequential(
+              nn.Linear(self.latent_dim, 256),
+              nn.ReLU(),
+              # reshaped into [batch_size, 64, 2, 2]
+          )
+          self.decoder_deconv = nn.Sequential(
+              # shape: [batch_size, 64, 2, 2]
+              nn.ConvTranspose2d(64, 64, kernel_size=4, stride=2, padding=1),
+              nn.ReLU(),
+              # shape: [batch_size, 64, 4, 4]
+              nn.ConvTranspose2d(64, 64, kernel_size=4, stride=2, padding=1),
+              nn.ReLU(),
+              nn.ConvTranspose2d(64, 64, kernel_size=4, stride=2, padding=1),
+              nn.ReLU(),
+              nn.ConvTranspose2d(64, 64, kernel_size=4, stride=2, padding=1),
+              nn.ReLU(),
+              nn.ConvTranspose2d(64,  3, kernel_size=4, stride=2, padding=1),
+              # shape: [batch_size, 3, 64, 64]
+          )
+          return
+
+      def forward(self, inp):
+          ups_inp = self.decoder_upsampling(inp)
+          ups_inp = ups_inp.view(-1, 64, 2, 2)
+          mu = self.decoder_deconv(ups_inp)
+          return mu
+          
+          
+  class SpatialBroadcastDecoder(nn.Module):
+      """SBD class for use in convolutional VAE,
+      a Gaussian distribution with fixed variance (identity times fixed variance
+      as covariance matrix) used as the decoder distribution
+
+      Args:
+          img_size: image size (necessary for tiling)
+          latent_dim: dimensionality of latent distribution
+          fixed_variance: variance of distribution
+          decoder_convs: convolution layers of decoder (also upsampling)
+      """
+
+      def __init__(self, latent_dim, fixed_variance):
+          super().__init__()
+          self.img_size = 64
+          self.coder_type = 'Gaussian with fixed variance'
+          self.latent_dim = latent_dim
+          self.fixed_variance = 0.3
+
+          x = torch.linspace(-1, 1, self.img_size)
+          y = torch.linspace(-1, 1, self.img_size)
+          x_grid, y_grid = torch.meshgrid(x, y)
+          # reshape into [1, 1, img_size, img_size] and save in state_dict
+          self.register_buffer('x_grid', x_grid.view((1, 1) + x_grid.shape))
+          self.register_buffer('y_grid', y_grid.view((1, 1) + y_grid.shape))
+
+          self.decoder_convs = nn.Sequential(
+              # shape [batch_size, latent_dim + 2, 64, 64]
+              nn.Conv2d(in_channels=self.latent_dim+2, out_channels=64,
+                        stride=(1, 1), kernel_size=(3,3), padding=1),           
+              nn.ReLU(),
+              # shape [batch_size, 64, 64, 64]
+              nn.Conv2d(in_channels=64, out_channels=64, stride=(1,1), 
+                      kernel_size=(3, 3), padding=1),
+              nn.ReLU(),
+              # shape [batch_size, 64, 64, 64]
+              nn.Conv2d(in_channels=64, out_channels=3, stride=(1,1), 
+                        kernel_size=(3, 3), padding=1),
+              # shape [batch_size, 3, 64, 64]         
+          )
+
+          return
+
+      def forward(self, z):
+          batch_size = z.shape[0]
+          # reshape z into [batch_size, latent_dim, 1, 1]
+          z = z.view(z.shape + (1, 1))
+          # tile across image [batch_size, latent_im, img_size, img_size]
+          z_b = z.expand(-1, -1, self.img_size, self.img_size)
+          # upsample x_grid and y_grid to [batch_size, 1, img_size, img_size]
+          x_b = self.x_grid.expand(batch_size, -1, -1, -1)
+          y_b = self.y_grid.expand(batch_size, -1, -1, -1)
+          # concatenate vectors [batch_size, latent_dim+2, img_size, img_size]
+          z_sb = torch.cat((z_b, x_b, y_b), dim=1)
+          # apply convolutional layers
+          mu_D = self.decoder_convs(z_sb)
+          return mu_D
+  ```
+  
+  The VAE implementation below combines the encoder and decoder
+  architectures (slightly modified version of my last [VAE
+  implementation](https://borea17.github.io/blog/auto-encoding_variational_bayes#vae-implementation)).
+  
+  ```python
+  import torch
+  from torch.distributions.multivariate_normal import MultivariateNormal
+
+
+  class VAE(nn.Module):
+      """A simple VAE class
+
+      Args:
+          vae_tpe: type of VAE either 'Standard' or 'SBD'
+          latent_dim: dimensionality of latent distribution
+          fixed_variance: fixed variance of decoder distribution
+      """
+
+      def __init__(self, vae_type='Standard', latent_dim, fixed_variance):
+          super().__init__()
+          self.vae_type = vae_type
+
+          if self.vae_type == 'Standard':
+              self.decoder = Decoder(latent_dim=latent_dim, 
+                                    fixed_variance=fixed_variance)
+          else:
+              self.decoder = SpatialBroadcastDecoder(latent_dim=latent_dim,
+                                            fixed_variance=fixed_variance)
+
+          self.encoder = Encoder(latent_dim=latent_dim)
+          self.normal_dist = MultivariateNormal(torch.zeros(latent_dim), 
+                                                torch.eye(latent_dim))
+          return
+
+      def forward(self, x):      
+          z, mu_E, log_var_E = self.encode(x)
+          # regularization term per batch, i.e., size: (batch_size)
+          regularization_term = 0.5 * (1 + log_var_E - mu_E**2
+                                        - torch.exp(log_var_E)).sum(axis=1)
+
+          if self.decoder.coder_type == 'Gaussian with fixed variance':
+              # x_rec has shape (batch_size, 3, 64, 64)
+              x_rec = self.decode(z)
+              # reconstruction accuracy per batch, i.e., size: (batch_size)
+              factor = 0.5 * (1/self.decoder.fixed_variance)
+              recons_acc = - factor * ((x.view(batch_size, -1) - 
+                                      x_rec.view(batch_size, -1))**2
+                                    ).sum(axis=1)
+          return -regularization_term.mean(), -recons_acc.mean()
+
+      def reconstruct(self, x):
+          mu_E, log_var_E = self.encoder(x)
+          x_rec = self.decoder(mu_E)
+          return x_rec
+
+      def encode(self, x):
+          # get encoder distribution parameters
+          mu_E, log_var_E = self.encoder(x)
+          # sample noise variable for each batch
+          batch_size = x.shape[0]
+          epsilon = self.normal_dist.sample(sample_shape=(batch_size, )
+                                            ).to(x.device)
+          # get latent variable by reparametrization trick
+          z = mu_E + torch.exp(0.5*log_var_E) * epsilon
+          return z, mu_E, log_var_E
+
+      def decode(self, z):
+          # get decoder distribution parameters
+          mu_D = self.decoder(z)
+          return mu_D
+  ```
+
+* **Training Parameters**: Lastly, training neural networks itself
+  consists of several hyperparmeters. Again, we are using the same
+  setup as defined in Appendix A.1 of [Watters et
+  al.](https://arxiv.org/abs/1901.07017), see code below.
+
+  ```python
+  from livelossplot import PlotLosses
+  
+  
+  def train(dataset, epochs, VAE):
+      device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        
+      print('Device: {}'.format(device))
+
+      data_loader = DataLoader(dataset, batch_size=16, shuffle=True)
+
+      VAE.to(device)
+      optimizer = torch.optim.Adam(VAE.parameters(), lr=3e-4)
+
+      losses_plot = PlotLosses(groups={'avg log loss': 
+                                      ['kl loss', 'reconstruction loss']})
+      print('Start training with {} decoder\n'.format(VAE.vae_type))
+      avg_kl, avg_recons_err = [], []
+      for epoch in range(1, epochs +1):
+          avg_kl = 0 
+          avg_recons_err = 0
+          for counter, mini_batch_data in enumerate(data_loader):
+              VAE.zero_grad()
+
+              kl_div, recons_err = VAE(mini_batch_data[0].to(device))
+              loss = kl_div + recons_err
+              loss.backward()
+              optimizer.step()
+
+              avg_kl += kl_div.item() / len(dataset)
+              avg_recons_err += recons_err.item() / len(dataset)
+
+          losses_plot.update({'kl loss': np.log(avg_kl), 
+                              'reconstruction loss': np.log(avg_recons_err)})
+          losses_plot.send()
+      trained_VAE = VAE
+      return trained_VAE
+  ```
+
+### Visualization Functions
+
+Evaluating the trained models
+
+* **Reconstructions and Latent Traversals**
+* **Latent Space Geometry**
+
+
+
+### Results
+
+
+
+
+
+
+[^4]: The Spatial Broadcast decoder architecture is slightly modified:
+    Kernel size of 3 instead of 4 to get the desired output shapes.
+  
+
+## Acknowledgement
+
+[Daniel Daza's](https://dfdazac.github.io/) blog was really helpful
+and the presented code is highly inspired by his [VAE-SBD implementation](https://github.com/dfdazac/vaesbd).
+
+-----------------------------------------------------------
+
+[^3]: For simplicity, we are setting the number of (noise variable)
+    samples $L$ per datapoint to 1 (see equation for
+    $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization
+    Trick*](https://borea17.github.io/blog/auto-encoding_variational_bayes)
+    paragraph). 
+    Note that [Kingma and Welling
+    (2013)](https://arxiv.org/abs/1312.6114) stated that in their
+    experiments setting $L=1$ sufficed as long as the minibatch size
+    was large enough. 
+
