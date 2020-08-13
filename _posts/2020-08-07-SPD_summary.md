@@ -142,7 +142,7 @@ reimplementation.
 The following reimplementation intends to eliminate that frustration
 by reproducing some of their experiments on much smaller datasets with
 similar characteristics such that training will take less time
-(less than 5 minutes with a NVIDIA Tesla K80 GPU). 
+(less than 30 minutes with a NVIDIA Tesla K80 GPU). 
 
 ### Data Generation
 
@@ -158,11 +158,11 @@ $y$-position, size, shape, angle, 3D-color) with infinite samples (due
 to sampling of color). They used $1.5 \cdot 10^6$ training steps.
 
 To reduce training time, we are going to generate a much simpler
-dataset consisting of $y$ images with a circle
+dataset consisting of $3675$ images with a circle
 (fixed size) inside generated from a predefined set of possible colors
 and positions such that there are only 3
 factors of variation ($x$-position, $y$-position, discretized color).
-In this case $z$ training steps suffice for approximate convergence.
+In this case $3.4 \cdot 10^2$ training steps suffice for approximate convergence.
 
 The code below creates the dataset. Note that it is kept more generic
 than necessary to allow the creation of several variations of this
