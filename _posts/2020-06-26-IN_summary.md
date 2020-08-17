@@ -3,11 +3,13 @@ title: "Interaction Networks for Learning about Objects, Relations and Physics"
 abb_title: "Interaction Networks for Learning about Objects, Relations and Physics"
 permalink: "/paper_summaries/interaction_networks"
 author: "Markus Borea"
-tags: [machine learning, interaction network, graph networks, generalization]
+tags: [interaction network, graph networks, generalization]
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
 ---
+
+
 
 [Battaglia et al. (2016)](https://arxiv.org/abs/1612.00222) introduce
 the *Interaction Network (IN)* as the first general-purpose learnable

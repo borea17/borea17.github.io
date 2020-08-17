@@ -3,7 +3,7 @@ title: "Relational Inductive Biases, Deep Learning, and Graph Networks"
 abb_title: "Relational Inductive Biases, Deep Learning, and Graph Networks"
 permalink: "/paper_summaries/graph_networks"
 author: "Markus Borea"
-tags: [machine learning, graph networks, generalization]
+tags: [interaction network, graph networks, generalization]
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"

@@ -3,7 +3,7 @@ title: "Spatial Broadcast Decoder: A Simple Architecture for Learning Disentangl
 abb_title: "Spatial Broadcast Decoder"
 permalink: "/paper_summaries/spatial_broadcast_decoder"
 author: "Markus Borea"
-tags: [machine learning, variational autoencoder, disentanglement, generalization]
+tags: [variational autoencoder, disentanglement, generalization]
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
