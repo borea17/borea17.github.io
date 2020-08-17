@@ -1,7 +1,7 @@
 ---
 title: "Spatial Broadcast Decoder: A Simple Architecture for Learning Disentangled Representations in VAEs"
 abb_title: "Spatial Broadcast Decoder"
-permalink: "/blog/spatial_broadcast_decoder"
+permalink: "/paper_summaries/spatial_broadcast_decoder"
 author: "Markus Borea"
 tags: [machine learning, variational autoencoder, disentanglement, generalization]
 toc: true
@@ -43,10 +43,12 @@ network with $1 \times 1$ stride, see the figure below.
 
 | ![Schematic of the Spatial Broadcast VAE](/assets/img/03_SBD/sbd.png "Schematic of the Spatial Broadcast VAE") |
 | :--         |
-| (left) Schematic of the Spatial Broadcast VAE. In the decoder, we broadcast (tile) the latent code $\textbf{z}$ of size $k$ to the image width $w$ adn height $h$, and concatenate two "coordinate" channels. This is then fed to an unstrided convolutional decoder. (right) Pseudo-code of the spatial operation. Taken from [Watters et al. (2019)](https://arxiv.org/abs/1901.07017).|
+| Schematic of the Spatial Broadcast VAE. In the decoder, the latent code $\textbf{z}\in\mathbb{R}^{k}$ is broadcasted (*tiled*) to the image width $w$ and height $h$. Additionally, two "coordinate" channels are appended. The result is fed to an unstrided convolutional decoder. (right) Pseudo-code of the spatial operation. Taken from [Watters et al. (2019)](https://arxiv.org/abs/1901.07017).|
+
+<!-- | (left) Schematic of the Spatial Broadcast VAE. In the decoder, we broadcast (tile) the latent code $\textbf{z}$ of size $k$ to the image width $w$ and height $h$, and concatenate two "coordinate" channels. This is then fed to an unstrided convolutional decoder. (right) Pseudo-code of the spatial operation. Taken from [Watters et al. (2019)](https://arxiv.org/abs/1901.07017).| -->
 
 **Motivation**: The presented architecture is mainly motivated by two reasons:
-1. **Deconvolution layers cause optimization difficulties**: [Watters
+* **Deconvolution layers cause optimization difficulties**: [Watters
    et al. (2019)](https://arxiv.org/abs/1901.07017) argue that
    upsampling deconvolutional layers should be avoided, since these
    are prone to produce checkerboard
@@ -62,7 +64,7 @@ network with $1 \times 1$ stride, see the figure below.
     | :--         |
     | A checkerboard pattern can often be identified in artifically generated images that use deconvolutional layers. <br>Taken from [Odena et al. (2016)](https://distill.pub/2016/deconv-checkerboard/) (very worth reading).|
   
-2. **Appended coordinate channels improve positional generalization and
+* **Appended coordinate channels improve positional generalization and
   optimization**: Previous work by [Liu et al.
   (2018)](https://arxiv.org/abs/1807.03247) showed that standard
   convolution/deconvolution networks (CNNs) perform badly when trying to learn trivial
@@ -866,8 +868,8 @@ regularization term. Now let's compare both models visually by their
   
   ![latent_space_geometry](/assets/img/03_SBD/latent_space_geometry.png "Latent Space Geometry")
   
-  Looking at the latent space geometry verifies our findings: The
-  DeConv decoder has a highly entangled latent space (transformation
+  The latent space geometry verifies our previous findings: The
+  DeConv decoder has an entangled latent space (transformation
   is highly non linear) whereas in the Spatial Broadcast decoder the
   latent space geometry highly resembles the generating factors
   geometry. 
