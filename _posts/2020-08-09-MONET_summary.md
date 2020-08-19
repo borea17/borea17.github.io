@@ -3,8 +3,8 @@ title: "MONet: Unsupervised Scene Decomposition and Representation"
 abb_title: "MONet: Unsupervised Scene Decomposition and Representation"
 permalink: "/paper_summaries/multi-object_network"
 author: "Markus Borea"
-tags: [machine learning, unsupervised object detection, generalization, varational autoencoder]
-published: false 
+tags: ["unsupervised learning", "object detection", "generalization", "varational autoencoder"]
+published: false
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
@@ -13,7 +13,7 @@ toc_label: "Table of Contents"
 NOTE: THIS IS CURRENTLY WIP
 
 [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) developed
-the Multi-Object Network (MONet) as an end-to-end trainable model to
+the **Multi-Object Network (MONet)** as an end-to-end trainable model to
 decompose images into meaningful entities such as objects. Notably,
 the whole training process is unsupervised, i.e., there are no labeled
 segmentations, handcrafted bounding boxes or whatsoever. In essence,
@@ -32,18 +32,138 @@ non-trivial 3D scenes.
 MONet builds upon the inductive bias that the world (or rather
 *simple images* of the world) can often be approximated as a composition of
 individual objects with the same underlying structure (i.e., different
-instantiations of the same class). To put this into practice, [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) developed a
+instantiations of the same class). To put this into practice, [Burgess
+et al. (2019)](https://arxiv.org/abs/1901.11390) developed a 
 compositional generative model architecture incorporating two kinds of
-neural networks:
+neural networks that are trained in tandem:
 
 * **Attention Network**: Its purpose is to deliver binary attention
   masks $\textbf{m}\_k$ for the image such that the whole image is
   completely spatially decomposed into $K$ parts, i.e., $\sum_{k=1}^K
-  \textbf{m}_k = \textbf{1}$. Ideally, each mask focuses on a
-  semantically meaningful element/segment of the image, i.e., object. 
+  \textbf{m}_k = \textbf{1}$. Ideally, after training each mask focuses on a
+  semantically meaningful element/segment of the image. 
   Thus, it may also be understood as a *segmentation network*.
   
-* **Component VAE**: 
+  To allow for a variable number of attention masks, [Burgess et al.
+  (2019)](https://arxiv.org/abs/1901.11390) used a
+  recurrent neural network $\alpha_{\boldsymbol{\psi}}$ for the
+  decomposition. Therein an auto-regressive process is defined for the
+  ongoing state. 
+  This state is called "scope" $\textbf{s}_k \in \\{0, 1\\}^{W\times
+  H}$ (image width $W$ and height $H$) as it is
+  used to track the image parts that remain to be explained, i.e., the
+  scope for the next state is given by 
+
+  $$
+     \textbf{s}_{k+1} = \textbf{s}_k \odot \left(\textbf{1} -
+  \underbrace{\alpha_{\boldsymbol{\psi}} \left( \textbf{x};
+  \textbf{s}_{k} \right)}_{\{0,1\}^{W \times H}} \right)
+  $$
+
+  with the first scope $\textbf{s}_0 = \textbf{1}$ ($\odot$ denotes
+  element-wise multiplication). The attention
+  masks are given by
+  
+  $$
+    \textbf{m}_k  = \begin{cases} \textbf{s}_{k-1} \odot
+    \alpha_{\boldsymbol{\psi}} \left( \textbf{x}; \textbf{s}_{k-1}
+    \right) & \forall k < K \\ 
+    \textbf{s}_{k-1} & k=K \end{cases}
+  $$
+  
+* **Component VAE**: Its purpose is to represent each masked region in a
+  common latent code, i.e., each segment is encoded by the same
+  VAE[^1]. The encoder distribution $q\_{\boldsymbol{\phi}}
+  \left(\textbf{z}_k | \textbf{x}, \textbf{m}_k\right)$
+  is conditioned both on the input image $\textbf{x}$ and the corresponding attention mask
+  $\textbf{m}_k$. I.e., instead of feeding each masked region into the
+  network, [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390)
+  use the whole image $\textbf{x}$ concatenated with the corresponding
+  attention mask $\textbf{m}_k$. As a result, we get $K$ different
+  latent codes $\textbf{z}_k$ (termed "slots") which represent the
+  features of each object (masked region) in a common latent/feature
+  space across all objects.
+  
+  The decoder distribution $p\_{\boldsymbol{\theta}}$ is required to reconstruct the image
+  $\widetilde{\textbf{x}} \sim p\_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z}_k \right)$
+  and the binary attention masks[^2] $\widetilde{\textbf{m}}_k \sim p\_{\boldsymbol{\theta}}
+  \left(\textbf{c} | \textbf{z}_k \right)$ from these latent codes.
+  Note that $p\_{\boldsymbol{\theta}} \left(\textbf{c} | \textbf{z}_k
+  \right)$ defines the mask distribution of the Component VAE, whereas
+  $q\_{\boldsymbol{\psi}} \left(\textbf{c} | \textbf{x}\right)$
+  denotes the mask distribution of the attention network[^3]. 
+  
+  Importantly, each of the $k$ reconstructions is multiplied with the
+  corresponding binary attention mask $\textbf{m}_k$, i.e., 
+  
+  $$
+     \mathcal{L}_k = \textbf{m}_k \odot p_{\boldsymbol{\theta}} \left(
+     \textbf{x} | \textbf{z}_k
+     \right).
+  $$
+  
+  The reconstruction accuracy of the whole image is given by
+  
+  $$
+  \text{Reconstruction Accuracy} = \log \left(\sum_{k=1}^K
+  \mathcal{L}_k \right) = \log \left( \sum_{k=1}^K \textbf{m}_k \odot p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}_k \right)\right),
+  $$
+  
+  where the sum can be understood as a full reconstruction of the
+  image conditioned on the latent codes $\textbf{z}_k$ and the
+  attention masks $\textbf{m}_k$. This accuracy is unconstrained
+  outside of the masked regions. 
+  
+The whole model is end-to-end trainable with the following loss
+function 
+
+$$
+\mathcal{L}\left(\boldsymbol{\phi}; \boldsymbol{\theta};
+\boldsymbol{\psi}; \textbf{x} \right) = - \log \sum_{k=1}^K
+$$
+  
+  
+[^1]: Encoding each segment through the same VAE can be understood as
+    an architectural prior on common structure within individual
+    objects. 
+  
+[^2]: [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) do not
+    explain why the Component VAE should also model the attention
+    masks. Note however that this allows for better generalization,
+    e.g., shape/class variation depends on attention mask. 
+
+
+[^3]: For completeness $\textbf{c} \in \\{1, \dots, K\\}$ denotes a
+    categorical variable to indicate the probability that pixels
+    belong to a particular component $k$, i.e., $\textbf{m}_k =
+    p(\textbf{c} = k)$. 
+    
+**Motivation**: 
+
+
+
+  - semantically meaningful decompositions
+  - push optimization towards decomposition
+  - hypothesis: network that build up scenes compositionally (by
+    operating at the level of structurally similar scene elements)
+    performs better than trained on entire image
+  - wrong masks (segmentation) leads to bad performance, i.e., worse
+    reconstruction accuracy 
+    => optimization pushes towards meaningful decomposition
+  - processing elements of secnes in a way that can exploit any common
+    structure of the data mkaes more efficient use of neural network's capacity
+  
+  
+  
+  
+  Note that instead of
+  feeding each masked region into the network, the whole image
+  $\textbf{x}$ is used and the reconstructions $p\_{\boldsymbol{\theta}}
+  \left( \textbf{x} | \textbf{z}_k \right)$ are multiplied with the
+  binary attention masks. 
+  
+  
+  
 
 
 | ![Schematic of MONet](/assets/img/04_MONet/MONet_schematic.png "Schematic of MONet") |
@@ -82,4 +202,15 @@ The main idea
 
 
 
-## Learning the Model
+
+## Implementation
+
+
+## Drawbacks of Paper
+
+* static scene decomposition
+* only works on simply images in which multiple objects of the same
+class occur
+* even simple images high training times
+
+--------------------------------------------------------------------------------------------
