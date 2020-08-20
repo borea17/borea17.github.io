@@ -166,6 +166,11 @@ and positions such that there are only 3
 factors of variation ($x$-position, $y$-position, discretized color).
 In this case $3.4 \cdot 10^2$ training steps suffice for approximate convergence.
 
+
+| ![Examples of Dataset](/assets/img/03_SBD/dataset.png "Examples of Dataset") |
+| :--         |
+| Visualization of self-written dataset. |
+
 The code below creates the dataset. Note that it is kept more generic
 than necessary to allow the creation of several variations of this
 dataset, i.e., more dedicated experiments can be conducted. 
