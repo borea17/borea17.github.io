@@ -4,7 +4,7 @@ abb_title: "MONet: Unsupervised Scene Decomposition and Representation"
 permalink: "/paper_summaries/multi-object_network"
 author: "Markus Borea"
 tags: ["unsupervised learning", "object detection", "generalization", "varational autoencoder"]
-published: true
+published: false
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
@@ -209,7 +209,7 @@ lower when the ground truth attention masks are given compared to a
 *all-in-one* (single sweep) or *wrong* masks situation.
 
 Adding some more motivation: It might be helpful to think about the
-data-generating process. Often (artifical) multi-object scenes are
+data-generating process: Commonly, *artifical* multi-object scenes are
 created by adding each object successively to the image. Assuming that
 each of these objects is generated from the same class with different
 instantiations (i.e., different color/shape/size/...), it seems most
