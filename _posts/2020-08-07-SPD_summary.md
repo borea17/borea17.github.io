@@ -116,19 +116,19 @@ network with $1 \times 1$ stride, see the figure below.
   
 [^2]: In typical image classification problems, translational equivariance is highly valued since it ensures that if a filter detects an object (e.g., edges), it will detect it irrespective of its position.  
 
-## Learning the Model
+<!-- ## Learning the Model -->
 
-Basically, the Spatial Broadcast decoder is a function approximator for
-probabilistic decoder in a VAE. Thus, learning the model works exactly
-as in VAEs (see my
-[post](https://borea17.github.io/blog/auto-encoding_variational_bayes)):
-The optimal parameters are learned jointly 
-by training the VAE using the AEVB algorithm ([Kingma and Welling,
-2013](https://arxiv.org/abs/1312.6114)). The remaining 
-part of this post aims to reproduce some of results
-by [Watters et al. (2019)](https://arxiv.org/abs/1901.07017), i.e.,
-comparing the Spatial Broadcast decoder with a standard
-deconvolutional decoder. 
+<!-- Basically, the Spatial Broadcast decoder is a function approximator for -->
+<!-- probabilistic decoder in a VAE. Thus, learning the model works exactly -->
+<!-- as in VAEs (see my -->
+<!-- [post](https://borea17.github.io/blog/auto-encoding_variational_bayes)): -->
+<!-- The optimal parameters are learned jointly  -->
+<!-- by training the VAE using the AEVB algorithm ([Kingma and Welling, -->
+<!-- 2013](https://arxiv.org/abs/1312.6114)). The remaining  -->
+<!-- part of this post aims to reproduce some of results -->
+<!-- by [Watters et al. (2019)](https://arxiv.org/abs/1901.07017), i.e., -->
+<!-- comparing the Spatial Broadcast decoder with a standard -->
+<!-- deconvolutional decoder.  -->
 
 ## Implementation
 
@@ -906,7 +906,7 @@ and the presented code is highly inspired by his [VAE-SBD implementation](https:
 [^3]: For simplicity, we are setting the number of (noise variable)
     samples $L$ per datapoint to 1 (see equation for
     $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization
-    Trick*](https://borea17.github.io/blog/auto-encoding_variational_bayes)
+    Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description)
     paragraph). 
     Note that [Kingma and Welling
     (2013)](https://arxiv.org/abs/1312.6114) stated that in their
