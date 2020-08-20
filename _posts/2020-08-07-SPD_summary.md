@@ -412,7 +412,7 @@ hyperparmeters. These can be divided into three broader categories:
           self.img_size = 64
           self.coder_type = 'Gaussian with fixed variance'
           self.latent_dim = latent_dim
-          self.fixed_variance = 0.3
+          self.fixed_variance = fixed_variance
 
           x = torch.linspace(-1, 1, self.img_size)
           y = torch.linspace(-1, 1, self.img_size)
@@ -825,7 +825,7 @@ Lastly, let's train our models and look at the results:
 ```python
 epochs = 150
 latent_dims = 5 # x position, y position, color, extra slots
-fixed_variance = 0.1
+fixed_variance = 0.3
 
 standard_VAE = VAE(vae_type='Standard', latent_dim=latent_dims, 
                    fixed_variance=fixed_variance)
