@@ -188,6 +188,7 @@ from PIL import Image, ImageDraw
 import torchvision.transforms as transforms
 import numpy as np
 import torch
+from torch.utils.data import TensorDataset
 
 
 def generate_img(x_position, y_position, shape, color, img_size, size=20):
@@ -259,6 +260,13 @@ def generate_dataset(img_size, shape_sizes, num_pos, shapes, colors):
                     
                         index += 1
     return data, latents
+
+
+circles_data, latents = generate_dataset(img_size=64, shape_sizes=[16],
+                                         num_pos=35,
+                                         shapes=['circle'],
+                                         colors=['red', 'green', 'blue'])
+sprites_dataset = TensorDataset(circles_data)
 ```
 
 ### Model Implementation
@@ -304,12 +312,14 @@ hyperparmeters. These can be divided into three broader categories:
 
   class Encoder(nn.Module):
       """"Encoder class for use in convolutional VAE
+      
+      Args:
+          latent_dim: dimensionality of latent distribution
 
       Attributes:
           encoder_conv: convolution layers of encoder
           fc_mu: fully connected layer for mean in latent space
           fc_log_var: fully connceted layers for log variance in latent space
-          latent_dim: dimensionality of latent distribution
       """
 
       def __init__(self, latent_dim=6):
@@ -353,12 +363,14 @@ hyperparmeters. These can be divided into three broader categories:
       """(standard) Decoder class for use in convolutional VAE,
       a Gaussian distribution with fixed variance (identity times fixed variance
       as covariance matrix) used as the decoder distribution
+      
+      Args:
+          latent_dim: dimensionality of latent distribution
+          fixed_variance: variance of distribution
 
       Attributes:
           decoder_upsampling: linear upsampling layer(s)
           decoder_deconv: deconvolution layers of decoder (also upsampling)
-          latent_dim: dimensionality of latent distribution
-          fixed_variance: variance of distribution
       """
 
       def __init__(self, latent_dim, fixed_variance):
@@ -397,13 +409,15 @@ hyperparmeters. These can be divided into three broader categories:
           
   class SpatialBroadcastDecoder(nn.Module):
       """SBD class for use in convolutional VAE,
-      a Gaussian distribution with fixed variance (identity times fixed variance
-      as covariance matrix) used as the decoder distribution
+        a Gaussian distribution with fixed variance (identity times fixed 
+        variance as covariance matrix) used as the decoder distribution
 
       Args:
-          img_size: image size (necessary for tiling)
           latent_dim: dimensionality of latent distribution
           fixed_variance: variance of distribution
+
+      Attributes:
+          img_size: image size (necessary for tiling)
           decoder_convs: convolution layers of decoder (also upsampling)
       """
 
@@ -428,14 +442,13 @@ hyperparmeters. These can be divided into three broader categories:
               nn.ReLU(),
               # shape [batch_size, 64, 64, 64]
               nn.Conv2d(in_channels=64, out_channels=64, stride=(1,1), 
-                      kernel_size=(3, 3), padding=1),
+                        kernel_size=(3, 3), padding=1),
               nn.ReLU(),
               # shape [batch_size, 64, 64, 64]
               nn.Conv2d(in_channels=64, out_channels=3, stride=(1,1), 
                         kernel_size=(3, 3), padding=1),
               # shape [batch_size, 3, 64, 64]         
           )
-
           return
 
       def forward(self, z):
@@ -459,7 +472,6 @@ hyperparmeters. These can be divided into three broader categories:
   implementation](https://borea17.github.io/blog/auto-encoding_variational_bayes#vae-implementation)).
   
   ```python
-  import torch
   from torch.distributions.multivariate_normal import MultivariateNormal
 
 
@@ -469,19 +481,19 @@ hyperparmeters. These can be divided into three broader categories:
       Args:
           vae_tpe: type of VAE either 'Standard' or 'SBD'
           latent_dim: dimensionality of latent distribution
-          fixed_variance: fixed variance of decoder distribution
+          fixed_var: fixed variance of decoder distribution
       """
 
-      def __init__(self, vae_type, latent_dim, fixed_variance):
+      def __init__(self, vae_type, latent_dim, fixed_var):
           super().__init__()
           self.vae_type = vae_type
 
           if self.vae_type == 'Standard':
               self.decoder = Decoder(latent_dim=latent_dim, 
-                                    fixed_variance=fixed_variance)
+                                    fixed_variance=fixed_var)
           else:
               self.decoder = SpatialBroadcastDecoder(latent_dim=latent_dim,
-                                            fixed_variance=fixed_variance)
+                                                     fixed_variance=fixed_var)
 
           self.encoder = Encoder(latent_dim=latent_dim)
           self.normal_dist = MultivariateNormal(torch.zeros(latent_dim), 
@@ -535,7 +547,7 @@ hyperparmeters. These can be divided into three broader categories:
   ```python
   from livelossplot import PlotLosses
   from torch.utils.data import DataLoader
-  
+
   
   def train(dataset, epochs, VAE):
       device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -599,6 +611,10 @@ results by using two approaches:
   this is the allowed image range.
   
   ```python
+  import matplotlib.pyplot as plt
+  %matplotlib inline
+  
+
   def reconstructions_and_latent_traversals(STD_VAE, SBD_VAE, dataset, SEED=1):
       np.random.seed(SEED)
       device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -828,9 +844,9 @@ latent_dims = 5 # x position, y position, color, extra slots
 fixed_variance = 0.3
 
 standard_VAE = VAE(vae_type='Standard', latent_dim=latent_dims, 
-                   fixed_variance=fixed_variance)
+                   fixed_var=fixed_variance)
 SBD_VAE = VAE(vae_type='SBD', latent_dim=latent_dims, 
-              fixed_variance=fixed_variance)
+              fixed_var=fixed_variance)
 ```
 
 
@@ -885,10 +901,14 @@ regularization term. Now let's compare both models visually by their
   $X-Y$ position subspace (of generative factors) as in the
   corresponding latent subspace.
 
+[^4]: The Spatial Broadcast decoder architecture is slightly modified: Kernel size of 3 instead of 4 to get the desired output shapes.
 
-[^4]: The Spatial Broadcast decoder architecture is slightly modified:
-    Kernel size of 3 instead of 4 to get the desired output shapes.
-  
+<!-- [^4]: Note that in the Spatial Broadcast decoder the height and width -->
+<!--     of the CNN input needs to be both 6 larger than the target -->
+<!--     output (image) size to accommodate for the lack of padding. This -->
+<!--     is not stated in the paper, however described in the appendix B.1 -->
+<!--     of the follow up paper by [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). -->
+    
 ## Drawbacks of Paper
 
 
