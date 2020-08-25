@@ -916,6 +916,8 @@ regularization term. Now let's compare both models visually by their
   decoder, it does require more memory (in the implementation about
   50% more)
 * longer training times compared to standard DeConv VAE
+* appended coordinate channels do not help when there is no positional
+variation
 <!-- * mostly applicable in the context of static images with positional -->
 <!--   variation  -->
 <!--   => temporal correlations -->
