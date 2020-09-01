@@ -893,13 +893,10 @@ regularization term. Now let's compare both models visually by their
   DeConv decoder has an entangled latent space (transformation
   is highly non linear) whereas in the Spatial Broadcast decoder the
   latent space geometry highly resembles the generating factors
-  geometry. 
-  Note that some axis is reversed in the latent space, furthermore 
-  the axes are slightly stretched and rotated. However, the
-  transformation seems to preserve shape (after line reflection) of
-  the factors geometry which indicates very similar behavior in the
-  $X-Y$ position subspace (of generative factors) as in the
-  corresponding latent subspace.
+  geometry (affine transformation). The transformation of the Spatial
+  Broadcast decoder indicates very similar behavior in the $X-Y$
+  position subspace (of generative factors) as in the corresponding
+  latent subspace. 
 
 [^4]: The Spatial Broadcast decoder architecture is slightly modified: Kernel size of 3 instead of 4 to get the desired output shapes.
 
