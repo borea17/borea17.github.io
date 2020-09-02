@@ -4,7 +4,7 @@ abb_title: "U-Net: Convolutional Networks for Biomedical Image Segmentation"
 permalink: "/paper_summaries/u_net"
 author: "Markus Borea"
 tags: ["image segmentation"]
-published: false 
+published: false
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
@@ -110,11 +110,11 @@ path. The symmetric architecture allows to combine low level feature
 maps (left side, fine information) with high level feature maps (right side,
 coarse information) more effectively such that context
 information can be better propagated to higher resolution layers (top right).
-As the result, more precise segmentations can be retrieved even with
+As a result, more precise segmentations can be retrieved even with
 few training examples, indicating that the optimization problem is
 better posed in U-Nets.
   
-[^2]: Actually, CNNs should put more emphasis on the `where** or rather
+[^2]: Actually, CNNs should put more emphasis on the `where` or rather
     the local relation between context information, see [Geoffrey
     Hinton's comment about
     pooling](https://www.reddit.com/r/MachineLearning/comments/2lmo0l/ama_geoffrey_hinton/clyj4jv/).
@@ -142,7 +142,7 @@ microscopic (EM) recordings. The traning data consists of 30 images
 ($512 \times 512$ pixels with 8-bit grayscale) from the ventral nerve
 cord of some species of fruit flies together with the corresponding 30
 binary segmentation masks (white pixels for segmented objects, black
-for the rest), see below. The dataset formed part of the 2D EM
+for the rest), see gif below. The dataset formed part of the 2D EM
 segmentation challenge at the ISBI 2012 conference. Although the workshop
 competition is done, the challenge remains open for new contributions.
 Further details about the data can be found at the [ISBI Challenge
@@ -158,7 +158,10 @@ and test data can be downloaded (after registration).
 </tr>
 
 <tr>
- <td>EM training data. Taken from <a href="http://brainiac2.mit.edu/isbi_challenge/">ISBI Challenge</a>.</td>
+ <td>EM training data. Taken from <a
+ href="http://brainiac2.mit.edu/isbi_challenge/">ISBI Challenge</a>.
+ White pixels for segmented objects (label: 1), black pixels for the
+ rest (label: 0).</td>
 </tr>
 
 </tbody>
@@ -168,7 +171,7 @@ and test data can be downloaded (after registration).
 For the sake of simplicity, I open-sourced the dataset in
 my [Datasets github repository](https://github.com/borea17/Datasets).
 Assuming you cloned the repository, the following function can be used to
-load the training data set.
+load the training dataset.
 
 ```python
 from PIL import Image
@@ -201,7 +204,7 @@ imgs, labels = load_dataset()
 Training neural networks on image data typically requires large
 amounts of data to make the model robust (i.e., avoid overfitting) and
 accurate (i.e., avoid underfitting). However, data scarcity is a common
-problem in biomedical segmentation tasks, since data generation is
+problem in biomedical segmentation tasks, since labeling is
 expensive and time consuming. In such cases, **data augmentation**
 offers a solution by generating additional data (using plausible
 transformations) to expand the training dataset. In most image
@@ -225,7 +228,7 @@ divided into four parts:
   
   | ![Overlap-Tile Strategy](/assets/img/05_Unet/overlap_tile_self.png "Overlap-Tile Strategy") |
   | :--  |
-  | Overlap-Tile Strategy for seamless segmentation of arbitrary large images. Blue area depicts input to neural network, yellow area corresponds to the prediction area. Missing input is extrapolated by mirroring (white lines left). The number of tiles depends on the `stride` length (here: `stride=124`). Image created with `visualize_overlap_tile_strategy` (code presented at the end of this section). |
+  | Overlap-Tile Strategy for seamless segmentation of arbitrary large images. Blue area depicts input to neural network, yellow area corresponds to the prediction area. Missing input is extrapolated by mirroring (white lines). The number of tiles depends on the `stride` length (here: `stride=124`). Image created with `visualize_overlap_tile_strategy` (code presented at the end of this section). |
 
 * **Affine transformations** are mathematically defined as
   geometric transformations preserving lines and parallelisms, e.g.,
@@ -235,24 +238,29 @@ divided into four parts:
   rotation invariance (as affine transformation invariances)
   are desired properties of the resulting function. Note that the
   overlap-tile strategy itself leads to some translation
-  invariance. 
+  invariance.
+  
+  | ![Affine Transformation Visualization](/assets/img/05_Unet/affine_transformation_with_grid.png "Affine Transformation Visualization") |
+  | :-- |
+  | Affine transformation visualization. Left side shows input and label data before transformation is applied. Right side shows the corresponding data after random affine transformation (random rotation and shifting). The grid is artificially added to emphasize that image and label are transformed in the same way. Image created with `visualize_data_augmentation` (code presented at the end of this section). |
 
 * **Elastic deformations** are basically distinct affine
   transformations for each pixel. The term is probably derived from
   physics in which an elastic deformation describes a temporary change
-  in shape (e.g., length) of an elastic material (due to induced
+  in shape of an elastic material (due to induced
   force). The transformation result looks similar to the physics
   phenomenon, see image below. [Ronneberger et al.
   (2015)](https://arxiv.org/abs/1505.04597) noted that elastic
   deformations seem to be a key concept for successfully training with
-  few samples. A possible reason may be that the elastic deformations
-  increase the model's generalization capabilities as the resulting
-  images have more variability than with affine transformations. 
+  few samples. A possible reason may be that the model's
+  generalization capabilities improve more by elastic deformations
+  since the resulting images have more variability than with coherent
+  affine transformations. 
 
 
   | ![Elastic Deformation Visualization](/assets/img/05_Unet/deformation_with_grid2.png "Elastic Deformation Visualization") |
   | :-- |
-  | Elastic deformation visualization. Left side shows input and label data before deformation is applied. Right side shows the corresponding data after deformation. The grid is artificially added to emphasize that label and image are deformed in the same way. Image created with `visualize_deformation` (code presented at the end of this section).  |
+  | Elastic deformation visualization. Left side shows input and label data before deformation is applied. Right side shows the corresponding data after deformation. The grid is artificially added to emphasize that image and label are deformed in the same way. Image created with `visualize_data_augmentation` (code presented at the end of this section). |
 
   Implementing elastic deformations basically consists of generating
   random displacement fields, convolving these with a Gaussian filter
@@ -261,29 +269,566 @@ divided into four parts:
   each displacement vector (using interpolation within the old grid),
   see Best Practices for CNNs by [Simard et al.
   (2003)](https://www.researchgate.net/publication/220860992_Best_Practices_for_Convolutional_Neural_Networks_Applied_to_Visual_Document_Analysis)
-  for more details.
-  
+  for more details. Note that [Ronneberger et al.
+  (2015)](https://arxiv.org/abs/1505.04597) use a slightly different
+  method to generate elastic deformations by directly sampling from a Gaussian
+  distribution instead of convolving uniform sampled random vectors
+  with a Gaussian.
 
-* **Color variations**:
+* **Color variations** or in this case rather **gray value
+  variations** in the input image should make the network invariant 
+  to small color changes. This can easily be implemented by adding
+  Gaussian noise (other distributions may also be possible) to the
+  input image, see image below.
+  
+  | ![Gray Value Variation Visualization](/assets/img/05_Unet/gray_variation.png "Gray Value Variation Visualization") |
+  | :-- |
+  | Gray value variation visualization. Left side shows input image before noise is applied. Right side shows the corresponding data after deformation (segmentation mask does not change). Image created with `visualize_data_augmentation` (code presented at the end of this section). |
 
 
 The whole data augmentation process is put into a self written Pytorch `Dataset`
-class, see code below. 
+class, see code below. Note that while this class includes all
+described transformations (*affine transformation*, *elastic
+deformation* and *gray value variation*), in the `__get_item__` method
+only `elastic_deform` is applied to speed up the training process[^3].
+However, if you want to create a more sophisticated data augmentation
+process, you can easily add the other transformations in the `__get_item__`
+method. 
 
-**Data Augmentation**
+[^3]: The implementation intends to be easily understandable, while keeping the computational resources low. Thus, it is not aimed to generate the best training results or model performance. 
 
-- data scarce
-- data augmentation:
- - improve performance of model by generating additional useful data.
-   distribution to be learned has some transformation-invariance
-   properties such as rotation
-   
-* **affine transformation**: - preserves lines and parallelism (e.g.,
-  scaling, translation, rotation, reflection)
+```python
+from torch.utils.data import Dataset
+import numpy as np
+from scipy.ndimage.interpolation import map_coordinates
+from scipy.signal import convolve2d
+import torchvision.transforms.functional as TF
 
-* **elastic deformations**:
+
+class EM_Dataset(Dataset):
+    """EM Dataset (from ISBI 2012) to train U-Net on including data 
+    augmentation as proposed by Ronneberger et al. (2015)
+    
+    Args:
+        imgs (tensor): torch tensor containing input images [1, 512, 512]
+        labels (tensor): torch tensor containing segmented images [1, 512, 512]
+        stride (int): stride that is used for overlap-tile strategy,
+            Note: stride must be chosen such that all labels are retrieved
+        transformation (bool): transform should be applied (True) or not (False)
+    ------- transformation related -------
+        probability (float): probability that transformation is applied
+        alpha (float): intensity of elastic deformation
+        sigma (float): std dev. of Gaussian kernel, i.e., smoothing parameter 
+        kernel dim (int): kernel size is [kernel_dim, kernel_dim]
+    """
+    
+    def __init__(self, imgs, labels, stride, transformation=False, 
+                 probability=None, alpha=None, sigma=None, kernel_dim=None):
+        super().__init__()
+        assert isinstance(stride, int) and stride <= 124 and \
+          round((512-388)/stride) == (512-388)/stride 
+        self.orig_imgs = imgs
+        self.imgs = EM_Dataset._extrapolate_by_mirroring(imgs)
+        self.labels = labels
+        self.stride = stride
+        self.transformation = transformation
+        if transformation:
+            assert 0 <= probability <= 1
+            self.probability = probability 
+            self.alpha = alpha
+            self.kernel = EM_Dataset._create_gaussian_kernel(kernel_dim, sigma)
+        return
+      
+    def __getitem__(self, index):
+        """images and labels are divided into several overlaping parts using the 
+        overlap-tile strategy        
+        """
+        number_of_tiles_1D = (1 + int((512 - 388)/self.stride))
+        number_of_tiles_2D = number_of_tiles_1D**2
+        
+        img_index = int(index/number_of_tiles_2D)
+        # tile indexes of image
+        tile_index = (index % number_of_tiles_2D)
+        tile_index_x = (tile_index % number_of_tiles_1D) * self.stride
+        tile_index_y = int(tile_index / number_of_tiles_1D) * self.stride
+        
+        img = self.imgs[img_index, :,
+                        tile_index_y:tile_index_y + 572, 
+                        tile_index_x:tile_index_x + 572]
+        label = self.labels[img_index, :, 
+                            tile_index_y: tile_index_y + 388, 
+                            tile_index_x: tile_index_x + 388]
+        if self.transformation:
+            if np.random.random() > 1 - self.probability:
+                img, label = EM_Dataset.elastic_deform(img, label, self.alpha,
+                                                       self.kernel)
+        return (img, label)
+      
+    def __len__(self):
+        number_of_imgs = len(self.imgs)
+        number_of_tiles = (1 + int((512 - 388)/self.stride))**2
+        return number_of_imgs * number_of_tiles
+      
+    @staticmethod
+    def gray_value_variations(image, sigma):
+        """applies gray value variations by adding Gaussian noise
+        
+        Args:
+            image (torch tensor): extrapolated image tensor [1, 572, 572]
+            sigma (float): std. dev. of Gaussian distribution
+        
+        Returns:
+            image (torch tensor): image tensor w. gray value var. [1, 572, 572]
+        """
+        # see https://stats.stackexchange.com/a/383976
+        noise = torch.randn(image.shape, dtype=torch.float32) * sigma
+        return image + noise
+     
+    @staticmethod
+    def affine_transform(image, label, angle, translate):
+        """applies random affine translations and rotation on image and label 
+               
+        Args:
+            image (torch tensor): extrapolated image tensor [1, 572, 572]
+            label (torch tensor): label tensor [1, 388, 388]
+            angle (float): rotation angle
+            translate (list): entries correspond to horizontal and vertical shift
+            
+        Returns:
+            image (torch tensor): transformed image tensor [1, 572, 572]
+            label (torch tensor): transformed label tensor [1, 388, 388]        
+        """
+        # transform to PIL
+        image = transforms.ToPILImage()(image[0])
+        label = transforms.ToPILImage()(label[0])
+        # apply affine transformation
+        image = TF.affine(image, angle=angle, translate=translate, 
+                          scale=1, shear=0)
+        label = TF.affine(label, angle=angle, translate=translate, 
+                          scale=1, shear=0)
+        # transform back to tensor
+        image = transforms.ToTensor()(np.array(image))
+        label = transforms.ToTensor()(np.array(label))
+        return image, label
+    
+    @staticmethod
+    def elastic_deform(image, label, alpha, gaussian_kernel):
+        """apply smooth elastic deformation on image and label data as 
+        described in
+        
+        [Simard2003] "Best Practices for Convolutional Neural Networks applied
+        to Visual Document Analysis"
+        
+        Args: 
+            image (torch tensor): extrapolated image tensor [1, 572, 572]
+            label (torch tensor): label tensor [1, 388, 388]
+            alpha (float): intensity of transformation
+            gaussian_kernel (np array): gaussian kernel used for smoothing
+            
+        Returns:
+            deformed_img (torch tensor): deformed image tensor [1, 572, 572]
+            deformed_label (torch tensor): deformed label tensor [1, 388, 388]
+        
+        code is adapted from https://github.com/vsvinayak/mnist-helper
+        """
+        # generate standard coordinate grids
+        x_i, y_i = np.meshgrid(np.arange(572), np.arange(572))
+        x_l, y_l = np.meshgrid(np.arange(388), np.arange(388))
+        # generate random displacement fields (uniform distribution [-1, 1])
+        dx = 2*np.random.rand(*x_i.shape) - 1
+        dy = 2*np.random.rand(*y_i.shape) - 1
+        # smooth by convolving with gaussian kernel 
+        dx = alpha * convolve2d(dx, gaussian_kernel, mode='same')
+        dy = alpha * convolve2d(dy, gaussian_kernel, mode='same')
+        # one dimensional coordinates (neccessary for map_coordinates)
+        x_img = np.reshape(x_i + dx, (-1, 1))
+        y_img = np.reshape(y_i + dy, (-1, 1))
+        x_label = np.reshape(x_l + dx[92:480, 92:480], (-1, 1))
+        y_label = np.reshape(y_l + dy[92:480, 92:480], (-1, 1))
+        # deformation using map_coordinates interpolation (spline not bicubic)
+        deformed_img = map_coordinates(image[0], [y_img, x_img], order=1, 
+                                       mode='reflect')
+        deformed_label = map_coordinates(label[0], [y_label, x_label], order=1,
+                                         mode='reflect')
+        # reshape into desired shape and cast to tensor
+        deformed_img = torch.from_numpy(deformed_img.reshape(image.shape))
+        deformed_label = torch.from_numpy(deformed_label.reshape(label.shape))
+        return deformed_img, deformed_label
+    
+    @staticmethod
+    def _extrapolate_by_mirroring(data):
+        """increase data by mirroring (needed for overlap-tile strategy)
+        
+        Args:
+            data (torch tensor): shape [num_samples, 1, 512, 512]
+            
+        Returns:
+            extrapol_data (torch tensor): shape [num_samples, 1, 696, 696]
+        """
+        num_samples = len(data)
+        extrapol_data = torch.zeros(num_samples, 1, 696, 696)
+        
+        # put data into center of extrapol data
+        extrapol_data[:,:, 92:92+512, 92:92+512] = data
+        # mirror left
+        extrapol_data[:,:, 92:92+512, 0:92] = data[:,:,:,0:92].flip(3)
+        # mirror right
+        extrapol_data[:,:, 92:92+512, 92+512::] = data[:,:,:,-92::].flip(3)
+        # mirror top
+        extrapol_data[:,:, 0:92,:] = extrapol_data[:,:,92:92+92,:].flip(2)
+        # mirror buttom
+        extrapol_data[:,:, 92+512::,:] = extrapol_data[:,:, 512:512+92,:].flip(2)
+        return extrapol_data
+    
+    @staticmethod
+    def _create_gaussian_kernel(kernel_dim, sigma):
+        """returns a 2D Gaussian kernel with the standard deviation
+        denoted by sigma
+        
+        Args:
+            kernel_dim (int): kernel size will be [kernel_dim, kernel_dim]
+            sigma (float): std dev of Gaussian (smoothing parameter)
+            
+        Returns:
+            gaussian_kernel (numpy array): centered gaussian kernel
+            
+        code is adapted from https://github.com/vsvinayak/mnist-helper
+        """
+        # check if the dimension is odd
+        if kernel_dim % 2 == 0:
+            raise ValueError("Kernel dimension should be odd")
+        # initialize the kernel
+        kernel = np.zeros((kernel_dim, kernel_dim), dtype=np.float16)
+        # calculate the center point
+        center = kernel_dim/2
+        # calculate the variance
+        variance = sigma ** 2
+        # calculate the normalization coefficeint
+        coeff = 1. / (2 * variance)
+        # create the kernel
+        for x in range(0, kernel_dim):
+            for y in range(0, kernel_dim):
+                x_val = abs(x - center)
+                y_val = abs(y - center)
+                numerator = x_val**2 + y_val**2
+                denom = 2*variance
+            
+                kernel[x,y] = coeff * np.exp(-1. * numerator/denom)
+        # normalise it
+        return kernel/sum(sum(kernel))
+
+
+# all indexes
+idx = np.arange(30)
+# random inplace shuffling of indexes
+np.random.shuffle(idx)
+# split data into training and test data
+train_imgs, train_labels = imgs[idx[0:25]], labels[idx[0:25]]
+test_imgs, test_labels = imgs[idx[25:]], labels[idx[25:]]
+# generate datasets   
+stride = 124
+train_dataset = EM_Dataset(train_imgs, train_labels, stride=stride, 
+                           transformation=True, probability=0.5, alpha=5, 
+                           sigma=10, kernel_dim=3)
+test_dataset = EM_Dataset(test_imgs, test_labels, stride=stride, 
+                          transformation=False)
+```
+
+The visualization functions used to generate the images in this section are provided below:
+
+```python
+import matplotlib.pyplot as plt
+
+
+def visualize_overlap_tile_strategy(dataset, img_index, tile_indexes):
+    # compute tiling data
+    number_of_tiles_1D = (1 + int((512 - 388)/dataset.stride))
+    number_of_tiles_2D = number_of_tiles_1D**2
+    # original image [1, 512, 512]
+    orig_img = dataset.orig_imgs[img_index]
+    # extrapolated image [1, 696, 696]
+    extrapol_img = dataset.imgs[img_index]
+    
+    
+    # start plotting
+    fig = plt.figure(figsize=(14, 7))
+    # original image 
+    plt.subplot(1, len(tile_indexes) + 1, 1)
+    plt.imshow(transforms.ToPILImage()(orig_img), cmap='gray')
+    plt.title('Original Image')
+    # extrapolated image with bounding boxes and mirror lines for tile_indexes
+    for index, tile_index in enumerate(tile_indexes):
+        plt.subplot(1, len(tile_indexes) + 1, 2 + index)
+        plt.imshow(transforms.ToPILImage()(extrapol_img), cmap='gray')
+        # calculate tile index x and y 
+        tile_ix = (tile_index % number_of_tiles_1D) * dataset.stride
+        tile_iy = int(tile_index / number_of_tiles_1D) * dataset.stride
+        # add focus of current input tile
+        plt.plot([tile_ix, tile_ix + 572, tile_ix + 572, tile_ix, tile_ix], 
+                 [tile_iy, tile_iy, tile_iy + 572, tile_iy + 572, tile_iy],
+                 'blue', linewidth=2)
+        # add focus of current segmentation mask
+        tile_ix, tile_iy = tile_ix + 92, tile_iy + 92
+        plt.plot([tile_ix, tile_ix + 388, tile_ix + 388, tile_ix, tile_ix], 
+                 [tile_iy, tile_iy, tile_iy + 388, tile_iy + 388, tile_iy],
+                 'yellow', linewidth=2)
+        # add mirror lines
+        plt.vlines([92, 604], 0, 696, 'white', linewidth=1)
+        plt.hlines([92, 604], 0, 696, 'white', linewidth=1)
+        plt.title('Extrapolated Image, Tile '+ str(tile_index + 1) + '/' + 
+                  str(number_of_tiles_2D))
+        plt.xlim(0, 696)
+        plt.ylim(696, 0)
+    return
+
+
+def visualize_data_augmentation(dataset, index, show_grid, kind):
+    # get untransformed img, label
+    dataset.transformation = False
+    img, label = dataset[index]
+    # copy image (since it may be modified)
+    cur_img = img.clone().numpy()
+    cur_label = label.clone().numpy()
+    if show_grid:
+        # modify image to include outer grid (outside of label)
+        cur_img[0, 0:91:25] = 10.0
+        cur_img[0, 480::25] = 10.0
+        cur_img[0, :, 0:91:25] = 10.0
+        cur_img[0, :, 480::25] = 10.0
+        # modify image to include label grid
+        cur_img[0, 92:480:20, 92:480] = -5
+        cur_img[0,  92:480, 92:480:20] = -5
+        # modify label to include label grid
+        cur_label[0, ::20] = -5
+        cur_label[0, :, ::20] = -5
+    if kind == 'elastic deformation':
+        # set transformation
+        kernel = EM_Dataset._create_gaussian_kernel(kernel_dim=25, sigma=5)
+        alpha = 50
+        new_img, new_label = EM_Dataset.elastic_deform(cur_img, cur_label,
+                                                       alpha, kernel)
+    elif kind == 'affine transformation':
+        angle = np.random.randint(-3, 3)
+        translate = list(np.random.randint(-3, 3, size=2))
+        new_img, new_label = EM_Dataset.affine_transform(cur_img, cur_label,
+                                                         angle, translate)
+    elif kind == 'gray value variation':
+        sigma = 0.2
+        new_img = EM_Dataset.gray_value_variations(img, sigma)
+        new_label = label
+    else:
+        raise NameError('Unknown `kind`, can only be `elastic deformation`, ' +
+                        '`affine transformation` or `gray value variation`')
+    # start plotting
+    fig = plt.figure(figsize=(10,10))
+    plt.subplot(2, 2, 1)
+    plt.title('Before ' + kind)
+    plt.imshow(cur_img[0], cmap='gray', aspect='equal', 
+               interpolation='gaussian', vmax=1, vmin=0)
+    # focus of current segmentation mask
+    plt.plot([92, 480, 480, 92, 92], [92, 92, 480, 480, 92],
+            'yellow', linewidth=2)
+    plt.subplots_adjust(hspace=0.01)
+    plt.subplot(2,2,3)
+    plt.imshow(cur_label[0], cmap='gray', aspect='equal', 
+               interpolation='gaussian', vmax=1, vmin=0)
+    plt.subplot(2,2,2)
+    plt.title('After ' + kind)
+    plt.imshow(new_img[0], cmap='gray', aspect='equal', 
+               interpolation='gaussian', vmax=1, vmin=0)
+    # focus of current segmentation mask
+    plt.plot([92, 480, 480, 92, 92], [92, 92, 480, 480, 92],
+            'yellow', linewidth=2)
+    plt.subplot(2,2,4)
+    plt.imshow(new_label[0], cmap='gray', aspect='equal', 
+               interpolation='gaussian', vmax=1, vmin=0)
+    return
+
+
+# generate images in order of appearance
+visualize_overlap_tile_strategy(dataset=train_dataset, img_index=0, 
+                                tile_indexes=[0, 1])
+visualize_data_augmentation(train_dataset, index=0, show_grid=True, 
+                            kind='affine transformation')
+visualize_data_augmentation(train_dataset, index=0, show_grid=True, 
+                            kind='elastic deformation')
+visualize_data_augmentation(train_dataset, index=0, show_grid=False, 
+                            kind='gray value variation')
+```
 
 ### Model Implementation
+
+Implementing the model can be divided into two tasks:
+
+* **Network Architecture**: The model architecture is given in the
+  [model
+  description](https://borea17.github.io/paper_summaries/u_net#model-description)
+  in which one can identify several blocks of two $3 \times 3$ convolutional layers each
+  followed by a ReLU non-linearity (called `_block` in the
+  implementation). Note that the output of the last prediction layer can be
+  understood as the unnormalized prediction for each class, i.e.,
+  $a_{i,j}^{(k)} \in ] -\infty, +\infty[$ where $a^{(k)}$ denotes the
+  activation in feature channel $k \in \\{1, 2\\}$ (one channel for
+  each class) and the indices ${i,j}$ describe the pixel position. In order to get
+  normalized probabilities for each pixel $\hat{p}\_{i,j}^{(k)}$, a pixel-wise softmax is
+  applied at the end (last operation in `forward`), i.e., after this
+  operation the sum of the two output channels equals one for each
+  pixel $\hat{p}\_{i,j}^{(0)} + \hat{p}\_{i,j}^{(1)} = 1$.
+  
+  ```python
+  from torch import nn
+
+
+  class Unet(nn.Module):
+      """original U-Net architecture proposed by Ronneberger et al. (2015)
+
+      Attributes:
+          encoder_blocks (list):  four u_net blocks of encoder path
+          bottleneck_bock: block that mediates between encoder and decoder
+          decoder_blocks (list):  four u_net blocks of decoder path
+          cropped_img_size (list): cropped images size in order of encoder blocks 
+          up_convs (list): upsampling (transposed convolutional) layers (decoder)
+          max_pool: max pool operation used in encoder path
+      """
+
+      def __init__(self):
+          super().__init__()
+          self.encoder_blocks = [
+              Unet._block(1, 64),
+              Unet._block(64, 128),
+              Unet._block(128, 256),
+              Unet._block(256, 512)
+          ]
+          self.bottleneck_block = Unet._block(512, 1024)
+          self.decoder_blocks = [
+              Unet._block(1024, 512),
+              Unet._block(512, 256),
+              Unet._block(256, 128),
+              Unet._block(128, 64)
+          ]
+          self.cropped_img_sizes = [392, 200, 104, 56]
+          self.up_convs = [
+              nn.ConvTranspose2d(1024, 512, kernel_size=(2,2), stride=2),
+              nn.ConvTranspose2d(512, 256, kernel_size=(2,2), stride=2),
+              nn.ConvTranspose2d(256, 128, kernel_size=(2,2), stride=2),
+              nn.ConvTranspose2d(128, 64, kernel_size=(2,2), stride=2),
+          ]
+          self.max_pool = nn.MaxPool2d(kernel_size=(2,2))
+          self.prediction = nn.Conv2d(64, 2, kernel_size=(1,1), stride=1)
+          return
+
+      def forward(self, x):
+          # go through encoder path and store cropped images
+          cropped_imgs = []
+          for index, encoder_block in enumerate(self.encoder_blocks):
+              out = encoder_block(x)
+              # center crop and add to cropped image list
+              cropped_img = Unet._center_crop(out, self.cropped_img_sizes[index])
+              cropped_imgs.append(cropped_img)
+              # max pool output of encoder block
+              x = self.max_pool(out)
+          # bottleneck block (no max pool)
+          x = self.bottleneck_block(x)  # [batch_size, 1024, 28, 28]
+          # go through decoder path with stored cropped images
+          for index, decoder_block in enumerate(self.decoder_blocks):
+              x = self.up_convs[index](x)
+              # concatenate x and cropped img along channel dimension
+              x = torch.cat((cropped_imgs[-1-index], x), 1)
+              # feed through decoder_block
+              x = decoder_block(x)
+          # feed through prediction layer [batch_size, 2, 388, 388]
+          x_pred_unnormalized = self.prediction(x)
+          # normalize prediction for each pixel
+          x_pred = torch.softmax(x_pred_unnormalized, 1)
+          return x_pred
+      
+      @staticmethod
+      def _center_crop(x, new_size):
+          """center croping of a square input tensor
+
+          Args:
+              x: input tensor shape [batch_size, channels, resolution, resolution]
+              new_size: the desired output resolution (taking center of input)
+
+          Returns:
+              x_cropped: tensor shape [batch_size, channels, new_size, new_size]
+          """
+          img_size = x.shape[-1]
+          i_start = int((img_size - new_size)/2)
+          i_end = int((img_size + new_size)/2)
+          x_cropped = x[:, :, i_start:i_end, i_start:i_end]
+          return x_cropped
+
+      @staticmethod
+      def _block(in_channels, out_channels):
+          """block for use in U-Net architecture,
+          consists of two conv 3x3, ReLU layers
+
+          Args:
+              in_channels: number of input channels for first convolution
+              out_channels: number of output channels for both convolutions
+
+          Returns:
+              u_net_block: Sequential U net block
+          """
+          u_net_block = nn.Sequential(
+              nn.Conv2d(in_channels, out_channels, kernel_size=(3,3), stride=1,
+                        padding=0),
+              nn.ReLU(),
+              nn.Conv2d(out_channels, out_channels, kernel_size=(3,3), stride=1,
+                        padding=0),
+              nn.ReLU()
+          )
+          return u_net_block
+  ``` 
+  
+* **Loss Function**: Since the segmentation labels are clearly
+  imbalanced (much more white pixels than black pixels), [Ronneberger et al.
+  (2015)](https://arxiv.org/abs/1505.04597) use the weighted cross
+  entropy as the loss function (which they term *energy function*)
+  
+  $$
+  \begin{align}
+     J (\textbf{x}, \textbf{m}) &= -\sum_{i=1}^{388}\sum_{j=1}^{388}
+     \sum_{k=1}^2 w_{i,j} (\textbf{m}) \cdot 
+     p_{i,j}^{(k)} \log \left( \widehat{p}_{i,j}^{(k)} \left( \textbf{x};
+  \boldsymbol{\theta} \right)  \right) \\
+  &= -\sum_{i=1}^{388}\sum_{j=1}^{388} w_{i,j} (\textbf{m}) \log \left(
+  \widehat{p}_{i,j}^{(k=\{l | p_{i,j}^{(l)}=1\})}\left( \textbf{x};
+  \boldsymbol{\theta} \right) \right),
+  \end{align}
+  $$
+  
+  where $\textbf{x}\in [0, 1]^{572\times 572}$ denotes the input image, $\textbf{m} \in \\{0,
+  1\\}^{388 \times 388}$ the corresponding segmentation mask,
+  $\textbf{p}^{(k)}\in \\{0,
+  1\\}^{388 \times 388}$ the groundtruth probability, i.e., $p\_{i,j}^{(k)} =
+  1\_{m_{i,j} = 1}$ (indicator function), $\widehat{\textbf{p}}^{(k)} \in
+  [0, 1]^{388\times 388}$ denotes the output of the network
+  paramterised by $\boldsymbol{\theta}$ and $\textbf{w} \left(
+  \textbf{m} \right) \in \mathbb{R}^{388 \times 388}$ is a introduced weight map
+  (computed via the segmentation mask $\textbf{m}$) to give some pixels more
+  importance during training. Accordingly, the loss function can be
+  interpreted as penalizing the deviation from 1 for each pixel at the
+  true class output channel[^4] weighted by the corresponding entry of the
+  weight map.
+  
+  **Weight Map**: Since the seperation borders are much smaller than
+  the segmented objects, the network could be trapped into merging
+  touching objects without beeing penalized enough. 
+  
+  
+  
+[^4]: Note that $k=\\{l | p_{i,j}^{(l)}=1\\}$ is just some short hand
+      notation (probably mathematically incorrect) for 
+$$k (i,j)=\begin{cases}1 & \text{if } p_{i,j}^{(1)} = 1 \\ 2 &
+      \text{if } p_{i,j}^{(2)} = 1 \end{cases}$$, i.e., in the loss
+      function we only look at the outputs of the true class channel
+      for each pixel.
+
+
+* **Training Procedure**:
+
 
 ### Results
 
