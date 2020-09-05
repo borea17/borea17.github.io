@@ -269,11 +269,11 @@ divided into four parts:
   each displacement vector (using interpolation within the old grid),
   see Best Practices for CNNs by [Simard et al.
   (2003)](https://www.researchgate.net/publication/220860992_Best_Practices_for_Convolutional_Neural_Networks_Applied_to_Visual_Document_Analysis)
-  for more details. Note that [Ronneberger et al.
-  (2015)](https://arxiv.org/abs/1505.04597) use a slightly different
-  method to generate elastic deformations by directly sampling from a Gaussian
-  distribution instead of convolving uniform sampled random vectors
-  with a Gaussian.
+  for more details. <!-- Note that [Ronneberger et al. -->
+  <!-- (2015)](https://arxiv.org/abs/1505.04597) use a slightly different -->
+  <!-- method to generate elastic deformations by directly sampling from a Gaussian -->
+  <!-- distribution instead of convolving uniform sampled random vectors -->
+  <!-- with a Gaussian. -->
 
 * **Color variations** or in this case rather **gray value
   variations** in the input image should make the network invariant 
@@ -658,7 +658,7 @@ visualize_data_augmentation(train_dataset, index=0, show_grid=False,
 
 ### Model Implementation
 
-Implementing the model can be divided into two tasks:
+Model implementation can be divided into three tasks:
 
 * **Network Architecture**: The model architecture is given in the
   [model
@@ -693,26 +693,26 @@ Implementing the model can be divided into two tasks:
 
       def __init__(self):
           super().__init__()
-          self.encoder_blocks = [
+          self.encoder_blocks = nn.ModuleList([
               Unet._block(1, 64),
               Unet._block(64, 128),
               Unet._block(128, 256),
               Unet._block(256, 512)
-          ]
+          ])
           self.bottleneck_block = Unet._block(512, 1024)
-          self.decoder_blocks = [
+          self.decoder_blocks = nn.ModuleList([
               Unet._block(1024, 512),
               Unet._block(512, 256),
               Unet._block(256, 128),
               Unet._block(128, 64)
-          ]
+          ])
           self.cropped_img_sizes = [392, 200, 104, 56]
-          self.up_convs = [
+          self.up_convs = nn.ModuleList([
               nn.ConvTranspose2d(1024, 512, kernel_size=(2,2), stride=2),
               nn.ConvTranspose2d(512, 256, kernel_size=(2,2), stride=2),
               nn.ConvTranspose2d(256, 128, kernel_size=(2,2), stride=2),
               nn.ConvTranspose2d(128, 64, kernel_size=(2,2), stride=2),
-          ]
+          ])
           self.max_pool = nn.MaxPool2d(kernel_size=(2,2))
           self.prediction = nn.Conv2d(64, 2, kernel_size=(1,1), stride=1)
           return
@@ -741,7 +741,7 @@ Implementing the model can be divided into two tasks:
           # normalize prediction for each pixel
           x_pred = torch.softmax(x_pred_unnormalized, 1)
           return x_pred
-      
+
       @staticmethod
       def _center_crop(x, new_size):
           """center croping of a square input tensor
@@ -771,16 +771,22 @@ Implementing the model can be divided into two tasks:
           Returns:
               u_net_block: Sequential U net block
           """
+          conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=(3,3), stride=1)
+          conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=(3,3), stride=1)
+
+          N_1, N_2 = 9*in_channels, 9*out_channels
+          # initialize by drawing weights from Gaussian distribution
+          conv1.weight.data.normal_(mean=0, std=np.sqrt(2/N_1))
+          conv2.weight.data.normal_(mean=0, std=np.sqrt(2/N_2))
+          # define u_net_block
           u_net_block = nn.Sequential(
-              nn.Conv2d(in_channels, out_channels, kernel_size=(3,3), stride=1,
-                        padding=0),
+              conv1,
               nn.ReLU(),
-              nn.Conv2d(out_channels, out_channels, kernel_size=(3,3), stride=1,
-                        padding=0),
+              conv2,
               nn.ReLU()
           )
           return u_net_block
-  ``` 
+    ``` 
   
 * **Loss Function**: Since the segmentation labels are clearly
   imbalanced (much more white pixels than black pixels), [Ronneberger et al.
@@ -809,13 +815,114 @@ Implementing the model can be divided into two tasks:
   \textbf{m} \right) \in \mathbb{R}^{388 \times 388}$ is a introduced weight map
   (computed via the segmentation mask $\textbf{m}$) to give some pixels more
   importance during training. Accordingly, the loss function can be
-  interpreted as penalizing the deviation from 1 for each pixel at the
-  true class output channel[^4] weighted by the corresponding entry of the
+  interpreted as penalizing the deviation from 1 for each true class
+  output pixel[^4] weighted by the corresponding entry of the
   weight map.
   
-  **Weight Map**: Since the seperation borders are much smaller than
-  the segmented objects, the network could be trapped into merging
-  touching objects without beeing penalized enough. 
+  **Weight Map**: To compensate for the imbalance between seperation
+  borders and segmented object[^5], [Ronneberger et al.
+  (2015)](https://arxiv.org/abs/1505.04597) introduce the following
+  weight map
+  
+  $$
+    w(\textbf{m}) = {w_c (\textbf{m})} + {w_0 \cdot \exp \left( - \frac
+    {\left(d_1 (\textbf{m}) - d_2 (\textbf{m})\right)^2}{2\sigma^2}\right)},
+  $$
+  
+  where the first term reweights each pixel of the minority class
+  (i.e., black pixels) to balance the class frequencies. In the second
+  term $d_1$ and $d_2$ denote the distance to the border of the
+  nearest and second nearest cell, respectively. $w_0$ and $\sigma$
+  are predefined hyperparameters. Thus, the second term can be
+  understood as putting additional weight to smaller borders, see code
+  and image below.
+  
+  ```python
+  from mpl_toolkits.axes_grid1 import make_axes_locatable
+  from skimage import measure
+  from scipy.ndimage.morphology import distance_transform_edt
+  from skimage.segmentation import find_boundaries
+
+
+  def compute_weight_map(label_mask, w_0, sigma, plot=False):
+      """compute weight map for each ground truth segmentation to compensate
+      for the different class frequencies and to put additional
+      emphasis on small borders as proposed by Ronneberger et al.
+
+      Args:
+          label mask (torch tensor): true segmentation masks [batch_size, 1, 388, 388]
+          w_0 (float): hyperparameter in second term of weight map
+          sigma (float): hyperparameter in second term of weight map
+
+      Returns:
+          weight_map (torch tensor): computed weight map [batch_size, 1, 388, 388]
+      """
+      batch_size = label_mask.shape[0]
+      weight_map = torch.zeros_like(label_mask)
+      for i in range(batch_size):
+          # compute w_c to balance class frequencies
+          w_c = label_mask[i][0].clone()
+          class_freq_0 = (label_mask[i]==0).sum().item()
+          class_freq_1 = (label_mask[i]==1).sum().item()
+          w_c[label_mask[i][0]==0] = class_freq_1 / class_freq_0
+          # compute d_1, d_2, i.e., euclid. dist. to border of (1st/2nd) closest cell
+          d_1 = np.zeros(label_mask[i][0].shape)
+          d_2 = np.zeros(label_mask[i][0].shape)
+          # distinguish all cells (connected components of ones)
+          all_cells = measure.label(label_mask[i][0], background=0, connectivity=2)
+          num_cells = np.max(all_cells)
+          # initialize distances for all cells 
+          dists = np.zeros([num_cells, d_2.shape[0], d_2.shape[1]])
+          # iterate over all zero components
+          for index, i_cell in enumerate(range(1, num_cells + 1)):
+              # cell segmentation (segmented cell 1, rest 0)
+              cell_segmentation = all_cells==i_cell
+              # find boundary (boundary 1, rest 0)
+              boundary = find_boundaries(cell_segmentation, mode='inner')
+              # compute distance to boundary (set boundary 0, rest -1)
+              bound_dists = distance_transform_edt(1 - boundary)
+              dists[index] = bound_dists
+          # sort dists along first axis (each pixel)
+          dists.sort(axis=0)
+          d_1 = dists[0]
+          d_2 = dists[1]
+          w = w_c + w_0 * np.exp(- (d_1 + d_2)**2/(2*sigma**2))
+          # save w to weight map
+          weight_map[i, 0] = w
+
+          # visualize weight map 
+          if plot and i==0:
+              fig = plt.figure(figsize=(18, 14))
+
+              ax = plt.subplot(1, 3, 1)
+              plt.title('Segmenation Mask')
+              plt.imshow(label_mask[0, 0], cmap='gray')
+              divider = make_axes_locatable(ax)
+              cax = divider.append_axes("right", size="5%", pad=0.05)
+              plt.colorbar(cax=cax)
+
+              ax = plt.subplot(1, 3, 2)
+              plt.title('w_c')
+              plt.imshow(w_c, cmap='jet')
+              divider = make_axes_locatable(ax)
+              cax = divider.append_axes("right", size="5%", pad=0.05)
+              plt.colorbar(cax=cax)
+
+
+              ax = plt.subplot(1, 3, 3)
+              plt.title('w')
+              plt.imshow(w, cmap='jet')
+              divider = make_axes_locatable(ax)
+              cax = divider.append_axes("right", size="5%", pad=0.05)
+              plt.colorbar(cax=cax)
+      return weight_map
+
+
+  img, label_mask = train_dataset[0]
+  weight_map = compute_weight_map(label_mask.unsqueeze(0), w_0=10, sigma=5, plot=True)
+  ```
+  
+  ![compute_weight_map](/assets/img/05_Unet/weight_map.png "compute_weight_map")
   
   
   
@@ -825,6 +932,10 @@ $$k (i,j)=\begin{cases}1 & \text{if } p_{i,j}^{(1)} = 1 \\ 2 &
       \text{if } p_{i,j}^{(2)} = 1 \end{cases}$$, i.e., in the loss
       function we only look at the outputs of the true class channel
       for each pixel.
+      
+[^5]: Since the sepration borders are much smaller than the segmented
+    objects, the network could be trapped into merging touching
+    objects witout beeing penalized enough.
 
 
 * **Training Procedure**:
