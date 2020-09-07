@@ -4,19 +4,19 @@ abb_title: "U-Net: Convolutional Networks for Biomedical Image Segmentation"
 permalink: "/paper_summaries/u_net"
 author: "Markus Borea"
 tags: ["image segmentation"]
-published: false
+published: true
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
+nextjournal_link: "https://nextjournal.com/borea17/u-net/"
 ---
 
-NOTE: THIS IS CURRENTLY WIP
-
 [Ronneberger et al. (2015)](https://arxiv.org/abs/1505.04597)
-introduced a novel neural network architecture to generate better and
-faster semantic segmentations (i.e., class label assigend to each
-pixel) in the area of biomedical image processing (see figure below
-for an example). In essence, their model consists of a U-shaped
+introduced a novel neural network architecture to generate better
+semantic segmentations (i.e., class label assigend to each 
+pixel) in limited datasets which is a typical challenge in the area of
+biomedical image processing (see figure below for an example). In
+essence, their model consists of a U-shaped 
 convolutional neural network (CNN) with skip connections between
 blocks to capture context information, while allowing for precise
 localizations. In addition to the network architecture, they describe
@@ -39,15 +39,14 @@ Network](https://arxiv.org/abs/1901.11390)).
 
 U-Net builds upon the ideas of `Fully Convolutional Networks (FCNs) for Semantic
 Segmentation` by [Long et al. (2015)](https://arxiv.org/abs/1411.4038) who
-successfully trained FCNs (including prediction, upsampling layers
+successfully trained FCNs (including convolutional prediction, upsampling layers
 and skip connections) end-to-end (pixels-to-pixels) on semantic
 segmentation tasks. U-Net is basically a modified version of the FCN
 by making the architecture more symmetric, i.e., adding a more
 powerful expansive path. [Ronneberger et al.
 (2015)](https://arxiv.org/abs/1505.04597) argue that this modification
-yields more precise segmentations even with few training samples due
-to its capacity to propagate more context information to higher
-resolution layers. 
+yields more precise segmentations due to its capacity to better propagate
+context information to higher resolution layers. 
 
 **FCN architecture**: The main idea of the FCN architecture is to take
 a standard classification network (such as VGG-16), discard the final
@@ -130,7 +129,7 @@ implementation](https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/)
 augmentation procedures are not provided (except for overlap-tile
 segmentation). The following reimplementation aims to give an
 understanding of the whole paper (data augmentation and training
-process included), while beeing as simple as possible. Note that there
+process included), while being as simple as possible. Note that there
 are lots of open-source U-Net reimplementations out there, however
 most of them are already modified versions.
 
@@ -283,7 +282,7 @@ divided into four parts:
   
   | ![Gray Value Variation Visualization](/assets/img/05_Unet/gray_variation.png "Gray Value Variation Visualization") |
   | :-- |
-  | Gray value variation visualization. Left side shows input image before noise is applied. Right side shows the corresponding data after deformation (segmentation mask does not change). Image created with `visualize_data_augmentation` (code presented at the end of this section). |
+  | Gray value variation visualization. Left side shows input image before noise is applied. Right side shows the corresponding data after transformation (segmentation mask does not change). Image created with `visualize_data_augmentation` (code presented at the end of this section). |
 
 
 The whole data augmentation process is put into a self written Pytorch `Dataset`
@@ -518,20 +517,11 @@ class EM_Dataset(Dataset):
         return kernel/sum(sum(kernel))
 
 
-# all indexes
-idx = np.arange(30)
-# random inplace shuffling of indexes
-np.random.shuffle(idx)
-# split data into training and test data
-train_imgs, train_labels = imgs[idx[0:25]], labels[idx[0:25]]
-test_imgs, test_labels = imgs[idx[25:]], labels[idx[25:]]
 # generate datasets   
 stride = 124
-train_dataset = EM_Dataset(train_imgs, train_labels, stride=stride, 
-                           transformation=True, probability=0.5, alpha=5, 
-                           sigma=10, kernel_dim=3)
-test_dataset = EM_Dataset(test_imgs, test_labels, stride=stride, 
-                          transformation=False)
+whole_dataset = EM_Dataset(imgs, labels, stride=stride, 
+                           transformation=True, probability=0.5, alpha=50, 
+                           sigma=5, kernel_dim=25)
 ```
 
 The visualization functions used to generate the images in this section are provided below:
@@ -603,8 +593,8 @@ def visualize_data_augmentation(dataset, index, show_grid, kind):
         cur_label[0, :, ::20] = -5
     if kind == 'elastic deformation':
         # set transformation
-        kernel = EM_Dataset._create_gaussian_kernel(kernel_dim=25, sigma=5)
-        alpha = 50
+        kernel = dataset.kernel
+        alpha = dataset.alpha
         new_img, new_label = EM_Dataset.elastic_deform(cur_img, cur_label,
                                                        alpha, kernel)
     elif kind == 'affine transformation':
@@ -646,13 +636,13 @@ def visualize_data_augmentation(dataset, index, show_grid, kind):
 
 
 # generate images in order of appearance
-visualize_overlap_tile_strategy(dataset=train_dataset, img_index=0, 
+visualize_overlap_tile_strategy(whole_dataset, img_index=0, 
                                 tile_indexes=[0, 1])
-visualize_data_augmentation(train_dataset, index=0, show_grid=True, 
+visualize_data_augmentation(whole_dataset, index=0, show_grid=True, 
                             kind='affine transformation')
-visualize_data_augmentation(train_dataset, index=0, show_grid=True, 
+visualize_data_augmentation(whole_dataset, index=0, show_grid=True, 
                             kind='elastic deformation')
-visualize_data_augmentation(train_dataset, index=0, show_grid=False, 
+visualize_data_augmentation(whole_dataset, index=0, show_grid=False, 
                             kind='gray value variation')
 ```
 
@@ -673,7 +663,7 @@ Model implementation can be divided into three tasks:
   normalized probabilities for each pixel $\hat{p}\_{i,j}^{(k)}$, a pixel-wise softmax is
   applied at the end (last operation in `forward`), i.e., after this
   operation the sum of the two output channels equals one for each
-  pixel $\hat{p}\_{i,j}^{(0)} + \hat{p}\_{i,j}^{(1)} = 1$.
+  pixel $\hat{p}\_{i,j}^{(1)} + \hat{p}\_{i,j}^{(2)} = 1$.
   
   ```python
   from torch import nn
@@ -799,28 +789,27 @@ Model implementation can be divided into three tasks:
      \sum_{k=1}^2 w_{i,j} (\textbf{m}) \cdot 
      p_{i,j}^{(k)} \log \left( \widehat{p}_{i,j}^{(k)} \left( \textbf{x};
   \boldsymbol{\theta} \right)  \right) \\
-  &= -\sum_{i=1}^{388}\sum_{j=1}^{388} w_{i,j} (\textbf{m}) \log \left(
-  \widehat{p}_{i,j}^{(k=\{l | p_{i,j}^{(l)}=1\})}\left( \textbf{x};
-  \boldsymbol{\theta} \right) \right),
+     &\text{with} \quad p_{i,j}^{(1)} = \begin{cases} 1 & \text{if }
+  m_{i,j}=1 \\ 0 &\text{else} \end{cases} \quad \text{and} \quad p_{i,j}^{(2)} =
+  \begin{cases} 1 & \text{if } m_{i, j} = 0 \\0 & \text{else}, \end{cases} 
   \end{align}
   $$
   
   where $\textbf{x}\in [0, 1]^{572\times 572}$ denotes the input image, $\textbf{m} \in \\{0,
   1\\}^{388 \times 388}$ the corresponding segmentation mask,
   $\textbf{p}^{(k)}\in \\{0,
-  1\\}^{388 \times 388}$ the groundtruth probability, i.e., $p\_{i,j}^{(k)} =
-  1\_{m_{i,j} = 1}$ (indicator function), $\widehat{\textbf{p}}^{(k)} \in
-  [0, 1]^{388\times 388}$ denotes the output of the network
+  1\\}^{388 \times 388}$ the groundtruth probability for each class $k$, $\widehat{\textbf{p}}^{(k)} \in
+  [0, 1]^{388\times 388}$ denotes the $k$-th channel output of the network
   paramterised by $\boldsymbol{\theta}$ and $\textbf{w} \left(
   \textbf{m} \right) \in \mathbb{R}^{388 \times 388}$ is a introduced weight map
   (computed via the segmentation mask $\textbf{m}$) to give some pixels more
   importance during training. Accordingly, the loss function can be
   interpreted as penalizing the deviation from 1 for each true class
-  output pixel[^4] weighted by the corresponding entry of the
+  output pixel weighted by the corresponding entry of the
   weight map.
   
   **Weight Map**: To compensate for the imbalance between seperation
-  borders and segmented object[^5], [Ronneberger et al.
+  borders and segmented object[^4], [Ronneberger et al.
   (2015)](https://arxiv.org/abs/1505.04597) introduce the following
   weight map
   
@@ -856,6 +845,8 @@ Model implementation can be divided into three tasks:
 
       Returns:
           weight_map (torch tensor): computed weight map [batch_size, 1, 388, 388]
+      
+      researchgate.net/post/creating_a_weight_map_from_a_binary_image_U-net_paper
       """
       batch_size = label_mask.shape[0]
       weight_map = torch.zeros_like(label_mask)
@@ -918,29 +909,172 @@ Model implementation can be divided into three tasks:
       return weight_map
 
 
-  img, label_mask = train_dataset[0]
+  img, label_mask = whole_dataset[0]
   weight_map = compute_weight_map(label_mask.unsqueeze(0), w_0=10, sigma=5, plot=True)
   ```
   
   ![compute_weight_map](/assets/img/05_Unet/weight_map.png "compute_weight_map")
   
   
-  
-[^4]: Note that $k=\\{l | p_{i,j}^{(l)}=1\\}$ is just some short hand
-      notation (probably mathematically incorrect) for 
-$$k (i,j)=\begin{cases}1 & \text{if } p_{i,j}^{(1)} = 1 \\ 2 &
-      \text{if } p_{i,j}^{(2)} = 1 \end{cases}$$, i.e., in the loss
-      function we only look at the outputs of the true class channel
-      for each pixel.
-      
-[^5]: Since the sepration borders are much smaller than the segmented
+[^4]: Since the separation borders are much smaller than the segmented
     objects, the network could be trapped into merging touching
-    objects witout beeing penalized enough.
+    objects without being penalized enough.
 
 
-* **Training Procedure**:
+* **Training Procedure**: A simple `SGD` (*Stochastic Gradient Descent*)
+  optimizer with a high momentum (0.99) and a `batch_size` of 1 are
+  choosen for training as proposed by [Ronneberger et al.
+  (2015)](https://arxiv.org/abs/1505.04597), see code below. Note that
+  we take the mean instead of the sum in the loss function calculation
+  to avoid overflow (i.e., nans). This will only change the strength of
+  a gradient step (which can be adjusted by the learning rate), but
+  not its direction.
+  
+  ```python
+  from livelossplot import PlotLosses
+  from torch.utils.data import DataLoader
 
+
+  def train(u_net, dataset, epochs):
+      device = 'cuda' if torch.cuda.is_available() else 'cpu'
+      # hyperparameters weight map
+      w_0, sigma = 10, 5
+
+      print('Device: {}'.format(device))
+
+      data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
+
+      u_net.to(device)
+      optimizer = torch.optim.SGD(u_net.parameters(), lr=0.001, momentum=0.99)
+
+      losses_plot = PlotLosses()
+      for epoch in range(epochs):
+          avg_loss = 0
+          for counter, (imgs, label_masks) in enumerate(data_loader):
+              u_net.zero_grad()
+              # retrieve predictions of u_net [batch, 2, 388, 388]
+              pred_masks = u_net(imgs.to(device))
+              # compute weight map
+              weight_map = compute_weight_map(label_masks, w_0, sigma).to(device)
+              # put label_masks to device
+              label_masks = label_masks.to(device)
+              # compute weighted binary cross entropy loss
+              loss = -(weight_map*
+                      (pred_masks[:, 0:1].log() * label_masks +
+                        pred_masks[:, 1:2].log() * (1 - label_masks))
+                      ).mean()
+              loss.backward()
+              optimizer.step()
+
+              avg_loss += loss.item() / len(dataset)
+
+              losses_plot.update({'current weighted loss': loss.item()},
+                                current_step=epoch + counter/len(data_loader))
+              losses_plot.draw()
+          losses_plot.update({'avg weighted loss': avg_loss}, 
+                            current_step=epoch + 1)
+          losses_plot.draw()
+      trained_u_net = u_net
+      return trained_u_net
+  ```
+  
+  **Beware**: Training for 30 epochs (i.e., the code below) takes about 2
+  hours with a NVIDIA Tesla K80 as GPU. The loss plot (see below `avg weighted
+  loss`) indicates that training for more epochs might improve the
+  model even more[^3]. For people who are interested in using the
+  model without waiting for 2 hours, I stored a trained version on
+  [nextjournal](https://nextjournal.com/borea17/u-net).
+  
+  ```python
+  u_net = Unet()
+  epochs = 30
+  # all image indexes
+  idx = np.arange(30)
+  # random inplace shuffling of indexes
+  np.random.seed(1)
+  np.random.shuffle(idx)
+  # split data into training and test data
+  train_imgs, train_labels = imgs[idx[0:25]], labels[idx[0:25]]
+  test_imgs, test_labels = imgs[idx[25:]], labels[idx[25:]]
+  # generate datasets   
+  stride = 124
+  train_dataset = EM_Dataset(train_imgs, train_labels, stride=stride, 
+                            transformation=True, probability=0.7, alpha=50, 
+                            sigma=5, kernel_dim=25)
+  test_dataset = EM_Dataset(test_imgs, test_labels, stride=stride, 
+                            transformation=False)
+  # start training procedure 
+  trained_u_net = train(u_net, train_dataset, epochs)
+  ```
+  
+  ![train result](/assets/img/05_Unet/loss_plot.png "train plot")
 
 ### Results
+
+Let's look at some image segmentations generated by the trained model
+on the unseen test set: 
+
+```python
+def visualize_results(trained_u_net, test_dataset, num_test_images=None):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # take random tile from each test image
+    num_tiles = (1 + int((512 - 388)/test_dataset.stride))**2
+    num_images = int(len(test_dataset) / num_tiles)
+    if num_test_images:
+        # number of images < number of images in test set
+        num_images = min(num_test_images, num_images)
+    random_tile_idx = np.random.choice(range(num_tiles), num_images, 
+                                       replace=True)
+    
+    fig = plt.figure(figsize=(num_images*6, 10))
+    # annotation plots
+    ax = plt.subplot(3, num_images + 1, 1)
+    ax.annotate('cell image\n(input)', xy=(1, 0.5), xycoords='axes fraction',
+                 fontsize=14, va='center', ha='right')
+    ax.set_aspect('equal')
+    ax.axis('off')
+    ax = plt.subplot(3, num_images + 1, num_images + 2)
+    ax.annotate('true segmentation\n(label)', xy=(1, 0.5), 
+                xycoords='axes fraction', fontsize=14, va='center', ha='right')
+    ax.set_aspect('equal')
+    ax.axis('off')
+    ax = plt.subplot(3, num_images + 1, 2*(num_images + 1) + 1)
+    ax.annotate('U-net prediction', xy=(1, 0.5), xycoords='axes fraction',
+                 fontsize=14, va='center', ha='right')
+    ax.set_aspect('equal')
+    ax.axis('off')
+    # image, label, predicted label plots
+    for index in range(num_images):
+        img, label = test_dataset[index*num_tiles + random_tile_idx[index]]
+        label_pred = u_net(img.unsqueeze(0).to(device)).squeeze(0)[0] > 0.5
+        
+        # plot original image
+        plt.subplot(3, num_images + 1, index + 2)
+        plt.imshow(transforms.ToPILImage()(img), cmap='gray')
+        plt.plot([92, 480, 480, 92, 92], [92, 92, 480, 480, 92],
+                 'yellow', linewidth=2)
+        plt.xticks([])
+        plt.yticks([])
+        # plot original segmentation mask
+        plt.subplot(3, num_images + 1, index + num_images + 3)
+        plt.imshow(transforms.ToPILImage()(label), cmap='gray')
+        plt.xticks([])
+        plt.yticks([])
+        # plot prediction segmentation mask
+        plt.subplot(3, num_images + 1, index + 2*(num_images + 1) + 2)
+        plt.imshow(label_pred.detach().cpu().numpy(), cmap='gray')
+        plt.xticks([])
+        plt.yticks([])
+    return
+
+
+visualize_results(trained_unet, test_dataset, num_test_images=3)
+```
+
+![visualize results](/assets/img/05_Unet/u_net_prediction.png "visualize results")
+
+The predictions are pretty decent, though far from perfect. Bear in
+mind, that our model had only 25 example images to learn from and that
+training for more epochs might have led to even better predictions.
 
 -----------------------------------------------------------------------------------------------
