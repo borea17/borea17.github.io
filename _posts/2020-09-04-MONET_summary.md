@@ -17,9 +17,12 @@ the **Multi-Object Network (MONet)** as an end-to-end trainable model to
 decompose images into meaningful entities such as objects. Notably,
 the whole training process is unsupervised, i.e., there are no labeled
 segmentations, handcrafted bounding boxes or whatsoever. In essence,
-their model combines a Variational Auto-Encoder (VAE) with a recurrent
-attention network (*segmentation network*) to spatially decompose
-scenes into binary attention masks (over which the VAE needs to
+their model combines a Variational Auto-Encoder
+([VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes))
+with a recurrent attention network
+([U-Net](https://borea17.github.io/paper_summaries/u_net)
+*segmentation network*) to spatially decompose
+scenes into attention masks (over which the VAE needs to
 reconstruct masked regions) and latent representations of each masked
 region. As a proof of concept, they show that their model could learn
 disentangled representations in a common latent code (i.e.,
@@ -34,8 +37,10 @@ MONet builds upon the inductive bias that the world (or rather
 individual objects with the same underlying structure (i.e., different
 instantiations of the same class). To put this into practice, [Burgess
 et al. (2019)](https://arxiv.org/abs/1901.11390) developed a 
-compositional generative model architecture incorporating two kinds of
-neural networks that are trained in tandem:
+compositional generative model architecture in which scenes are
+spatially decomposed into parts that have to be individually modelled
+through a common representation code. The architecture incorporates two
+kind of neural networks that are trained in tandem:
 
 * **Attention Network**: Its purpose is to deliver attention
   masks $\textbf{m}\_k$ for the image such that the whole image is
@@ -47,7 +52,7 @@ neural networks that are trained in tandem:
   To allow for a variable number of attention masks, [Burgess et al.
   (2019)](https://arxiv.org/abs/1901.11390) use a
   recurrent neural network $\alpha_{\boldsymbol{\psi}}$ for the
-  decomposition. Therein an auto-regressive process is defined for the
+  decomposition. Therein, an auto-regressive process is defined for the
   ongoing state. 
   This state is called "scope" $\textbf{s}_k \in [0, 1]^{W\times
   H}$ (image width $W$ and height $H$) as it is
@@ -70,6 +75,24 @@ neural networks that are trained in tandem:
     \right) & \forall k < K \\ 
     \textbf{s}_{k-1} & k=K \end{cases}
   $$
+  
+  By construction, we get that 
+  
+  $$
+  \begin{align}
+    &\textbf{s}_{k} = \textbf{s}_{k+1} + \textbf{m}_{k + 1} =
+    \textbf{s}_{k+2} + \textbf{m}_{k+2} + \textbf{m}_{k+1} \\ 
+    \textbf{1}=&\textbf{s}_0 =
+    \textbf{s}_{K-1} + \sum_{k=1}^{K-1} \textbf{m}_{k} = \sum_{k=1}^K \textbf{m}_k,
+  \end{align}
+  $$
+
+  i.e., at each recursion the remaining part to be explained
+  $\textbf{s}_{k}$ is divided into a segmentation mask
+  $\textbf{m}\_{k+1}$ and a new scope $\textbf{s}\_{k+1}$ such that
+  with $\textbf{s}_0=\textbf{1}$ the entire image is explained by the
+  resulting segmentation masks, i.e., $\sum\_{k=1}^K \textbf{m}_k = \textbf{1}$.
+    
   
 * **Component VAE**: Its purpose is to represent each masked region in a
   common latent code, i.e., each segment is encoded by the same
@@ -157,7 +180,7 @@ and their interaction.
 
 | ![Schematic of MONet](/assets/img/04_MONet/MONet_schematic.png "Schematic of MONet") |
 | :--         |
-| Schematic of MONet. (a) The overall compositional generative model architecture is represented by showing schematically how the attention network and the component VAE interact with the ground truth image. (b) The attention network is used for a recursive decomposition process to generate attention masks $\textbf{m}_k$. (c) The Component VAE takes as input the image $\textbf{x}$ and the corresponding attention mask $\textbf{m}_k$ and reconstructs both. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). |
+| Schematic of MONet. (a) The overall compositional generative model architecture is represented by showing schematically how the attention network and the component VAE interact with the ground truth image. (There is a small mistake, the last attention mask should be $\textbf{s}_{K-1}$ instead of $\textbf{s}_K$). (b) The attention network is used for a recursive decomposition process to generate attention masks $\textbf{m}_k$. (c) The Component VAE takes as input the image $\textbf{x}$ and the corresponding attention mask $\textbf{m}_k$ and reconstructs both. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). |
 
 The whole model is end-to-end trainable with the following loss
 function 
@@ -240,7 +263,7 @@ the VAE is capable of solving all tasks. The authors argue that
 optimization should push towards a meaningful decomposition.
 Furthermore, they empirically validate their hypothesis by showing
 that for the *Objects Room* dataset the reconstruction error is much
-lower when the ground truth attention masks are given compared to a
+lower when the ground truth attention masks are given compared to an
 *all-in-one* (single sweep) or a *wrong* masks situation.
 
 Adding some more motivation: It might be helpful to think about the
@@ -256,6 +279,38 @@ decoding each part.
 
 ## Implementation
 
+[Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) tested MONet
+on three different multi-object scene datasets (*Objects Room*, *CLEVR*,
+*Multi-dSprites*) and showed that their model could successively learn to
+<!-- decompose scenes into semantically meaningful parts (i.e., produce -->
+<!-- meaningful segmentation masks), to represent each segmented object in a -->
+<!-- common (nearly disentangled) latent code, and to generalize to unseen -->
+<!-- scene configurations without any supervision.  -->
+
+* decompose scenes into semantically meaningful parts, i.e.,
+  produce meaningful segmentation masks,
+* represent each segmented object in a common (nearly disentangled) latent
+  code, and 
+* generalize to unseen scene configurations
+
+without any supervision. Notably, MONet can handle a variable number
+of objects by producing latent codes that map to an empty scene,
+see image below. Furthermore, it turned out that MONet is also able to
+deal with occlusions: In the CLEVR dataset the unmasked
+reconstructions could even recover occluded objects. [Burgess et al.
+(2019)](https://arxiv.org/abs/1901.11390) argue that this indicates
+how `MONet is learning from and constrained by the structure of the
+data`.
+
+
+| ![MONet Paper Results](/assets/img/04_MONet/paper_results.png "MONet Paper Results") |
+| :--         |
+| MONet Paper Results: Decomposition on *Multi-dSprties* and *CLEVR* images. First row shows the input image, second and third row the corresponding reconstructions and segmentations by MONet (trained for 1,000,000 iterations). The last three rows show the unmasked component reconstructions from some chosen slots (indicated by $S$). Red arrows highlight occluded regions of shapes that are completed as full shapes. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). |
+
+The following reimplementation intends to be 
+
+
+
 ### Data Generation
 
 ### Model Implementation
@@ -264,12 +319,18 @@ decoding each part.
   network, it is worth to look at the reconstruction error in more
   detail:
 
+* **Component VAE**:
+  * latent distribution Gaussian with diagonal covariance
+  * decoder: Spatial Broadcast Decoder, parametrises 
+    means of pixel-wise independent distributions 
+    
+
 ## Drawbacks of Paper
 
-* static scene decomposition
-* only works on simply images in which multiple objects of the same
+* static scene decomposition (valuable prior is ignored)
+* only works on simple images in which multiple objects of the same
 class occur
-* even simple images high training times
+* even simple images require high training times
 * lots of hyperparameters (network architectures, $\beta$, $\gamma$, optimization)
 
 --------------------------------------------------------------------------------------------
