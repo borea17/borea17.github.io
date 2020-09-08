@@ -137,7 +137,7 @@ most of them are already modified versions.
 
 Only the first task of the three different U-Net applications is
 reimplemented: The segmentation of neuronal structures in electron
-microscopic (EM) recordings. The traning data consists of 30 images
+microscopic (EM) recordings. The training data consists of 30 images
 ($512 \times 512$ pixels with 8-bit grayscale) from the ventral nerve
 cord of some species of fruit flies together with the corresponding 30
 binary segmentation masks (white pixels for segmented objects, black
@@ -800,7 +800,7 @@ Model implementation can be divided into three tasks:
   $\textbf{p}^{(k)}\in \\{0,
   1\\}^{388 \times 388}$ the groundtruth probability for each class $k$, $\widehat{\textbf{p}}^{(k)} \in
   [0, 1]^{388\times 388}$ denotes the $k$-th channel output of the network
-  paramterised by $\boldsymbol{\theta}$ and $\textbf{w} \left(
+  parameterized by $\boldsymbol{\theta}$ and $\textbf{w} \left(
   \textbf{m} \right) \in \mathbb{R}^{388 \times 388}$ is a introduced weight map
   (computed via the segmentation mask $\textbf{m}$) to give some pixels more
   importance during training. Accordingly, the loss function can be
@@ -808,7 +808,7 @@ Model implementation can be divided into three tasks:
   output pixel weighted by the corresponding entry of the
   weight map.
   
-  **Weight Map**: To compensate for the imbalance between seperation
+  **Weight Map**: To compensate for the imbalance between separation
   borders and segmented object[^4], [Ronneberger et al.
   (2015)](https://arxiv.org/abs/1505.04597) introduce the following
   weight map
