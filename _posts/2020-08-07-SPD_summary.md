@@ -148,12 +148,12 @@ similar characteristics such that training will take less time
 
 ### Data Generation
 
-A dataset that is in spirit similar to the *colored sprites dataset*
+A dataset that is similar in spirit to the *colored sprites dataset*
 will be generated, i.e., procedurally generated objects from known
 factors of variation. [Watters et al.
 (2019)](https://arxiv.org/abs/1901.07017) use a binary [dsprites
 dataset](https://github.com/deepmind/dsprites-dataset) consisting of
-737.280 images and transform these during training into colored images
+737,280 images and transform these during training into colored images
 by uniformly sampling from a predefined HSV space (see Appendix A.3).
 As a result, the dataset has 8 factors of variation ($x$-position,
 $y$-position, size, shape, angle, 3D-color) with infinite samples (due

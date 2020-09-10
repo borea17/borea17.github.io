@@ -107,8 +107,8 @@ kind of neural networks that are trained in tandem:
   features of each object (masked region) in a common latent/feature
   space across all objects.
   
-  The decoder distribution $p\_{\boldsymbol{\theta}}$ is required to reconstruct the image
-  $\widetilde{\textbf{x}} \sim p\_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z}_k \right)$
+  The decoder distribution $p\_{\boldsymbol{\theta}}$ is required to
+  reconstruct the image component $\widetilde{\textbf{x}}_k \sim p\_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z}_k \right)$
   and the attention masks[^2] $\widetilde{\textbf{m}}_k \sim p\_{\boldsymbol{\theta}}
   \left(\textbf{c} | \textbf{z}_k \right)$ from these latent codes.
   Note that $p\_{\boldsymbol{\theta}} \left(\textbf{c} | \textbf{z}_k
@@ -136,35 +136,35 @@ kind of neural networks that are trained in tandem:
   where the sum can be understood as the reconstruction distribution
   of the whole image (mixture of components) conditioned on the latent
   codes $\textbf{z}_k$ and the attention masks $\textbf{m}_k$.
-  [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) chose a
-  Gaussian distribution with fixed variance as the decoder
-  distribution $p\_{\boldsymbol{\theta}} \left( \textbf{x} |
-  \textbf{z}_k \right) \sim \mathcal{N} \left(
-  \boldsymbol{\mu}_k (\boldsymbol{\theta}), \sigma_k^2 \textbf{I}_d \right)$, hence the term can be
+  [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) chose
+  independent Gaussian distributions with fixed variance for each
+  pixel as the decoder distribution $p\_{\boldsymbol{\theta}} \left( x\_{i} | \textbf{z}_k \right) \sim \mathcal{N} \left(
+  \mu\_{k, i}(\boldsymbol{\theta}), \sigma_k^2 \right)$, hence the term can be
   rewritten as follows 
   
   $$
   \begin{align}
-  \text{Recons. Acc.} &= \log \left(  \sum_{k=1}^K \sum_{i=1}^N
-  m_{k, i} \frac {1}{ \sqrt{2 \pi}^{d} \cdot
-  \sqrt{\left(\sigma_k^2\right)^{d}}} \exp \left( - \frac { \left[ x_i -
+  \text{Recons. Acc.} &= \sum_{i=1}^N \log \left(  \sum_{k=1}^K 
+  m_{k, i} \frac {1}{ \sqrt{2 \pi \sigma_k^2} } \exp \left( - \frac { \left[ x_i -
   \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right)
   \right)\\
-  &= \log \frac {1}{\sqrt{2\pi}^{d}} \left( \sum_{k=1}^K \sum_{i=1}^N \exp \left( \log \frac
-  {m_{k, i}}{\sqrt{\left( \sigma_k^2 \right)^{d}}}
+  &= \sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left( \log \frac
+  {m_{k, i}}{\sqrt{2\pi \sigma_k^2}}
   \right) \exp \left( - \frac {\left[x_i -
   \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}
   \right)\right)\\
-  &\propto \log \left( \sum_{k=1}^K \sum_{i=1}^N \exp \left(
-  \left(\sigma_k^2\right)^{- \frac {d}{2}}
-  \log m_{k, i} -  \frac { \left[x_i -
-  \mu_{k, i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right)  \right),
+  &= \sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left(
+  \log m_{k, i} - \frac {\log 2\pi \sigma_k^2} {2} - \frac { \left[x_i -
+  \mu_{k, i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right)
+  \right), 
   \end{align}
   $$
   
-  where $d$ denotes the dimensionalty of the latent space and $i$
-  enumerates the pixel space. Note that
-  the accuracy is unconstrained outside of the masked regions for each
+  where $i$ enumerates the pixel space ($N=W\cdot H$). The inner sum (index $k$)
+  results in a reconstructed image distribution, the outer sum
+  (index $i$) computes the log likelihood of each pixel independently
+  and sums them to retrieve the reconstruction accuracy of the whole
+  image. Note that the accuracy is unconstrained outside of the masked regions for each
   reconstruction[^4]. 
   
 [^4]: In practice, the reconstruction accuracy becomes incalculable for binary
@@ -297,33 +297,539 @@ without any supervision. Notably, MONet can handle a variable number
 of objects by producing latent codes that map to an empty scene,
 see image below. Furthermore, it turned out that MONet is also able to
 deal with occlusions: In the CLEVR dataset the unmasked
-reconstructions could even recover occluded objects. [Burgess et al.
-(2019)](https://arxiv.org/abs/1901.11390) argue that this indicates
-how `MONet is learning from and constrained by the structure of the
-data`.
-
+reconstructions could even recover occluded objects, see image below.
+[Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) argue that
+this indicates how `MONet is learning from and constrained by the
+structure of the data`.
 
 | ![MONet Paper Results](/assets/img/04_MONet/paper_results.png "MONet Paper Results") |
 | :--         |
 | MONet Paper Results: Decomposition on *Multi-dSprties* and *CLEVR* images. First row shows the input image, second and third row the corresponding reconstructions and segmentations by MONet (trained for 1,000,000 iterations). The last three rows show the unmasked component reconstructions from some chosen slots (indicated by $S$). Red arrows highlight occluded regions of shapes that are completed as full shapes. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). |
 
-The following reimplementation intends to be 
-
-
+The following reimplementation aims to reproduce some of these results
+while providing an in-depth understanding of the model architecture.
+Therefore, a dataset that is similar to the *Multi-dSprites* dataset
+is created, then the whole model (as faithfully as possible close to
+the original architecture) is reimplemented and trained in Pytorch and
+lastly, some useful visualizations of the trained model are created. 
 
 ### Data Generation
 
+A dataset that is similar in spirit to the *Multi-dSprites* will be
+generated. [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390)
+generated this dataset by sampling $1-4$ images randomly from the
+binary [dsprites dataset](https://github.com/deepmind/dsprites-dataset)(consisting of
+$737,280$ images), colorizing these by sampling from a uniform random
+RGB color and compositing those (with occlusion) onto a uniform random
+RGB background. 
+
+To reduce training time, we going to generate a much simpler dataset
+of $x$ images with two non-overlaping objects (`square` or `circle`) and a
+fixed color space (`red`, `green` or `aqua`) for these objects, see
+image below. The dataset is generated by sampling uniformly random
+from possible latent factors, i.e., random non-overlaping
+positions for the two objects, random object constellations and random
+colors from color space, see code below image. 
+
+
+| ![Examples of Dataset](/assets/img/04_MONet/self_dataset.png "Examples of Dataset") |
+| :--:        |
+| Visualization of self-written dataset. |
+
+```python
+from PIL import Image, ImageDraw
+import torchvision.transforms as transforms
+import numpy as np
+from torch.utils.data import TensorDataset
+import torch
+
+
+def generate_img(x_positions, y_positions, shapes, colors, img_size, size=20):
+    """Generate an RGB image from the provided latent factors
+    
+    Args:
+        x_position (list): normalized x positions (float)
+        y_position (list): normalized y positions (float)
+        shapes (list): shape can only be 'circle' or 'square'
+        colors (list): color names or rgb strings
+        img_size (int): describing the image size (img_size, img_size)
+        size (int): size of shape
+        
+    Returns:
+        torch tensor [3, img_size, img_size] (dtype=torch.float32)
+    """
+    # creation of image
+    img = Image.new('RGB', (img_size, img_size), color='black')
+    # map (x, y) position to pixel coordinates
+    for x, y, shape, color in zip (x_positions, y_positions, shapes, colors):
+        #x_position = (img_size - 2 - size) * x
+        #y_position = (img_size - 2 - size) * y
+        # define coordinates
+        x_0, y_0 = x, y
+        x_1, y_1 = x + size, y + size
+        # draw shapes
+        img1 = ImageDraw.Draw(img)
+        if shape == 'square':
+            img1.rectangle([(x_0, y_0), (x_1, y_1)], fill=color)
+        elif shape == 'circle':       
+            img1.ellipse([(x_0, y_0), (x_1, y_1)], fill=color)
+    return transforms.ToTensor()(img).type(torch.float32)
+
+def generate_dataset(n_samples, obj_size, colors, SEED=1):
+    """simplified version of the multi dsprites dataset without overlap
+    
+    Args:
+           n_samples (int): number of images to generate
+           obj_size (int): size of objects 
+           colors (list): possible colors
+           SEED (int): generation of dataset is a random process
+    
+    Returns:
+           data: torch tensor [n_samples, 3, img_size, img_size]
+    """
+    img_size = 64
+    num_objs = 2
+    shapes = ['square', 'circle']
+    pos_positions = np.arange(64 - obj_size - 1)
+    
+    data = torch.empty([n_samples, 3, img_size, img_size])
+    
+    np.random.seed(SEED)
+    positions_0 = np.random.choice(pos_positions, size=(n_samples, 2),
+                                   replace=True)
+    
+    rand_colors = np.random.choice(colors, size=(n_samples, num_objs),
+                                   replace=True)
+    rand_shapes = np.random.choice(shapes, size=(n_samples, num_objs),
+                                   replace=True)   
+    for index in range(n_samples):
+        x_0, y_0 = positions_0[index][0], positions_0[index][1]
+        # make sure that there is no overlap
+        impos_x_pos = np.arange(x_0 - obj_size, x_0 + obj_size + 1)
+        impos_y_pos = np.arange(y_0 - obj_size, y_0 + obj_size + 1)
+        x_1 = np.random.choice(np.setdiff1d(pos_positions, impos_x_pos), size=1)
+        y_1 = np.random.choice(np.setdiff1d(pos_positions, impos_y_pos), size=1)
+        
+        x_positions, y_positions = [x_0, x_1], [y_0, y_1]
+        shapes = rand_shapes[index]
+        colors = rand_colors[index]
+        
+        img = generate_img(x_positions, y_positions, shapes, colors, 
+                           img_size, obj_size)
+        data[index] = img
+    return data
+```
+
 ### Model Implementation
 
-* **Attention Network**: For the implementation of the attention
-  network, it is worth to look at the reconstruction error in more
-  detail:
+MONet is a rather sophisticated model composing two powerful neural network
+architectures in a reasonable way. One major downside of such complex
+models is that they comprise lots of hyperparamters from which many
+remains unknown such as sensitivity to small pertubations (e.g.,
+changing layers within network architectures). Therefore, the model
+implementation aims to be as close as possible to the original model.
+Note that [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390)
+did not publish their implementation.
 
-* **Component VAE**:
+For the sake of simplicity, this section is divided into four parts:
+
+* **Attention Network**: The architecture of the recurrent neural
+  network $\boldsymbol{\alpha}_{\psi}$ is described in appendix B.2 of
+  [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390).
+  Basically, it consists of a slightly modified
+  [U-Net](https://borea17.github.io/paper_summaries/u_net)
+  architecture that (at the $k$th step) takes as input the
+  concatenation of the image $\textbf{x}$ and the current scope mask
+  in log units $\log \textbf{s}_k$. The output of the modified U-Net assigns each
+  pixel of the image two channels $\textbf{o}^{(k)} \in ]-\infty, +
+  \infty[^{W \times H}$ with $k=\\{1, 2\\}$ where each channel can be understood as
+  the logits probability for $\boldsymbol{\alpha}_k$. A pixel-wise log softmax layer is used to transform
+  these logits into the log probabilities, i.e., $\log
+  (\boldsymbol{\alpha}_k)$ and $\log (1 - \boldsymbol{\alpha}_k)$.
+  From the model description above, it follows 
+  
+  $$
+  \begin{align}
+    \textbf{s}_{k+1} &= \textbf{s}_k \odot \left( 1 -
+    \boldsymbol{\alpha}_k \right) \quad &&\Leftrightarrow  \quad \log
+    \textbf{s}_{k+1} = \log \textbf{s}_k + \log \left(1 - \boldsymbol{\alpha}_k \right)\\
+    \textbf{m}_{k+1} &= \textbf{s}_{k} \odot \boldsymbol{\alpha}_k \quad
+  &&\Leftrightarrow \quad \log \textbf{m}_{k+1} = \log \textbf{s}_{k} + \log \boldsymbol{\alpha}_k,
+  \end{align}
+  $$
+  
+  i.e., the output of the $k$th step can be computed by simply adding the
+  log current scope $\log \textbf{s}_k$ to each log probability. As a
+  result, the next log attention mask $\log \textbf{m}\_{k+1}$ and next
+  log scope $\log \textbf{s}\_{k+1}$ can be retrieved. Note that using
+  log units instead of standard units is beneficial as it ensures
+  numerical stability while simplifying the optimization due
+  to an increased learning signal. or simpliyfing the loss function computation
+  
+  - unet channel dim not stated (probably orignal channel dim). Here
+    reduced
+    
+    
+  ```python
+  from torch import nn
+  
+  
+  class AttentionNetwork(nn.Module):
+      """Attention Network class for use in MONet, 
+      consists of a slightly modified standard U-Net blueprint as described by
+      Burgess et al. (2019) in Appendix B.2,
+      to reduce complexity:
+          - maximum channel dim in encoder is set to 256 (original U-Net is 1024)
+
+      Attributes:
+          encoder_blocks (list): 5 Unet blocks of encoder path
+          decoder_blocks (list): 5 Unet blocks of decoder path
+          bottleneck_block: bottleneck is a 3-layer MLP with ReLUs in-between
+          max_pool: down sample using max pool layer
+          upsample: upsample layer using nearest neighbor-resizing
+      """
+
+      def __init__(self):
+          super().__init__()
+          self.encoder_blocks = nn.ModuleList([
+              AttentionNetwork._block(4, 64),      # [batch_size, 64, 64, 64]
+              AttentionNetwork._block(64, 128),    # [batch_size, 128, 32, 32]
+              AttentionNetwork._block(128, 256),   # [batch_size, 256, 16, 16]
+              AttentionNetwork._block(256, 256),   # [batch_size, 256, 8, 8]
+              AttentionNetwork._block(256, 256),   # [batch_size, 256, 4, 4]
+          ])
+          self.max_pool = nn.MaxPool2d(kernel_size=(2,2))
+          self.bottleneck = nn.Sequential(
+              nn.Flatten(),                        # [batch_size, 4096]
+              nn.Linear(4096, 128),                # [batch_size, 128]
+              nn.ReLU(),
+              nn.Linear(128, 128),                 # [batch_size, 128]
+              nn.ReLU(),
+              nn.Linear(128, 128),                 # [batch_size, 128]
+              nn.ReLU()              # reshaped into [batch_size, 8, 4, 4]
+          )
+          # input channels are sum of skip connection and output of last block
+          self.decoder_blocks = nn.ModuleList([
+              AttentionNetwork._block(264, 256),   # [batch_size, 256, 8, 8]
+              AttentionNetwork._block(512, 256),   # [batch_size, 256, 8, 8]
+              AttentionNetwork._block(512, 128),   # [batch_size, 512, 16, 16]
+              AttentionNetwork._block(256, 64),    # [batch_size, 512, 32, 32]
+              AttentionNetwork._block(128, 64)     # [batch_size, 64, 64, 64]
+          ])
+          self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
+          self.prediction = nn.Conv2d(64, 2, kernel_size=(1,1), stride=1)
+          self.log_softmax = nn.LogSoftmax(dim=1)
+          return
+
+      def forward(self, image, log_scope):
+          # concatenate image and current scope along channels
+          inp = torch.cat((image, log_scope), 1)   # [batch_size, 4, 64, 64]
+          ########################## U-Net Computation ##########################
+          # go through encoder path and store intermediate results
+          skip_tensors = []
+          for index, encoder_block in enumerate(self.encoder_blocks):
+              out = encoder_block(inp)
+              skip_tensors.append(out)
+              # no resizing in the last block
+              if index < len(self.encoder_blocks) - 1:
+                  inp = self.max_pool(out)
+          # feed last skip tensor through bottleneck
+          out_MLP = self.bottleneck(out)           # [batch_size, 128]
+          # reshape final output to match last skip tensor
+          out = out_MLP.view(-1, 8, 4, 4)          # [batch_size, 8, 4, 4]
+          # go through decoder path and use skip tensors
+          for index, decoder_block in enumerate(self.decoder_blocks):
+              inp = torch.cat((skip_tensors[-1 - index], out), 1)
+              # no resizing in the last block
+              if index == len(self.decoder_blocks) - 1:
+                  out = decoder_block(inp)
+              else:
+                  out = self.upsample(decoder_block(inp))       
+          alpha_logits = self.prediction(out)      # [batch_size, 2, 64, 64]
+          ########################################################################
+          # compute log (alpha) and log (1 - alpha) using pixel wise logsoftmax
+          log_alpha = self.log_softmax(alpha_logits)
+          # compute log_new_mask, log_new_scope (logarithm rules)
+          log_new_mask = log_scope + log_alpha[:, 0:1]
+          log_new_scope = log_scope + log_alpha[:, 1:2]
+          return [log_new_mask, log_new_scope]
+
+      @staticmethod
+      def _block(in_channels, out_channels):
+          """each block consists of 3x3 bias-free convolution with stride 1,
+          followed by instance normalisation with a learned bias term
+          followed by a ReLU activation,
+          padding is added to keep image dimension
+
+          Args:
+              in_channels (int): number of input channels for first convolution
+              out_channels (int): number of output channels for both convolutions
+
+          Returns:
+              u_net_block (sequential): U-Net block as defined by Burgess et al.
+
+          """
+          u_net_block = nn.Sequential(
+              nn.Conv2d(in_channels, out_channels, kernel_size=(3,3), stride=1, 
+                        bias=False, padding=1),
+              nn.InstanceNorm2d(num_features=out_channels, affine=True),
+              nn.ReLU(),
+              #nn.Conv2d(out_channels, out_channels, kernel_size=(3,3), stride=1, 
+              #          bias=False, padding=1),
+              #nn.InstanceNorm2d(num_features=out_channels, affine=True),
+              #nn.ReLU(),
+          )
+          return u_net_block 
+  ```
+
+* **Component VAE**: The architecture of the Component VAE is
+  described in appendix B.1 of [Burgess et al.
+  (2019)](https://arxiv.org/abs/1901.11390). Basically, the encoder
+  $q\_{\boldsymbol{\phi}}(\textbf{z}_k | \textbf{x}, \textbf{m}_k)$ is a typical CNN that takes the
+  concatentation of the image $\textbf{x}$ and a segmentation mask
+  $\textbf{m}_k$ to compute the mean $\boldsymbol{\mu}\_{E, k}$ and
+  logarithmed variance $\boldsymbol{\sigma}^2\_{E,k}$ of the Gaussian latent
+  space distribution (*encoder distribution*) $\mathcal{N} \left(
+  \boldsymbol{\mu}\_{E, k}, \boldsymbol{\sigma}^2\_{E,k} \textbf{I}
+  \right)$. Sampling from this distribution is avoided by using
+  the reparametrization trick, i.e., the latent variable
+  $\textbf{z}_k$ is expressed as a deterministic variable[^6] 
+  
+  $$
+    \textbf{z}_k = \boldsymbol{\mu}_{E, k} +
+    \boldsymbol{\sigma}^2_{E,k} \odot \boldsymbol{\epsilon} \quad
+    \text{where} \quad \boldsymbol{\epsilon} \sim \mathcal{N}\left(
+    \textbf{0}, \textbf{I}
+    \right).
+  $$
+  
+  The component VAE uses a [Spatial Broadcast
+  decoder](https://borea17.github.io/paper_summaries/spatial_broadcast_decoder) $p\_{\boldsymbol{\theta}}$
+  to transform the latent vector $\textbf{z}_k$ into the reconstructed
+  image component $\widetilde{\textbf{x}}_k \sim p\_{\boldsymbol{\theta}}
+  \left(\textbf{x} | \textbf{z}_k \right)$ and mask
+  $\widetilde{\textbf{m}}_k \sim p\_{\boldsymbol{\theta}} \left(
+  \textbf{c}|\textbf{z}_k \right)$. [Burgess et al.
+  (2019)](https://arxiv.org/abs/1901.11390) chose independent Gaussian
+  distributions with fixed variances for each pixel as the
+  reconstructed image component distributions
+  $p\_{\boldsymbol{\theta}} \left( x_i | \textbf{z}_k \right) \sim
+  \mathcal{N} \left(\mu\_{k,i} (\boldsymbol{\theta}), \sigma_k^2
+  \right)$ and independent Bernoulli distributions for each pixel as
+  the reconstructed mask distributions $p\left(c\_{k, i}| \textbf{z}_k
+  \right) \sim \text{Bern} \left( p\_{k,i}
+  (\boldsymbol{\theta})\right)$. I.e., the decoder output is a 4 channel
+  image from which the first three channels correspond to the 3 RGB
+  channels for the means of the image components
+  $\boldsymbol{\mu}_k$ and the last channel corresponds to the logits probabilities
+  of the Bernoulli distribution. These logits are converted into
+  probabilties $\textbf{p}_k$ using a sigmoid layer.
+  
+  ```python
+  class Encoder(nn.Module):
+      """"Encoder class for use in Component VAE of MONet, 
+      input is the image and a binary attention mask (same dimension as image)
+
+      Args:
+          latent_dim: dimensionality of latent distribution
+
+      Attributes:
+          encoder_conv: convolution layers of encoder
+          MLP: 2 layer MLP, output parametrises mu and log var of latent_dim Gaussian
+      """
+
+      def __init__(self, latent_dim):
+          super().__init__()
+          self.latent_dim = latent_dim
+
+          self.encoder_conv = nn.Sequential(
+              # shape: [batch_size, 4, 64, 64]
+              nn.Conv2d(4,  32, kernel_size=(3,3), stride=2, padding=1),
+              nn.ReLU(),
+              # shape: [batch_size, 32, 32, 32]
+              nn.Conv2d(32, 32, kernel_size=(3,3), stride=2, padding=1),
+              nn.ReLU(),
+              # shape: [batch_size, 32, 16, 16]
+              nn.Conv2d(32, 64, kernel_size=(3,3), stride=2, padding=1),
+              nn.ReLU(),
+              # shape: [batch_size, 64, 8, 8]
+              nn.Conv2d(64, 64, kernel_size=(3,3), stride=2, padding=1),
+              nn.ReLU(),
+              # shape: [batch_size, 64, 4, 4],
+              nn.Flatten(),
+              # shape: [batch_size, 1024]
+          )
+          self.MLP = nn.Sequential(
+              nn.Linear(1024, 256),
+              nn.ReLU(),
+              nn.Linear(256, 2*self.latent_dim),
+          )
+          return
+
+      def forward(self, x, m):
+          # concatenate x and m along color channels
+          inp = torch.cat((x, m), dim=1)
+          # shape [batch_size, 4, 64, 64]
+          out_conv = self.encoder_conv(inp)
+          # shape [batch_size, 1024]
+          out_MLP = self.MLP(out_conv)
+          # shape [batch_size, 32] 
+          mu, log_var = torch.chunk(out_MLP, 2, dim=1)
+          return [mu, log_var]
+
+
+  class SpatialBroadcastDecoder(nn.Module):
+      """SBD class for use in Component VAE of MONet,
+        a Gaussian distribution with fixed variance (identity times fixed 
+        variance as covariance matrix) used as the decoder distribution
+
+      Args:
+          latent_dim: dimensionality of latent distribution
+
+      Attributes:
+          img_size: image size (necessary for tiling)
+          decoder_convs: convolution layers of decoder (also upsampling)
+          sigmoid: sigmoid layer
+      """
+
+      def __init__(self, latent_dim):
+          super().__init__()
+          self.img_size = 64
+          self.latent_dim = latent_dim
+          # "input width and height of CNN both 8 larger than target output"
+          x = torch.linspace(-1, 1, self.img_size + 8)
+          y = torch.linspace(-1, 1, self.img_size + 8)
+          x_grid, y_grid = torch.meshgrid(x, y)
+          # reshape into [1, 1, img_size, img_size] and save in state_dict
+          self.register_buffer('x_grid', x_grid.view((1, 1) + x_grid.shape))
+          self.register_buffer('y_grid', y_grid.view((1, 1) + y_grid.shape))
+
+          self.decoder_convs = nn.Sequential(
+              # shape [batch_size, latent_dim + 2, 72, 72]
+              nn.Conv2d(in_channels=self.latent_dim+2, out_channels=32,
+                        stride=(1, 1), kernel_size=(3,3)),           
+              nn.ReLU(),
+              # shape [batch_size, 32, 70, 70]
+              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1), 
+                        kernel_size=(3, 3)),
+              nn.ReLU(),
+              # shape [batch_size, 32, 68, 68]
+              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1), 
+                        kernel_size=(3, 3)),
+              nn.ReLU(),
+              # shape [batch_size, 32, 66, 66] 
+              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1), 
+                        kernel_size=(3, 3)),
+              # shape [batch_size, 4, 64, 64]
+              nn.ReLU(),
+              nn.Conv2d(in_channels=32, out_channels=4, stride=(1,1), 
+                        kernel_size=(1, 1)),
+          )
+          self.sigmoid = nn.Sigmoid()
+          return
+
+      def forward(self, z):
+          batch_size = z.shape[0]
+          # reshape z into [batch_size, latent_dim, 1, 1]
+          z = z.view(z.shape + (1, 1))
+          # tile across image [batch_size, latent_im, img_size+8, img_size+8]
+          z_b = z.repeat(1, 1, self.img_size + 8, self.img_size + 8)
+          # upsample x_grid and y_grid to [batch_size, 1, img_size+8, img_size+8]
+          x_b = self.x_grid.expand(batch_size, -1, -1, -1)
+          y_b = self.y_grid.expand(batch_size, -1, -1, -1)
+          # concatenate vectors [batch_size, latent_dim+2, img_size+8, img_size+8]
+          z_sb = torch.cat((z_b, x_b, y_b), dim=1)
+          # apply convolutional layers mu_D [batch_size, 4, 64, 64]
+          mu_D = self.decoder_convs(z_sb)
+          # split into means of x and logits of m
+          mu_x, logits_m = torch.split(mu_D, 3, dim=1)
+          # convert logits into probabilities using Sigmoid
+          p_m = self.sigmoid(logits_m)
+          return [mu_x, p_m]
+
+
+  class ComponentVAE(nn.Module):
+      """Component VAE class for use in MONet
+
+      Args:
+          latent_dim: dimensionality of latent distribution
+
+      Attributes:
+          encoder: encoder neural network object (Encoder class)
+          decoder: decoder neural network object (SpatialBroadcastDecoder class)
+          normal_dist: unit normal distribution to sample noise variable
+      """
+
+      def __init__(self, latent_dim):
+          self.encoder = Encoder(latent_dim)
+          self.decoder = SpatialBroadcastDecoder(latent_dim)
+          self.normal_dist = MultivariateNormal(torch.zeros(latent_dim), 
+                                                torch.eye(latent_dim))
+          return
+
+      def forward(self, image, log_mask):
+          batch_size = image.shape[0]
+          # get encoder distribution parameters
+          [mu_E, log_var_E] = self.encoder(image, log_mask)
+          # sample noise variable for each batch
+          epsilon = self.normal_dist.sample(sample_shape=(batch_size, )
+                                            ).to(image.device)
+          # get latent variable by reparametrization trick
+          z = mu_E + torch.exp(0.5*log_var_E) * epsilon
+          # get decoder distribution parameters
+          mu_x, p_m = self.decoder(z)
+          return [mu_E, log_var_E, z,  mu_x, p_m]
+  ```
+  
+  
+ * **Monet Implementation**: 
+ - fusing both classse
+ - compositional structure 
+ 
+ 
+ 
+  As a result, the negative log likelihood (reconstruction
+  error) of the whole image can be rewritten as follows 
+  
+  $$
+    \text{Recons. Error} =  
+  $$
+  
+  
+ * For binary classification applying pixel-wise log softmax on a two
+   channel output is equivalent to pixel-wise log sigmoid on one
+   channel output:
+   
+   $$
+   \begin{align}
+    &\text{LogSoftmax} (x_1) = \log \left( \frac {\exp x_1}{\exp x_1 +
+    \exp x_2} \right) = \log \left(\frac{1} {1 + \exp (x_2 - x_1)} \right)\\
+    &\text{LogSoftmax} (x_2) = \log \left(\frac{1} {1 + \exp (x_1 - x_2)} \right)
+   \end{align}
+   $$
+   
+   $$
+   \begin{align}
+    \text{LogSigmoid} (t) &= \log \left( \frac {1}{1 + \exp(-t)}\right)\\
+    1 - \text{LogSigmoid} (t) &= 1 - \log \left( \frac {1}{1 +
+    \exp(-t)}\right) = 
+   \end{align}
+   $$
+  
+  
+  
+  [^6]: This is explained in more detail in my [VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes) post. For simplicity, we are setting the number of (noise variable) samples $L$ per datapoint to 1 (see equation $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description) paragraph). Note that [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) stated that in their experiments setting $L=1$ sufficed as long as the minibatch size was large enough.
+
+
   * latent distribution Gaussian with diagonal covariance
   * decoder: Spatial Broadcast Decoder, parametrises 
     means of pixel-wise independent distributions 
+
+* **MONet implementation**
+
+* **Training Procedure**
     
+### Results
 
 ## Drawbacks of Paper
 
@@ -332,5 +838,6 @@ The following reimplementation intends to be
 class occur
 * even simple images require high training times
 * lots of hyperparameters (network architectures, $\beta$, $\gamma$, optimization)
+* [see this](https://github.com/ChenYutongTHU/Learning-to-manipulate-individual-objects-in-an-image-Implementation)
 
 --------------------------------------------------------------------------------------------
