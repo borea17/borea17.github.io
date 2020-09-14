@@ -850,21 +850,47 @@ For the sake of simplicity, this section is divided into four parts:
        $\beta$. [Burgess et
        al. (2019)](https://arxiv.org/abs/1901.11390) chose a unit
        Gaussian distribution as the latent prior $p(\textbf{z}) \sim
-       \mathcal{N} \left(\textbf{0}, \textbf{I} \right)$, hence the KL
+       \mathcal{N} \left(\textbf{0}, \textbf{I} \right)$. The KL
        divergence can be rewritten as follows 
        
        $$
        \begin{align}
           D_{KL} \left( \prod_{k=1}^K q_{\boldsymbol{\phi}} \left(\textbf{z}_k \right) || p(\textbf{z}) \right) &=
-       D_{KL} \left( \prod_{k=1}^K \mathcal{N}
-       \left(\boldsymbol{\mu}_k (\boldsymbol{\phi}),
-       \boldsymbol{\sigma}^2_k (\boldsymbol{\phi}) \textbf{I} \right) ||
-       \mathcal{N} \left(\textbf{0}, \textbf{I} \right) \right)\\
-       &= \int \left(\prod_{k=1}^K \mathcal{N}
-       \left(\textbf{z};\boldsymbol{\mu}_k (\boldsymbol{\phi})
-       \right) \right) 
+         \underbrace{ \int \left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
+       \left(\textbf{z}_k \right) \right) \log \left( \prod_{i=1}^K q_{\boldsymbol{\phi}}
+       \left(\textbf{z}_i \right)\right) d \textbf{z}}_{(I)} \\
+       &- \underbrace{\int \left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
+       \left(\textbf{z}_k \right) \right) \log \Big( p(\textbf{z} )\Big) d\textbf{z}}_{(II)},
        \end{align}
        $$
+
+       using simple algebra these terms can be simplified 
+       
+       $$
+       \begin{align}
+         (I) &= \sum_{i=1}^K \int \left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
+       \left(\textbf{z}_k \right) \right) \log q_{\boldsymbol{\phi}}
+       (\textbf{z}_i) d\textbf{z}\\
+       &= \sum_{i=1}^K \int \exp \left( \log
+       \left(\left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
+       \left(\textbf{z}_k \right) \right) \log q_{\boldsymbol{\phi}}
+       (\textbf{z}_i) \right) \right) d\textbf{z} \\
+       &= \sum_{i=1}^K \int \exp \left( \sum_{k=1}^K \log
+       q_{\boldsymbol{\phi}} (\textbf{z}_k) + \log \Big( \log
+       q_{\boldsymbol{\phi}} (\textbf{z}_i) \Big)\right) d\textbf{z}\\
+       &= \sum_{i=1}^K \int \exp \left( \sum_{k=1}^K \log \left(
+       q_{\boldsymbol{\phi}} (\textbf{z}_k) \cdot \log
+       q_{\boldsymbol{\phi}} (\textbf{z}_i) \right) \right)
+       d\textbf{z}\\
+       &= \sum_{i=1}^K \sum_{k=1}^K \int q_{\boldsymbol{\phi}} (\textbf{z}_k) \cdot \log
+       q_{\boldsymbol{\phi}} (\textbf{z}_i) d \textbf{z},\\
+       (II) &= \sum_{k=1}^K \int q_{\boldsymbol{\phi}} (\textbf{z}_k) \cdot \log
+       p (\textbf{z}) d \textbf{z}.
+       \end{align}
+       $$
+       
+       
+       
        
        <!-- \left(\prod_{k=1}^K \mathcal{N} -->
        <!-- \left(\textbf{z};\boldsymbol{\mu}_k (\boldsymbol{\phi}) -->
