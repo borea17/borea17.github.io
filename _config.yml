@@ -95,7 +95,7 @@ analytics:
 author:
   name             :
   avatar           : "/assets/img/profile.jpg"
-  bio              : "I am a Master student at Technische Universität Berlin. I am interested in object-oriented deep reinforcment learning."
+  bio              : "I am a Master student at Technische Universität Berlin. I am interested in object-oriented deep reinforcement learning."
   location         :
   email            : "borea17@protonmail.com"
   links:

@@ -116,7 +116,7 @@ kind of neural networks that are trained in tandem:
   $q\_{\boldsymbol{\psi}} \left(\textbf{c} | \textbf{x}\right)$
   denotes the mask distribution of the attention network[^3]. 
   
-  Importantly, each of the $k$ reconstruction distributions is
+  Importantly, each of the $k$ component reconstruction distributions is
   multiplied with the corresponding attention mask
   $\textbf{m}_k$, i.e., 
 
@@ -125,54 +125,23 @@ kind of neural networks that are trained in tandem:
      p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}_k \right). 
   $$
 
-  The reconstruction accuracy (decoder log likelihood, see my post on
-  [VAEs](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description))
+  The negative (decoder) log likelihood *NLL* (can be understood as
+  the *reconstruction error*, see my post on
+  [VAEs](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description)) 
   of the whole image is given by 
   
   $$
-  \text{Reconstruction Accuracy} = \log \left( \sum_{k=1}^K \textbf{m}_k \odot p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}_k \right)\right),
+  \text{NLL} = - \log \left( \sum_{k=1}^K \textbf{m}_k \odot p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}_k \right)\right),
   $$
   
   where the sum can be understood as the reconstruction distribution
   of the whole image (mixture of components) conditioned on the latent
-  codes $\textbf{z}_k$ and the attention masks $\textbf{m}_k$.
-  [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) chose
-  independent Gaussian distributions with fixed variance for each
-  pixel as the decoder distribution $p\_{\boldsymbol{\theta}} \left( x\_{i} | \textbf{z}_k \right) \sim \mathcal{N} \left(
-  \mu\_{k, i}(\boldsymbol{\theta}), \sigma_k^2 \right)$, hence the term can be
-  rewritten as follows 
+  codes $\textbf{z}_k$ and the attention masks $\textbf{m}_k$. Note
+  that the reconstructions $\widetilde{\textbf{x}}_k \sim
+  p\_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z}_k\right)$
+  are unconstrained outside of the masked regions (i.e., where
+  $m\_{k,i} = 0$).
   
-  $$
-  \begin{align}
-  \text{Recons. Acc.} &= \sum_{i=1}^N \log \left(  \sum_{k=1}^K 
-  m_{k, i} \frac {1}{ \sqrt{2 \pi \sigma_k^2} } \exp \left( - \frac { \left[ x_i -
-  \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right)
-  \right)\\
-  &= \sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left( \log \frac
-  {m_{k, i}}{\sqrt{2\pi \sigma_k^2}}
-  \right) \exp \left( - \frac {\left[x_i -
-  \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}
-  \right)\right)\\
-  &= \sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left(
-  \log m_{k, i} - \frac {\log 2\pi \sigma_k^2} {2} - \frac { \left[x_i -
-  \mu_{k, i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right)
-  \right), 
-  \end{align}
-  $$
-  
-  where $i$ enumerates the pixel space ($N=W\cdot H$). The inner sum (index $k$)
-  results in a reconstructed image distribution, the outer sum
-  (index $i$) computes the log likelihood of each pixel independently
-  and sums them to retrieve the reconstruction accuracy of the whole
-  image. Note that the accuracy is unconstrained outside of the masked regions for each
-  reconstruction[^4]. 
-  
-[^4]: In practice, the reconstruction accuracy becomes incalculable for binary
-    attention masks, since $\log 0$ is undefined. However, the
-    reconstruction accuracy is effectively unconstrained outside of
-    masked regions, since for $\lim \log m\_{k,i} \rightarrow -\infty$
-    the reconstruction accuracy for the corresponding slot also
-    approaches negative infinity (resulting in vanishing gradients).
   
 The figure below summarizes the whole architecture of the model by
 showing the individual components (attention network, component VAE)
@@ -189,14 +158,15 @@ $$
 \begin{align}
 \mathcal{L}\left(\boldsymbol{\phi}; \boldsymbol{\theta};
 \boldsymbol{\psi}; \textbf{x} \right) &= \underbrace{- \log \left( \sum_{k=1}^K \textbf{m}_k \odot p_{\boldsymbol{\theta}} \left(\textbf{x} |
-\textbf{z}_k \right)\right)}_{\text{Reconstruction Error }
-\widetilde{\textbf{x}} \odot \textbf{m}_k} + \beta
+\textbf{z}_k \right)\right)}_{\text{Reconstruction Error between }
+\widetilde{\textbf{x}} \text{ and } \textbf{x}} + \beta
 \underbrace{D_{KL} \left( \prod_{k=1}^K q_{\boldsymbol{\phi}} \left(\textbf{z}_k |
 \textbf{x}, \textbf{m}_k\right) || p(\textbf{z})
-\right)}_{\text{Regularization Term}}\\
+\right)}_{\text{Regularization Term for Distribution of }\textbf{z}_k}\\
 &+ \gamma \underbrace{D_{KL} \left( q_{\boldsymbol{\psi}} \left( \textbf{c} |
 \textbf{x} \right) || p_{\boldsymbol{\theta}} \left( \textbf{c} | \{
-\textbf{z}_k \} \right) \right)}_{\text{Reconstruction Error } \widetilde{\textbf{m}}_k},
+\textbf{z}_k \} \right) \right)}_{\text{Reconstruction Error between }
+\widetilde{\textbf{m}}_k \text{ and } \textbf{m}_k},
 \end{align}
 $$
 
@@ -257,7 +227,7 @@ encode due to their complexity. [Burgess et al.
 the compositional structure of scenes (inductive bias) may help to
 reduce this complexity. Instead of decomposing the entire multi-object
 scene in one sweep, MONet breaks the image in multiple ($K$) tasks which it
-decomposes with the same VAE[^5]. As a result, the segmentation should 
+decomposes with the same VAE[^4]. As a result, the segmentation should 
 produce similar tasks (structurally similar scene elements) such that
 the VAE is capable of solving all tasks. The authors argue that
 optimization should push towards a meaningful decomposition.
@@ -274,7 +244,7 @@ instantiations (i.e., different color/shape/size/...), it seems most
 natural to recover this process by decomposing the image and then
 decoding each part.
 
-[^5]: Philosophical note: Humans also tend to work better when focusing on one task at a time. 
+[^4]: Philosophical note: Humans also tend to work better when focusing on one task at a time. 
 
 
 ## Implementation
@@ -424,9 +394,10 @@ def generate_dataset(n_samples, obj_size, colors, SEED=1):
 
 MONet is a rather sophisticated model composing two powerful neural network
 architectures in a reasonable way. One major downside of such complex
-models is that they comprise lots of hyperparamters from which many
+models is that they comprise lots of hyperparamters from which much
 remains unknown such as sensitivity to small pertubations (e.g.,
-changing layers within network architectures). Therefore, the model
+changing layers within network architectures or parameters $\beta$,
+$\gamma$). Therefore, the model
 implementation aims to be as close as possible to the original model.
 Note that [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390)
 did not publish their implementation.
@@ -440,12 +411,19 @@ For the sake of simplicity, this section is divided into four parts:
   [U-Net](https://borea17.github.io/paper_summaries/u_net)
   architecture that (at the $k$th step) takes as input the
   concatenation of the image $\textbf{x}$ and the current scope mask
-  in log units $\log \textbf{s}_k$. The output of the modified U-Net assigns each
-  pixel of the image two channels $\textbf{o}^{(k)} \in ]-\infty, +
-  \infty[^{W \times H}$ with $k=\\{1, 2\\}$ where each channel can be understood as
-  the logits probability for $\boldsymbol{\alpha}_k$. A pixel-wise log softmax layer is used to transform
-  these logits into the log probabilities, i.e., $\log
-  (\boldsymbol{\alpha}_k)$ and $\log (1 - \boldsymbol{\alpha}_k)$.
+  in log units $\log \textbf{s}_k$. The output of the modified U-Net
+  is a one channel image $\textbf{o} \in ]-\infty, + \infty[^{W\times
+  H}$ in which each entry can be interpreted as the logits probability
+  for $\boldsymbol{\alpha}_k$. A sigmoid layer[^5] is used to transform
+  these logits into probabilities, additionally these probabilities
+  are transformed into log probabilities, i.e.,
+  $\log\left(\boldsymbol{\alpha}_k\right)$ and $\log \left( 1 - \boldsymbol{\alpha}_k\right)$.
+  <!-- The output of the modified U-Net assigns each -->
+  <!-- pixel of the image two channels $\textbf{o}^{(k)} \in ]-\infty, + -->
+  <!-- \infty[^{W \times H}$ with $k=\\{1, 2\\}$ where each channel can be understood as -->
+  <!-- the logits probability for $\boldsymbol{\alpha}_k$. A pixel-wise log softmax layer is used to transform -->
+  <!-- these logits into the log probabilities, i.e., $\log -->
+  <!-- (\boldsymbol{\alpha}_k)$ and $\log (1 - \boldsymbol{\alpha}_k)$. -->
   From the model description above, it follows 
   
   $$
@@ -464,11 +442,16 @@ For the sake of simplicity, this section is divided into four parts:
   log scope $\log \textbf{s}\_{k+1}$ can be retrieved. Note that using
   log units instead of standard units is beneficial as it ensures
   numerical stability while simplifying the optimization due
-  to an increased learning signal. or simpliyfing the loss function computation
+  to an increased learning signal. <!-- or simpliyfing the loss function computation -->
   
-  - unet channel dim not stated (probably orignal channel dim). Here
-    reduced
-    
+  The code below summarizes the network architecture, [Burgess et al.
+  (2019)](https://arxiv.org/abs/1901.11390) did not state the channel
+  dimensionality within the U-Net blocks explicitely. However, as they
+  mentioned to use a `U-Net blueprint`, it is assumed that they use
+  the same dimensionality as in the original [U-Net
+  paper](https://borea17.github.io/paper_summaries/u_net). To reduce
+  training time and memory capacity, the following implementation caps
+  the channel dimensionality in the encoder to 256 output channels.
     
   ```python
   from torch import nn
@@ -582,11 +565,28 @@ For the sake of simplicity, this section is divided into four parts:
           return u_net_block 
   ```
 
-* **Component VAE**: The architecture of the Component VAE is
-  described in appendix B.1 of [Burgess et al.
+
+[^5]: [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) state
+    that they use a log softmax layer, however this would only be
+    possible if there were two channels at the output. Note that in
+    binary classification, a pixel-wise softmax layer (two channel) can be
+    transformed into a sigmoid layer (one channel) by using the
+    difference between the two channels as input: 
+    $$
+    \begin{align}
+      \text{Softmax} (x_1) &= \frac {1} {1 + \exp(x_2 - x_1)} = \frac
+    {1} {1 + \exp(t)} = \text{Sigmoid} (t), \\
+      \text{Softmax} (x_2) &= \frac {1}{1 + \exp(x_1 - x_2)} = \frac
+    {1}{1+\exp(-t)} = 1 - \text{Sigmoid}(t).
+    \end{align}
+    $$
+
+* **Component VAE**: The architectures for the encoder
+  $q\_{\boldsymbol{\phi}}$ and decoder $p\_{\boldsymbol{\theta}}$
+  neural networks are described in appendix B.1 of [Burgess et al.
   (2019)](https://arxiv.org/abs/1901.11390). Basically, the encoder
   $q\_{\boldsymbol{\phi}}(\textbf{z}_k | \textbf{x}, \textbf{m}_k)$ is a typical CNN that takes the
-  concatentation of the image $\textbf{x}$ and a segmentation mask
+  concatentation of an image $\textbf{x}$ and a segmentation mask
   $\textbf{m}_k$ to compute the mean $\boldsymbol{\mu}\_{E, k}$ and
   logarithmed variance $\boldsymbol{\sigma}^2\_{E,k}$ of the Gaussian latent
   space distribution (*encoder distribution*) $\mathcal{N} \left(
@@ -780,45 +780,118 @@ For the sake of simplicity, this section is divided into four parts:
           mu_x, p_m = self.decoder(z)
           return [mu_E, log_var_E, z,  mu_x, p_m]
   ```
+
+[^6]: This is explained in more detail in my [VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes) post. For simplicity, we are setting the number of (noise variable) samples $L$ per datapoint to 1 (see equation $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description) paragraph). Note that [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) stated that in their experiments setting $L=1$ sufficed as long as the minibatch size was large enough.
   
   
- * **Monet Implementation**: 
- - fusing both classse
- - compositional structure 
+ * **Monet Implementation**: The compositional structure is achieved
+    by looping for $K$ steps over the image and combining the attention
+    network with the component VAE to compute the loss $\mathcal{L}$.
+    Remind that the loss function is given by
+
+    $$
+    \begin{align}
+    \mathcal{L}\left(\boldsymbol{\phi}; \boldsymbol{\theta};
+    \boldsymbol{\psi}; \textbf{x} \right) &= \underbrace{- \log \left( \sum_{k=1}^K \textbf{m}_k \odot p_{\boldsymbol{\theta}} \left(\textbf{x} |
+    \textbf{z}_k \right)\right)}_{\text{Reconstruction Error between }
+    \widetilde{\textbf{x}} \text{ and } \textbf{x}} + \beta
+    \underbrace{D_{KL} \left( \prod_{k=1}^K q_{\boldsymbol{\phi}} \left(\textbf{z}_k |
+    \textbf{x}, \textbf{m}_k\right) || p(\textbf{z})
+    \right)}_{\text{Regularization Term for Distribution of }\textbf{z}_k}\\
+    &+ \gamma \underbrace{D_{KL} \left( q_{\boldsymbol{\psi}} \left( \textbf{c} |
+    \textbf{x} \right) || p_{\boldsymbol{\theta}} \left( \textbf{c} | \{
+    \textbf{z}_k \} \right) \right)}_{\text{Reconstruction Error between }
+    \widetilde{\textbf{m}}_k \text{ and } \textbf{m}_k}.
+    \end{align}
+    $$
+    Each of these three terms can be written in a more explicit form such that
+    the implementation becomes trivial:
+
+    1. *Reconstruction Error between $\widetilde{\textbf{x}}$ and
+       $\textbf{x}$*: This term is also known as the negative log
+       likelihood (NLL) of the whole reconstructed image. [Burgess et
+       al. (2019)](https://arxiv.org/abs/1901.11390) chose independent
+       Gaussian distributions with fixed variance for each pixel as
+       the decoder distribution $p\_{\boldsymbol{\theta}} \left(
+       x\_{i} | \textbf{z}_k \right) \sim \mathcal{N} \left(\mu\_{k,
+       i}(\boldsymbol{\theta}), \sigma_k^2 \right)$, hence the term
+       can be rewritten as follows  
+
+        $$
+        \begin{align}
+          \text{NLL} &= -\sum_{i=1}^N \log \left(  \sum_{k=1}^K 
+        m_{k, i} \left(\boldsymbol{\psi} \right) \frac {1}{ \sqrt{2 \pi \sigma_k^2} } \exp \left( - \frac { \left[ x_i -
+        \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right)
+        \right)\\
+        &= -\sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left( \log \frac
+        {m_{k, i} \left(\boldsymbol{\psi} \right)}{\sqrt{2\pi \sigma_k^2}}
+        \right) \exp \left( - \frac {\left[x_i -
+        \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}
+        \right)\right)\\
+        &= -\sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left(
+        \log \big[m_{k, i} \left(\boldsymbol{\psi} \right) \big] - \frac {\log 2\pi \sigma_k^2} {2} - \frac { \big[x_i -
+        \mu_{k, i} (\boldsymbol{\theta}) \big]^2 } {2 \sigma_k^2}  \right)
+        \right), 
+        \end{align}
+        $$
+
+        where $i$ enumerates the pixel space ($N=W\cdot H$). The inner
+        sum (index $k$) results in a reconstructed image distribution,
+        the outer sum (index $i$) computes the log likelihood of each
+        pixel independently and sums them to retrieve the
+        reconstruction accuracy of the whole image. Note that the
+        sum (for fixed $k$) is unconstrained outside of the masked regions for
+        each reconstruction[^7]. 
+        
+    2. *Regularization Term for Distribution of $\textbf{z}_k$*: The
+       coding space is regularized using the KL divergence between the 
+       latent (posterior) distribution factorized across slots with
+       the latent prior distribution weighted with the hyperparameter
+       $\beta$. [Burgess et
+       al. (2019)](https://arxiv.org/abs/1901.11390) chose a unit
+       Gaussian distribution as the latent prior $p(\textbf{z}) \sim
+       \mathcal{N} \left(\textbf{0}, \textbf{I} \right)$, hence the KL
+       divergence can be rewritten as follows 
+       
+       $$
+       \begin{align}
+          D_{KL} \left( \prod_{k=1}^K q_{\boldsymbol{\phi}} \left(\textbf{z}_k \right) || p(\textbf{z}) \right) &=
+       D_{KL} \left( \prod_{k=1}^K \mathcal{N}
+       \left(\boldsymbol{\mu}_k (\boldsymbol{\phi}),
+       \boldsymbol{\sigma}^2_k (\boldsymbol{\phi}) \textbf{I} \right) ||
+       \mathcal{N} \left(\textbf{0}, \textbf{I} \right) \right)\\
+       &= \int \left(\prod_{k=1}^K \mathcal{N}
+       \left(\textbf{z};\boldsymbol{\mu}_k (\boldsymbol{\phi})
+       \right) \right) 
+       \end{align}
+       $$
+       
+       <!-- \left(\prod_{k=1}^K \mathcal{N} -->
+       <!-- \left(\textbf{z};\boldsymbol{\mu}_k (\boldsymbol{\phi}) -->
+       <!-- \right) \log \mathcal{N} \left( \textbf{z}; \textbf{0}, \textbf{I}\right) -->
+
+    3. Reconstruction Error
+  
+  
+
+[^7]: In practice, the reconstruction error for a fixed component
+    (fixed $k$) becomes incalculable for binary attention masks, since $\log 0$ is
+    undefined. However, the reconstruction error is effectively
+    unconstrained outside of masked regions, since for $\lim \log
+    m\_{k,i} \rightarrow -\infty$ the reconstruction error for the
+    corresponding pixel and slot approaches 0. 
+  
+ 
+ 
+ <!-- - fusing both classse -->
+ <!-- - compositional structure  -->
  
  
  
-  As a result, the negative log likelihood (reconstruction
-  error) of the whole image can be rewritten as follows 
-  
-  $$
-    \text{Recons. Error} =  
-  $$
-  
-  
- * For binary classification applying pixel-wise log softmax on a two
-   channel output is equivalent to pixel-wise log sigmoid on one
-   channel output:
-   
-   $$
-   \begin{align}
-    &\text{LogSoftmax} (x_1) = \log \left( \frac {\exp x_1}{\exp x_1 +
-    \exp x_2} \right) = \log \left(\frac{1} {1 + \exp (x_2 - x_1)} \right)\\
-    &\text{LogSoftmax} (x_2) = \log \left(\frac{1} {1 + \exp (x_1 - x_2)} \right)
-   \end{align}
-   $$
-   
-   $$
-   \begin{align}
-    \text{LogSigmoid} (t) &= \log \left( \frac {1}{1 + \exp(-t)}\right)\\
-    1 - \text{LogSigmoid} (t) &= 1 - \log \left( \frac {1}{1 +
-    \exp(-t)}\right) = 
-   \end{align}
-   $$
   
   
   
-  [^6]: This is explained in more detail in my [VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes) post. For simplicity, we are setting the number of (noise variable) samples $L$ per datapoint to 1 (see equation $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description) paragraph). Note that [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) stated that in their experiments setting $L=1$ sufficed as long as the minibatch size was large enough.
+  
 
 
   * latent distribution Gaussian with diagonal covariance
