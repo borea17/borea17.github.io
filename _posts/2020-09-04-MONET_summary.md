@@ -4,7 +4,7 @@ abb_title: "MONet: Unsupervised Scene Decomposition and Representation"
 permalink: "/paper_summaries/multi-object_network"
 author: "Markus Borea"
 tags: ["unsupervised learning", "object detection", "generalization", "varational autoencoder"]
-published: false
+published: false 
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
@@ -784,10 +784,12 @@ For the sake of simplicity, this section is divided into four parts:
 [^6]: This is explained in more detail in my [VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes) post. For simplicity, we are setting the number of (noise variable) samples $L$ per datapoint to 1 (see equation $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description) paragraph). Note that [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) stated that in their experiments setting $L=1$ sufficed as long as the minibatch size was large enough.
   
   
- * **Monet Implementation**: The compositional structure is achieved
+ * **MONet Implementation**: The compositional structure is achieved
     by looping for $K$ steps over the image and combining the attention
-    network with the component VAE to compute the loss $\mathcal{L}$.
-    Remind that the loss function is given by
+    network with the component VAE. While attention masks and latent
+    codes can be generated easily (during test time), computing the
+    loss $\mathcal{L}$ is more complicated. Remind that the loss
+    function is given by 
 
     $$
     \begin{align}
@@ -804,6 +806,7 @@ For the sake of simplicity, this section is divided into four parts:
     \widetilde{\textbf{m}}_k \text{ and } \textbf{m}_k}.
     \end{align}
     $$
+
     Each of these three terms can be written in a more explicit form such that
     the implementation becomes trivial:
 
@@ -845,58 +848,58 @@ For the sake of simplicity, this section is divided into four parts:
         
     2. *Regularization Term for Distribution of $\textbf{z}_k$*: The
        coding space is regularized using the KL divergence between the 
-       latent (posterior) distribution factorized across slots with
-       the latent prior distribution weighted with the hyperparameter
-       $\beta$. [Burgess et
-       al. (2019)](https://arxiv.org/abs/1901.11390) chose a unit
-       Gaussian distribution as the latent prior $p(\textbf{z}) \sim
-       \mathcal{N} \left(\textbf{0}, \textbf{I} \right)$. The KL
-       divergence can be rewritten as follows 
+       latent (posterior) distribution $q\_{\boldsymbol{\phi}} \left( \textbf{z}_k \right) \sim
+       \mathcal{N} \left( \boldsymbol{\mu}_k, \boldsymbol{\sigma}_k^2
+       \textbf{I} \right)$ factorized across slots and the latent prior distribution weighted with the hyperparameter
+       $\beta$. The product of multiple Gaussians is itself a
+       Gaussian, however it is rather complicated to compute the new
+       mean and covariance matrix of this Gaussian. Fortunately, each
+       $\textbf{z}_k$ is sampled independently from the corresponding
+       latent distribution $q\_{\boldsymbol{\phi}}(\textbf{z}_k)$,
+       thus we can generate the new mean and covariance by
+       cocatenation (see [this
+       post](https://stats.stackexchange.com/a/308137)), i.e.,
+       
+       $$
+         q(\textbf{z}_1, \dots, \textbf{z}_K) = \prod_{k=1}^K q_{\boldsymbol{\phi}} \left(\textbf{z}_k
+       \right)  = q\left( \begin{bmatrix} \textbf{z}_1 \\ \vdots
+         \\ \textbf{z}_K  \end{bmatrix}\right) = \mathcal{N} \left(
+         \underbrace{
+         \begin{bmatrix} \boldsymbol{\mu}_1 \\ \vdots
+          \\ \boldsymbol{\mu}_K \end{bmatrix}}_{
+          \widehat{\boldsymbol{\mu}}}, \underbrace{\text{diag}\left(
+         \begin{bmatrix} \boldsymbol{\sigma}_1^2 \\  \vdots\\
+         \boldsymbol{\sigma}_K^2  \end{bmatrix}
+         \right)}_{\widehat{\boldsymbol{\sigma}}^2 \textbf{I}}\right)
+       $$
+       
+       [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) chose
+       a unit Gaussian distribution as the latent prior $p(\textbf{z})
+       \sim \mathcal{N} \left(\textbf{0}, \textbf{I} \right)$ with
+       $\text{dim}(\textbf{0}) = \text{dim}(\hat{\boldsymbol{\mu}})$. 
+       The KL divergence between those two Gaussian distributions
+       can be calculated in closed form (see Appendix B of [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114))
        
        $$
        \begin{align}
-          D_{KL} \left( \prod_{k=1}^K q_{\boldsymbol{\phi}} \left(\textbf{z}_k \right) || p(\textbf{z}) \right) &=
-         \underbrace{ \int \left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
-       \left(\textbf{z}_k \right) \right) \log \left( \prod_{i=1}^K q_{\boldsymbol{\phi}}
-       \left(\textbf{z}_i \right)\right) d \textbf{z}}_{(I)} \\
-       &- \underbrace{\int \left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
-       \left(\textbf{z}_k \right) \right) \log \Big( p(\textbf{z} )\Big) d\textbf{z}}_{(II)},
-       \end{align}
-       $$
-
-       using simple algebra these terms can be simplified 
-       
-       $$
-       \begin{align}
-         (I) &= \sum_{i=1}^K \int \left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
-       \left(\textbf{z}_k \right) \right) \log q_{\boldsymbol{\phi}}
-       (\textbf{z}_i) d\textbf{z}\\
-       &= \sum_{i=1}^K \int \exp \left( \log
-       \left(\left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
-       \left(\textbf{z}_k \right) \right) \log q_{\boldsymbol{\phi}}
-       (\textbf{z}_i) \right) \right) d\textbf{z} \\
-       &= \sum_{i=1}^K \int \exp \left( \sum_{k=1}^K \log
-       q_{\boldsymbol{\phi}} (\textbf{z}_k) + \log \Big( \log
-       q_{\boldsymbol{\phi}} (\textbf{z}_i) \Big)\right) d\textbf{z}\\
-       &= \sum_{i=1}^K \int \exp \left( \sum_{k=1}^K \log \left(
-       q_{\boldsymbol{\phi}} (\textbf{z}_k) \cdot \log
-       q_{\boldsymbol{\phi}} (\textbf{z}_i) \right) \right)
-       d\textbf{z}\\
-       &= \sum_{i=1}^K \sum_{k=1}^K \int q_{\boldsymbol{\phi}} (\textbf{z}_k) \cdot \log
-       q_{\boldsymbol{\phi}} (\textbf{z}_i) d \textbf{z},\\
-       (II) &= \sum_{k=1}^K \int q_{\boldsymbol{\phi}} (\textbf{z}_k) \cdot \log
-       p (\textbf{z}) d \textbf{z}.
+          D_{KL} \left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
+       \left(\textbf{z}_k \right) || p(\textbf{z}) \right) &= \frac
+       {1}{2} \sum_{j=1}^{K \cdot L} \left(1 + \log \left(
+       \widehat{\sigma}_j^2 \right) - \widehat{\mu}_j^2 - \widehat{\sigma}_j^2 \right),
        \end{align}
        $$
        
-       
-       
-       
-       <!-- \left(\prod_{k=1}^K \mathcal{N} -->
-       <!-- \left(\textbf{z};\boldsymbol{\mu}_k (\boldsymbol{\phi}) -->
-       <!-- \right) \log \mathcal{N} \left( \textbf{z}; \textbf{0}, \textbf{I}\right) -->
+       where $L$ denotes the dimensionality of the latent space.
 
-    3. Reconstruction Error
+    3. *Reconstruction Error between $\widetilde{\textbf{m}}_k$ and
+       $\textbf{m}_k$*: There are $K$ segmentation masks generated
+       from the attention network $\textbf{m}_k \sim
+       q\_{\boldsymbol{\psi}}$ and the Component VAE's Spatial
+       Broadcast decoder $\widetilde{\textbf{m}}_k \sim
+       p\_{\boldsymbol{\theta}}$. Note that by construction $\sum\_{k=1}^K \textbf{m}_k
+       = \textbf{1}$, however this is not necessarily true for the
+       reconstructed segmentation masks, i.e., $\sum\_{k=1}^K
+       \widetilde{\textbf{m}}_k \neq \textbf{1}$.
   
   
 
@@ -908,24 +911,6 @@ For the sake of simplicity, this section is divided into four parts:
     corresponding pixel and slot approaches 0. 
   
  
- 
- <!-- - fusing both classse -->
- <!-- - compositional structure  -->
- 
- 
- 
-  
-  
-  
-  
-
-
-  * latent distribution Gaussian with diagonal covariance
-  * decoder: Spatial Broadcast Decoder, parametrises 
-    means of pixel-wise independent distributions 
-
-* **MONet implementation**
-
 * **Training Procedure**
     
 ### Results
