@@ -4,7 +4,7 @@ abb_title: "MONet: Unsupervised Scene Decomposition and Representation"
 permalink: "/paper_summaries/multi-object_network"
 author: "Markus Borea"
 tags: ["unsupervised learning", "object detection", "generalization", "varational autoencoder"]
-published: false 
+published: false
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
@@ -414,10 +414,42 @@ For the sake of simplicity, this section is divided into four parts:
   in log units $\log \textbf{s}_k$. The output of the modified U-Net
   is a one channel image $\textbf{o} \in ]-\infty, + \infty[^{W\times
   H}$ in which each entry can be interpreted as the logits probability
-  for $\boldsymbol{\alpha}_k$. A sigmoid layer[^5] is used to transform
-  these logits into probabilities, additionally these probabilities
-  are transformed into log probabilities, i.e.,
-  $\log\left(\boldsymbol{\alpha}_k\right)$ and $\log \left( 1 - \boldsymbol{\alpha}_k\right)$.
+  $\text{logits }\boldsymbol{\alpha}_k$. A sigmoid layer[^5] can be used to
+  transform these logits into probabilities, i.e.,
+  
+  $$
+  \begin{align}
+    \boldsymbol{\alpha}_k &= \text{Sigmoid} \left(\text{logits }
+    \boldsymbol{\alpha}_k \right) = \frac {1} {1 + \exp\left(- \text{logits }
+    \boldsymbol{\alpha}_k \right)}\\
+    1 - \boldsymbol{\alpha}_k &= 1 - \text{Sigmoid} \left(\text{logits }
+    \boldsymbol{\alpha}_k \right) = \frac {\exp\left(- \text{logits }
+    \boldsymbol{\alpha}_k \right) } { 1 + \exp\left(- \text{logits }
+    \boldsymbol{\alpha}_k \right)}
+  \end{align}
+  $$
+  
+  Additionally, [Burgess et al.
+  (2019)](https://arxiv.org/abs/1901.11390) transform these
+  probabilties into logaritmic units, i.e.,
+  
+  $$
+  \begin{align}
+     \log \boldsymbol{\alpha}_k &= - \log \left( 1 + \exp\left(- \text{logits }
+    \boldsymbol{\alpha}_k \right)\right)=\text{LogSigmoid }\left(
+  \text{logits } \boldsymbol{\alpha}_k \right)\\
+     \log \left(1 - \boldsymbol{\alpha}_k\right) &= - \text{logits }
+  \boldsymbol{\alpha}_k - \text{LogSigmoid }\left(
+  \text{logits } \boldsymbol{\alpha}_k \right),
+  \end{align} 
+  $$
+  
+  i.e., a LogSigmoid layer can be used (instead of a sigmoid
+  layer with applying logarithm to both outputs) to speed up the computations.
+  <!-- A sigmoid layer[^5] is used to transform -->
+  <!-- these logits into probabilities, additionally these probabilities -->
+  <!-- are transformed into log probabilities, i.e., -->
+  <!-- $\log\left(\boldsymbol{\alpha}_k\right)$ and $\log \left( 1 - \boldsymbol{\alpha}_k\right)$. -->
   <!-- The output of the modified U-Net assigns each -->
   <!-- pixel of the image two channels $\textbf{o}^{(k)} \in ]-\infty, + -->
   <!-- \infty[^{W \times H}$ with $k=\\{1, 2\\}$ where each channel can be understood as -->
@@ -451,18 +483,16 @@ For the sake of simplicity, this section is divided into four parts:
   the same dimensionality as in the original [U-Net
   paper](https://borea17.github.io/paper_summaries/u_net). To reduce
   training time and memory capacity, the following implementation caps
-  the channel dimensionality in the encoder to 256 output channels.
+  the channel dimensionality in the encoder to 512 output channels.
     
   ```python
   from torch import nn
-  
-  
+
+
   class AttentionNetwork(nn.Module):
       """Attention Network class for use in MONet, 
       consists of a slightly modified standard U-Net blueprint as described by
       Burgess et al. (2019) in Appendix B.2,
-      to reduce complexity:
-          - maximum channel dim in encoder is set to 256 (original U-Net is 1024)
 
       Attributes:
           encoder_blocks (list): 5 Unet blocks of encoder path
@@ -478,30 +508,30 @@ For the sake of simplicity, this section is divided into four parts:
               AttentionNetwork._block(4, 64),      # [batch_size, 64, 64, 64]
               AttentionNetwork._block(64, 128),    # [batch_size, 128, 32, 32]
               AttentionNetwork._block(128, 256),   # [batch_size, 256, 16, 16]
-              AttentionNetwork._block(256, 256),   # [batch_size, 256, 8, 8]
-              AttentionNetwork._block(256, 256),   # [batch_size, 256, 4, 4]
+              AttentionNetwork._block(256, 512),   # [batch_size, 512, 8, 8]
+              AttentionNetwork._block(512, 512),   # [batch_size, 512, 4, 4]
           ])
           self.max_pool = nn.MaxPool2d(kernel_size=(2,2))
           self.bottleneck = nn.Sequential(
-              nn.Flatten(),                        # [batch_size, 4096]
-              nn.Linear(4096, 128),                # [batch_size, 128]
+              nn.Flatten(),                        # [batch_size, 8192]
+              nn.Linear(8192, 128),                # [batch_size, 128]
               nn.ReLU(),
               nn.Linear(128, 128),                 # [batch_size, 128]
               nn.ReLU(),
-              nn.Linear(128, 128),                 # [batch_size, 128]
-              nn.ReLU()              # reshaped into [batch_size, 8, 4, 4]
+              nn.Linear(128, 8192),                # [batch_size, 8192]
+              nn.ReLU()              # reshaped into [batch_size, 512, 4, 4]
           )
           # input channels are sum of skip connection and output of last block
           self.decoder_blocks = nn.ModuleList([
-              AttentionNetwork._block(264, 256),   # [batch_size, 256, 8, 8]
-              AttentionNetwork._block(512, 256),   # [batch_size, 256, 8, 8]
-              AttentionNetwork._block(512, 128),   # [batch_size, 512, 16, 16]
-              AttentionNetwork._block(256, 64),    # [batch_size, 512, 32, 32]
+              AttentionNetwork._block(1024, 512),  # [batch_size, 512, 8, 8]
+              AttentionNetwork._block(1024, 256),  # [batch_size, 256, 8, 8]
+              AttentionNetwork._block(512, 128),   # [batch_size, 128, 16, 16]
+              AttentionNetwork._block(256, 64),    # [batch_size, 64, 32, 32]
               AttentionNetwork._block(128, 64)     # [batch_size, 64, 64, 64]
           ])
           self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
-          self.prediction = nn.Conv2d(64, 2, kernel_size=(1,1), stride=1)
-          self.log_softmax = nn.LogSoftmax(dim=1)
+          self.prediction = nn.Conv2d(64, 1, kernel_size=(1,1), stride=1)
+          self.log_sigmoid = nn.LogSigmoid()
           return
 
       def forward(self, image, log_scope):
@@ -519,7 +549,7 @@ For the sake of simplicity, this section is divided into four parts:
           # feed last skip tensor through bottleneck
           out_MLP = self.bottleneck(out)           # [batch_size, 128]
           # reshape final output to match last skip tensor
-          out = out_MLP.view(-1, 8, 4, 4)          # [batch_size, 8, 4, 4]
+          out = out_MLP.view(-1, 512, 4, 4)          # [batch_size, 512, 4, 4]
           # go through decoder path and use skip tensors
           for index, decoder_block in enumerate(self.decoder_blocks):
               inp = torch.cat((skip_tensors[-1 - index], out), 1)
@@ -528,13 +558,14 @@ For the sake of simplicity, this section is divided into four parts:
                   out = decoder_block(inp)
               else:
                   out = self.upsample(decoder_block(inp))       
-          alpha_logits = self.prediction(out)      # [batch_size, 2, 64, 64]
+          alpha_logits = self.prediction(out)      # [batch_size, 1, 64, 64]
           ########################################################################
-          # compute log (alpha) and log (1 - alpha) using pixel wise logsoftmax
-          log_alpha = self.log_softmax(alpha_logits)
+          # transform into log probabilities log (alpha_k) and log (1 - alpha_k) 
+          log_alpha_k = self.log_sigmoid(alpha_logits)
+          log_1_m_alpha_k = -alpha_logits + log_alpha_k
           # compute log_new_mask, log_new_scope (logarithm rules)
-          log_new_mask = log_scope + log_alpha[:, 0:1]
-          log_new_scope = log_scope + log_alpha[:, 1:2]
+          log_new_mask = log_scope + log_alpha_k
+          log_new_scope = log_scope + log_1_m_alpha_k
           return [log_new_mask, log_new_scope]
 
       @staticmethod
@@ -557,13 +588,9 @@ For the sake of simplicity, this section is divided into four parts:
                         bias=False, padding=1),
               nn.InstanceNorm2d(num_features=out_channels, affine=True),
               nn.ReLU(),
-              #nn.Conv2d(out_channels, out_channels, kernel_size=(3,3), stride=1, 
-              #          bias=False, padding=1),
-              #nn.InstanceNorm2d(num_features=out_channels, affine=True),
-              #nn.ReLU(),
           )
-          return u_net_block 
-  ```
+          return u_net_block
+    ```
 
 
 [^5]: [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) state
@@ -586,11 +613,12 @@ For the sake of simplicity, this section is divided into four parts:
   neural networks are described in appendix B.1 of [Burgess et al.
   (2019)](https://arxiv.org/abs/1901.11390). Basically, the encoder
   $q\_{\boldsymbol{\phi}}(\textbf{z}_k | \textbf{x}, \textbf{m}_k)$ is a typical CNN that takes the
-  concatentation of an image $\textbf{x}$ and a segmentation mask
-  $\textbf{m}_k$ to compute the mean $\boldsymbol{\mu}\_{E, k}$ and
+  concatentation of an image $\textbf{x}$ and a segmentation mask in
+  logaritmic units $\log \textbf{m}_k$ as input to compute the mean
+  $\boldsymbol{\mu}\_{E, k}$ and
   logarithmed variance $\boldsymbol{\sigma}^2\_{E,k}$ of the Gaussian latent
   space distribution (*encoder distribution*) $\mathcal{N} \left(
-  \boldsymbol{\mu}\_{E, k}, \boldsymbol{\sigma}^2\_{E,k} \textbf{I}
+  \boldsymbol{\mu}\_{E, k}, \left(\boldsymbol{\sigma}^2\_{E,k} \right)^{\text{T}}\textbf{I}
   \right)$. Sampling from this distribution is avoided by using
   the reparametrization trick, i.e., the latent variable
   $\textbf{z}_k$ is expressed as a deterministic variable[^6] 
@@ -622,8 +650,9 @@ For the sake of simplicity, this section is divided into four parts:
   image from which the first three channels correspond to the 3 RGB
   channels for the means of the image components
   $\boldsymbol{\mu}_k$ and the last channel corresponds to the logits probabilities
-  of the Bernoulli distribution. These logits are converted into
-  probabilties $\textbf{p}_k$ using a sigmoid layer.
+  of the Bernoulli distribution $\text{logits }\textbf{p}_k$. 
+  <!-- These logits are converted into -->
+  <!-- probabilties $\textbf{p}_k$ using a sigmoid layer. -->
   
   ```python
   class Encoder(nn.Module):
@@ -849,7 +878,7 @@ For the sake of simplicity, this section is divided into four parts:
     2. *Regularization Term for Distribution of $\textbf{z}_k$*: The
        coding space is regularized using the KL divergence between the 
        latent (posterior) distribution $q\_{\boldsymbol{\phi}} \left( \textbf{z}_k \right) \sim
-       \mathcal{N} \left( \boldsymbol{\mu}_k, \boldsymbol{\sigma}_k^2
+       \mathcal{N} \left( \boldsymbol{\mu}_k, \left(\boldsymbol{\sigma}_k^2\right)^{\text{T}}
        \textbf{I} \right)$ factorized across slots and the latent prior distribution weighted with the hyperparameter
        $\beta$. The product of multiple Gaussians is itself a
        Gaussian, however it is rather complicated to compute the new
@@ -857,7 +886,7 @@ For the sake of simplicity, this section is divided into four parts:
        $\textbf{z}_k$ is sampled independently from the corresponding
        latent distribution $q\_{\boldsymbol{\phi}}(\textbf{z}_k)$,
        thus we can generate the new mean and covariance by
-       cocatenation (see [this
+       concatenation (see [this
        post](https://stats.stackexchange.com/a/308137)), i.e.,
        
        $$
@@ -870,7 +899,7 @@ For the sake of simplicity, this section is divided into four parts:
           \widehat{\boldsymbol{\mu}}}, \underbrace{\text{diag}\left(
          \begin{bmatrix} \boldsymbol{\sigma}_1^2 \\  \vdots\\
          \boldsymbol{\sigma}_K^2  \end{bmatrix}
-         \right)}_{\widehat{\boldsymbol{\sigma}}^2 \textbf{I}}\right)
+         \right)}_{ \left(\widehat{\boldsymbol{\sigma}}^2\right)^{\text{T}} \textbf{I}}\right)
        $$
        
        [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) chose
@@ -892,24 +921,56 @@ For the sake of simplicity, this section is divided into four parts:
        where $L$ denotes the dimensionality of the latent space.
 
     3. *Reconstruction Error between $\widetilde{\textbf{m}}_k$ and
-       $\textbf{m}_k$*: There are $K$ segmentation masks generated
-       from the attention network $\textbf{m}_k \sim
-       q\_{\boldsymbol{\psi}}$ and the Component VAE's Spatial
-       Broadcast decoder $\widetilde{\textbf{m}}_k \sim
-       p\_{\boldsymbol{\theta}}$. Note that by construction $\sum\_{k=1}^K \textbf{m}_k
-       = \textbf{1}$, however this is not necessarily true for the
-       reconstructed segmentation masks, i.e., $\sum\_{k=1}^K
-       \widetilde{\textbf{m}}_k \neq \textbf{1}$.
-  
-  
-
-[^7]: In practice, the reconstruction error for a fixed component
-    (fixed $k$) becomes incalculable for binary attention masks, since $\log 0$ is
-    undefined. However, the reconstruction error is effectively
-    unconstrained outside of masked regions, since for $\lim \log
-    m\_{k,i} \rightarrow -\infty$ the reconstruction error for the
-    corresponding pixel and slot approaches 0. 
-  
+       $\textbf{m}_k$*: Remind that the attention network
+       $\boldsymbol{\alpha}\_{\boldsymbol{\psi}}$ produces $K$
+       segmentation masks in logaritmic units, i.e., $\log
+       \textbf{m}_k$. By construction $\sum\_{k=1}^K \textbf{m}_k =
+       \textbf{1}$, i.e., concatentation of the attention masks
+       $\textbf{m} = \begin{bmatrix} \textbf{m}_1 & \dots &
+       \textbf{m}_K \end{bmatrix}^{\text{T}}$ can be interpreted as a 
+       pixel-wise categorical distribution[^8]. Similarly,
+       concatenating the logits probabilties of the component VAE and
+       applying a pixel-wise softmax, i.e., 
+       
+       $$
+       \widetilde{\textbf{m}} = \begin{bmatrix} \widetilde{\textbf{m}}_1 \\ \vdots \\
+       \widetilde{\textbf{m}}_K \end{bmatrix} = \text{Softmax}\left(\begin{bmatrix} \text{logits }\textbf{p}_1 \\ \vdots \\
+       \text{logits }\textbf{p}_K \end{bmatrix}\right),
+       $$
+       
+       transforms the logits outputs of the component VAE into a pixel-wise
+       categorical distribution. Thus, the KL-divergence can be
+       calculated as follows 
+       
+       $$
+       \begin{align}
+         D_{KL} \left( q_{\boldsymbol{\psi}} \left( \textbf{c} |
+    \textbf{x} \right) || p_{\boldsymbol{\theta}} \left( \textbf{c} | \{
+    \textbf{z}_k \} \right) \right) &=
+         \sum_{i=1}^{H\cdot W} D_{KL} \left( {\textbf{m}}_i || \widetilde{\textbf{m}}_i \right) \\
+         &= \sum_{i=1}^{H\cdot W} \textbf{m}_i \left(\log \textbf{m}_i - \log \widetilde{\textbf{m}}_i \right),
+       \end{align}
+       $$
+       
+       where $i$ denotes the pixel space, i.e., $\textbf{m}_i \in [0,
+       1]^{K}$. To make the computation more efficient, we directly
+       compute the reconstructed segmentations in logaritmic units
+       using pixel-wise logsoftmax, i.e.,
+       
+       $$
+       \log \widetilde{\textbf{m}} = \text{LogSoftmax}\left(\begin{bmatrix} \text{logits }\textbf{p}_1 \\ \vdots \\
+       \text{logits }\textbf{p}_K \end{bmatrix}\right).
+       $$
+   
+   ```python
+   class MONet(nn.Module):
+   
+   ```
+       
+       
+[^8]: Note that concatenation of masks leads to a three dimensional
+    tensor. 
+       
  
 * **Training Procedure**
     
@@ -924,4 +985,20 @@ class occur
 * lots of hyperparameters (network architectures, $\beta$, $\gamma$, optimization)
 * [see this](https://github.com/ChenYutongTHU/Learning-to-manipulate-individual-objects-in-an-image-Implementation)
 
+ 
+
+## Acknowledgement
+
+* [model implementation](https://github.com/stelzner/monet/blob/master/model.py) by Karl Stelzner
+  
+  
+
+[^7]: In practice, the reconstruction error for a fixed component
+    (fixed $k$) becomes incalculable for binary attention masks, since $\log 0$ is
+    undefined. However, the reconstruction error is effectively
+    unconstrained outside of masked regions, since for $\lim \log
+    m\_{k,i} \rightarrow -\infty$ the reconstruction error for the
+    corresponding pixel and slot approaches 0. 
+  
+ 
 --------------------------------------------------------------------------------------------
