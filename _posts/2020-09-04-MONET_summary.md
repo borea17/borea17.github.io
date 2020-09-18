@@ -655,6 +655,9 @@ For the sake of simplicity, this section is divided into four parts:
   <!-- probabilties $\textbf{p}_k$ using a sigmoid layer. -->
   
   ```python
+  from torch.distributions.multivariate_normal import MultivariateNormal
+
+
   class Encoder(nn.Module):
       """"Encoder class for use in Component VAE of MONet, 
       input is the image and a binary attention mask (same dimension as image)
@@ -718,7 +721,6 @@ For the sake of simplicity, this section is divided into four parts:
       Attributes:
           img_size: image size (necessary for tiling)
           decoder_convs: convolution layers of decoder (also upsampling)
-          sigmoid: sigmoid layer
       """
 
       def __init__(self, latent_dim):
@@ -754,7 +756,6 @@ For the sake of simplicity, this section is divided into four parts:
               nn.Conv2d(in_channels=32, out_channels=4, stride=(1,1), 
                         kernel_size=(1, 1)),
           )
-          self.sigmoid = nn.Sigmoid()
           return
 
       def forward(self, z):
@@ -772,9 +773,7 @@ For the sake of simplicity, this section is divided into four parts:
           mu_D = self.decoder_convs(z_sb)
           # split into means of x and logits of m
           mu_x, logits_m = torch.split(mu_D, 3, dim=1)
-          # convert logits into probabilities using Sigmoid
-          p_m = self.sigmoid(logits_m)
-          return [mu_x, p_m]
+          return [mu_x, logits_m]
 
 
   class ComponentVAE(nn.Module):
@@ -790,6 +789,7 @@ For the sake of simplicity, this section is divided into four parts:
       """
 
       def __init__(self, latent_dim):
+          super().__init__()
           self.encoder = Encoder(latent_dim)
           self.decoder = SpatialBroadcastDecoder(latent_dim)
           self.normal_dist = MultivariateNormal(torch.zeros(latent_dim), 
@@ -806,9 +806,9 @@ For the sake of simplicity, this section is divided into four parts:
           # get latent variable by reparametrization trick
           z = mu_E + torch.exp(0.5*log_var_E) * epsilon
           # get decoder distribution parameters
-          mu_x, p_m = self.decoder(z)
-          return [mu_E, log_var_E, z,  mu_x, p_m]
-  ```
+          mu_x, logits_m = self.decoder(z)
+          return [mu_E, log_var_E, z, mu_x, logits_m]
+    ```
 
 [^6]: This is explained in more detail in my [VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes) post. For simplicity, we are setting the number of (noise variable) samples $L$ per datapoint to 1 (see equation $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description) paragraph). Note that [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) stated that in their experiments setting $L=1$ sufficed as long as the minibatch size was large enough.
   
@@ -871,9 +871,14 @@ For the sake of simplicity, this section is divided into four parts:
         sum (index $k$) results in a reconstructed image distribution,
         the outer sum (index $i$) computes the log likelihood of each
         pixel independently and sums them to retrieve the
-        reconstruction accuracy of the whole image. Note that the
-        sum (for fixed $k$) is unconstrained outside of the masked regions for
-        each reconstruction[^7]. 
+        reconstruction accuracy of the whole image. The term inside
+        the exponent is unconstrained outside of the masked regions[^7]
+        (for each reconstruction, i.e., fixed $k$). Note that [Burgess
+        et al. (2019)](https://arxiv.org/abs/1901.11390) define the 
+        variance of the component ($k=1$) as `background variance`
+        $\sigma_{bg}^2$ and the variance of the other components
+        ($k>1$) as foreground variance 
+        
         
     2. *Regularization Term for Distribution of $\textbf{z}_k$*: The
        coding space is regularized using the KL divergence between the 
@@ -963,8 +968,79 @@ For the sake of simplicity, this section is divided into four parts:
        $$
    
    ```python
-   class MONet(nn.Module):
-   
+    class MONet(nn.Module):
+        """Multi-Object Network class as described by Burgess et al. (2019)
+
+        Args:
+            latent_dim (int): dimensionality of the latent space within VAE
+            beta (float): hyperparameter to scale regularization
+            gamma (float): hyperparameter to scale KL div of mask distributions
+            background_variance (float): hyperparamter for reconstruction loss 
+            foreground_variance (float): hyperparamter for reconstruction loss
+
+        Attributes:
+            comp_VAE (nn.Module): VAE (with SpatialBroadcastDecoder) 
+            attention_net (nn.Module): recurrent U-Net 
+            bg_var (float): refers to background_variance input
+            fg_var (float): refers to foreground_variance input        
+        """
+
+        def __init__(self, latent_dim, beta, gamma, background_var, foreground_var):
+            super().__init__()
+            self.comp_VAE = ComponentVAE(latent_dim)
+            self.attention_net = AttentionNetwork()
+            self.latent_dim = latent_dim
+            self.bg_var = background_var
+            self.fg_var = foreground_var
+            self.beta = beta
+            self.gamma = gamma
+            self.log_softmax = nn.LogSoftmax(dim=1)
+            return
+
+        def forward(self, x, num_slots):
+            # initialization
+            logits_m_tilde, log_m = [], []
+            mu_hat, log_var_hat = [], []
+            x_recs = []
+            # start decomposition
+            log_s_k = torch.zeros_like(x[:, 0:1, : , :])  # [batch_size, 1, 64, 64]
+            for k in range(num_slots):
+                log_m_k, log_s_k = self.attention_net(x, log_s_k)
+                [mu_z, log_var_z, mu_x, logits_m] = self.comp_VAE(x, log_m_k)
+                # store values in list
+                mu_hat.append(mu_z)
+                log_var_hat.append(log_var_z)
+                x_recs.append(mu_x)
+                log_m.append(log_m_k)
+                logits_m_tilde.append(logits_m)
+            # concatenate tensors of each list
+            mu_hat = torch.cat(mu_hat, 1)  # [batch_size, num_slots*latent_dim]
+            log_var_hat = torch.cat(log_var_hat, 1)
+            x_recs = torch.cat(x_recs, 1)  # [batch_size, num_slots*3, 64, 64]
+            log_m = torch.cat(log_m, 1)  # [batch_size, num_slots, 64, 64]
+            log_m_rec = self.log_softmax(torch.cat(logits_m_tilde, 1))
+            return [mu_hat, log_var_hat, x_recs, log_m, log_m_rec]
+
+        def compute_loss(self, x, num_slots):
+            bs = x.shape[0]  # batch_size
+            # get all necessary 
+            [mu_hat, log_var_hat, x_recs, log_m, log_m_rec] = \
+                self.forward(x, num_slots)
+            # prepare variance for NLL calculation
+            var = torch.cat((self.bg_var * torch.ones_like(x_recs[:, 0:3]),
+                            self.fg_var * torch.ones_like(x_recs[:, 3::])), dim=1)
+            # compute NLL per batch
+            NLL = -torch.logsumexp(log_m.repeat(1, 3, 1, 1)
+                                   -  0.5*np.log(2*np.pi*var) - (0.5/var)*
+                                   ((x.repeat(1,num_slots,1,1)-x_recs).pow(2)), 
+                                  dim=1).sum(axis=1).sum(axis=1)
+            # compute regularization term per batch
+            reg_term = 0.5*(1 + log_var_hat - mu_hat - log_var_hat.exp()).sum(axis=1)
+            # compute KL divergence between mask distributions per batch
+            kl_masks = (log_m.exp() *(log_m - log_m_rec)).view(bs, -1).sum(axis=1)
+            # compute loss per batch and take mean
+            loss = (NLL + self.beta*reg_term + self.gamma*kl_masks).mean(axis=0)
+            return loss
    ```
        
        
