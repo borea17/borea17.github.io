@@ -149,7 +149,7 @@ and their interaction.
 
 | ![Schematic of MONet](/assets/img/04_MONet/MONet_schematic.png "Schematic of MONet") |
 | :--         |
-| Schematic of MONet. (a) The overall compositional generative model architecture is represented by showing schematically how the attention network and the component VAE interact with the ground truth image. (There is a small mistake, the last attention mask should be $\textbf{s}_{K-1}$ instead of $\textbf{s}_K$). (b) The attention network is used for a recursive decomposition process to generate attention masks $\textbf{m}_k$. (c) The Component VAE takes as input the image $\textbf{x}$ and the corresponding attention mask $\textbf{m}_k$ and reconstructs both. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). |
+| **Schematic of MONet**. (a) The overall compositional generative model architecture is represented by showing schematically how the attention network and the component VAE interact with the ground truth image. (There is a small mistake, the last attention mask should be $\textbf{s}_{K-1}$ instead of $\textbf{s}_K$). (b) The attention network is used for a recursive decomposition process to generate attention masks $\textbf{m}_k$. (c) The Component VAE takes as input the image $\textbf{x}$ and the corresponding attention mask $\textbf{m}_k$ and reconstructs both. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). |
 
 The whole model is end-to-end trainable with the following loss
 function 
@@ -274,7 +274,7 @@ structure of the data`.
 
 | ![MONet Paper Results](/assets/img/04_MONet/paper_results.png "MONet Paper Results") |
 | :--         |
-| MONet Paper Results: Decomposition on *Multi-dSprties* and *CLEVR* images. First row shows the input image, second and third row the corresponding reconstructions and segmentations by MONet (trained for 1,000,000 iterations). The last three rows show the unmasked component reconstructions from some chosen slots (indicated by $S$). Red arrows highlight occluded regions of shapes that are completed as full shapes. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). |
+| **MONet Paper Results**: Decomposition on *Multi-dSprties* and *CLEVR* images. First row shows the input image, second and third row the corresponding reconstructions and segmentations by MONet (trained for 1,000,000 iterations). The last three rows show the unmasked component reconstructions from some chosen slots (indicated by $S$). Red arrows highlight occluded regions of shapes that are completed as full shapes. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390).  |
 
 The following reimplementation aims to reproduce some of these results
 while providing an in-depth understanding of the model architecture.
@@ -439,8 +439,7 @@ For the sake of simplicity, this section is divided into four parts:
     \boldsymbol{\alpha}_k \right)\right)=\text{LogSigmoid }\left(
   \text{logits } \boldsymbol{\alpha}_k \right)\\
      \log \left(1 - \boldsymbol{\alpha}_k\right) &= - \text{logits }
-  \boldsymbol{\alpha}_k - \text{LogSigmoid }\left(
-  \text{logits } \boldsymbol{\alpha}_k \right),
+  \boldsymbol{\alpha}_k + \log \boldsymbol{\alpha}_k,
   \end{align} 
   $$
   
@@ -875,10 +874,14 @@ For the sake of simplicity, this section is divided into four parts:
         the exponent is unconstrained outside of the masked regions[^7]
         (for each reconstruction, i.e., fixed $k$). Note that [Burgess
         et al. (2019)](https://arxiv.org/abs/1901.11390) define the 
-        variance of the component ($k=1$) as `background variance`
-        $\sigma_{bg}^2$ and the variance of the other components
-        ($k>1$) as foreground variance 
-        
+        variances of the decoder distribution for each component as
+        follows 
+
+        $$
+          \sigma_k^2 = \begin{cases} \sigma_{bg}^2 & \text{if } k=1
+        \quad \text{(background variance)} \\
+        \sigma_{fg}^2 & \text{if } k>1 \quad \text{(foreground variance)}\end{cases}
+        $$
         
     2. *Regularization Term for Distribution of $\textbf{z}_k$*: The
        coding space is regularized using the KL divergence between the 
@@ -917,7 +920,7 @@ For the sake of simplicity, this section is divided into four parts:
        $$
        \begin{align}
           D_{KL} \left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
-       \left(\textbf{z}_k \right) || p(\textbf{z}) \right) &= \frac
+       \left(\textbf{z}_k \right) || p(\textbf{z}) \right) &= -\frac
        {1}{2} \sum_{j=1}^{K \cdot L} \left(1 + \log \left(
        \widehat{\sigma}_j^2 \right) - \widehat{\mu}_j^2 - \widehat{\sigma}_j^2 \right),
        \end{align}
@@ -1048,7 +1051,63 @@ For the sake of simplicity, this section is divided into four parts:
     tensor. 
        
  
-* **Training Procedure**
+* **Training Procedure**: [Burgess et al.
+  (2019)](https://arxiv.org/abs/1901.11390) chose `RMSProp` for the
+  optimization with a learning rate of `0.0001` and a batch size of
+  `64`, see Appendix B.3. 
+  
+  ```python
+  from livelossplot import PlotLosses
+  from torch.utils.data import DataLoader
+
+  def train(dataset, epochs, monet, num_slots):
+      device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+      print('Device: {}'.format(device))
+
+      data_loader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
+
+      monet.to(device)
+      optimizer = torch.optim.RMSprop(monet.parameters(), lr=0.0001)
+
+      losses_names = ['reconstruction', 'regularization', 'KL masks']
+      losses_plot = PlotLosses(groups={'avg loss': losses_names})
+      for epoch in range(epochs):
+          avg_rec, avg_reg, avg_kl_masks = 0, 0, 0
+          for counter, x in enumerate(data_loader):
+              monet.zero_grad()
+
+              NLL, reg, kl_masks = monet.compute_loss(x[0].to(device), num_slots)
+              loss = NLL + monet.beta*reg + monet.gamma*kl_masks
+              loss.backward()
+              optimizer.step()
+
+              avg_rec += NLL.item() / len(data_loader)
+              avg_reg += reg.item() / len(data_loader)
+              avg_kl_masks += kl_masks.item() / len(data_loader)
+
+          losses_plot.update({'reconstruction': avg_rec,
+                              'regularization': avg_reg,
+                              'KL masks': avg_kl_masks})
+          losses_plot.send()
+      trained_monet = monet
+      return trained_monet
+  ```
+
+### Visualization Functions
+
+The following visualization functions are inspired by Figures 3, 5 and
+6 of [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). These
+visualization mainly serve to evaluate the representation quality of
+the trained model. 
+
+* **MONet Decompositions and Reconstructions**
+
+* **Component VAE Results**
+
+* **Latent Traversals**
+
+
     
 ### Results
 
@@ -1065,6 +1124,7 @@ class occur
 
 ## Acknowledgement
 
+* 
 * [model implementation](https://github.com/stelzner/monet/blob/master/model.py) by Karl Stelzner
   
   

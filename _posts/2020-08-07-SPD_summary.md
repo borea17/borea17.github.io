@@ -562,7 +562,6 @@ hyperparmeters. These can be divided into three broader categories:
       losses_plot = PlotLosses(groups={'avg log loss': 
                                       ['kl loss', 'reconstruction loss']})
       print('Start training with {} decoder\n'.format(VAE.vae_type))
-      avg_kl, avg_recons_err = [], []
       for epoch in range(1, epochs +1):
           avg_kl = 0 
           avg_recons_err = 0
