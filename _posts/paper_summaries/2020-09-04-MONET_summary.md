@@ -4,10 +4,11 @@ abb_title: "MONet: Unsupervised Scene Decomposition and Representation"
 permalink: "/paper_summaries/multi-object_network"
 author: "Markus Borea"
 tags: ["unsupervised learning", "object detection", "generalization", "varational autoencoder"]
-published: false
+published: true
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
+type: "paper summary"
 ---
 
 NOTE: THIS IS CURRENTLY WIP
@@ -414,7 +415,7 @@ For the sake of simplicity, this section is divided into four parts:
   in log units $\log \textbf{s}_k$. The output of the modified U-Net
   is a one channel image $\textbf{o} \in ]-\infty, + \infty[^{W\times
   H}$ in which each entry can be interpreted as the logits probability
-  $\text{logits }\boldsymbol{\alpha}_k$. A sigmoid layer[^5] can be used to
+  $\text{logits }\boldsymbol{\alpha}_k$. A sigmoid layer can be used to
   transform these logits into probabilities, i.e.,
   
   $$
@@ -592,20 +593,20 @@ For the sake of simplicity, this section is divided into four parts:
     ```
 
 
-[^5]: [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) state
-    that they use a log softmax layer, however this would only be
-    possible if there were two channels at the output. Note that in
-    binary classification, a pixel-wise softmax layer (two channel) can be
-    transformed into a sigmoid layer (one channel) by using the
-    difference between the two channels as input: 
-    $$
-    \begin{align}
-      \text{Softmax} (x_1) &= \frac {1} {1 + \exp(x_2 - x_1)} = \frac
-    {1} {1 + \exp(t)} = \text{Sigmoid} (t), \\
-      \text{Softmax} (x_2) &= \frac {1}{1 + \exp(x_1 - x_2)} = \frac
-    {1}{1+\exp(-t)} = 1 - \text{Sigmoid}(t).
-    \end{align}
-    $$
+<!-- [^5]: [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) state -->
+<!--     that they use a log softmax layer, however this would only be -->
+<!--     possible if there were two channels at the output. Note that in -->
+<!--     binary classification, a pixel-wise softmax layer (two channel) can be -->
+<!--     transformed into a sigmoid layer (one channel) by using the -->
+<!--     difference between the two channels as input:  -->
+<!--     $$ -->
+<!--     \begin{align} -->
+<!--       \text{Softmax} (x_1) &= \frac {1} {1 + \exp(x_2 - x_1)} = \frac -->
+<!--     {1} {1 + \exp(t)} = \text{Sigmoid} (t), \\ -->
+<!--       \text{Softmax} (x_2) &= \frac {1}{1 + \exp(x_1 - x_2)} = \frac -->
+<!--     {1}{1+\exp(-t)} = 1 - \text{Sigmoid}(t). -->
+<!--     \end{align} -->
+<!--     $$ -->
 
 * **Component VAE**: The architectures for the encoder
   $q\_{\boldsymbol{\phi}}$ and decoder $p\_{\boldsymbol{\theta}}$
@@ -620,7 +621,7 @@ For the sake of simplicity, this section is divided into four parts:
   \boldsymbol{\mu}\_{E, k}, \left(\boldsymbol{\sigma}^2\_{E,k} \right)^{\text{T}}\textbf{I}
   \right)$. Sampling from this distribution is avoided by using
   the reparametrization trick, i.e., the latent variable
-  $\textbf{z}_k$ is expressed as a deterministic variable[^6] 
+  $\textbf{z}_k$ is expressed as a deterministic variable[^5] 
   
   $$
     \textbf{z}_k = \boldsymbol{\mu}_{E, k} +
@@ -809,7 +810,7 @@ For the sake of simplicity, this section is divided into four parts:
           return [mu_E, log_var_E, z, mu_x, logits_m]
     ```
 
-[^6]: This is explained in more detail in my [VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes) post. For simplicity, we are setting the number of (noise variable) samples $L$ per datapoint to 1 (see equation $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description) paragraph). Note that [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) stated that in their experiments setting $L=1$ sufficed as long as the minibatch size was large enough.
+[^5]: This is explained in more detail in my [VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes) post. For simplicity, we are setting the number of (noise variable) samples $L$ per datapoint to 1 (see equation $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description) paragraph). Note that [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) stated that in their experiments setting $L=1$ sufficed as long as the minibatch size was large enough.
   
   
  * **MONet Implementation**: The compositional structure is achieved
@@ -854,15 +855,16 @@ For the sake of simplicity, this section is divided into four parts:
         m_{k, i} \left(\boldsymbol{\psi} \right) \frac {1}{ \sqrt{2 \pi \sigma_k^2} } \exp \left( - \frac { \left[ x_i -
         \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right)
         \right)\\
-        &= -\sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left( \log \frac
-        {m_{k, i} \left(\boldsymbol{\psi} \right)}{\sqrt{2\pi \sigma_k^2}}
-        \right) \exp \left( - \frac {\left[x_i -
-        \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}
-        \right)\right)\\
-        &= -\sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left(
-        \log \big[m_{k, i} \left(\boldsymbol{\psi} \right) \big] - \frac {\log 2\pi \sigma_k^2} {2} - \frac { \big[x_i -
-        \mu_{k, i} (\boldsymbol{\theta}) \big]^2 } {2 \sigma_k^2}  \right)
-        \right), 
+        &= -\sum_{i=1}^N \log \left( \frac {1} {\sqrt{2\pi}} 
+        \sum_{k=1}^K \exp \left(
+        \log \frac { m_{k, i} \left(\boldsymbol{\psi} \right) } {\sigma_k} 
+        - \frac { \big[x_i - \mu_{k, i} (\boldsymbol{\theta}) \big]^2 } {2 \sigma_k^2}  \right)
+        \right)\\
+        &= \frac {N \log 2 \pi}{2}\\
+        & \quad -\sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left(
+        \log \big[m_{k, i} \left(\boldsymbol{\psi} \right)\big]  -
+        \log \sigma_k - \frac { \big[x_i - \mu_{k, i} (\boldsymbol{\theta}) \big]^2
+        } {2 \sigma_k^2}  \right) \right),
         \end{align}
         $$
 
@@ -871,7 +873,7 @@ For the sake of simplicity, this section is divided into four parts:
         the outer sum (index $i$) computes the log likelihood of each
         pixel independently and sums them to retrieve the
         reconstruction accuracy of the whole image. The term inside
-        the exponent is unconstrained outside of the masked regions[^7]
+        the exponent is unconstrained outside of the masked regions[^6]
         (for each reconstruction, i.e., fixed $k$). Note that [Burgess
         et al. (2019)](https://arxiv.org/abs/1901.11390) define the 
         variances of the decoder distribution for each component as
@@ -936,7 +938,7 @@ For the sake of simplicity, this section is divided into four parts:
        \textbf{1}$, i.e., concatentation of the attention masks
        $\textbf{m} = \begin{bmatrix} \textbf{m}_1 & \dots &
        \textbf{m}_K \end{bmatrix}^{\text{T}}$ can be interpreted as a 
-       pixel-wise categorical distribution[^8]. Similarly,
+       pixel-wise categorical distribution[^7]. Similarly,
        concatenating the logits probabilties of the component VAE and
        applying a pixel-wise softmax, i.e., 
        
@@ -956,7 +958,7 @@ For the sake of simplicity, this section is divided into four parts:
     \textbf{x} \right) || p_{\boldsymbol{\theta}} \left( \textbf{c} | \{
     \textbf{z}_k \} \right) \right) &=
          \sum_{i=1}^{H\cdot W} D_{KL} \left( {\textbf{m}}_i || \widetilde{\textbf{m}}_i \right) \\
-         &= \sum_{i=1}^{H\cdot W} \textbf{m}_i \left(\log \textbf{m}_i - \log \widetilde{\textbf{m}}_i \right),
+         &= \sum_{i=1}^{H\cdot W} \textbf{m}_i \odot \left(\log \textbf{m}_i - \log \widetilde{\textbf{m}}_i \right),
        \end{align}
        $$
        
@@ -1047,7 +1049,7 @@ For the sake of simplicity, this section is divided into four parts:
    ```
        
        
-[^8]: Note that concatenation of masks leads to a three dimensional
+[^7]: Note that concatenation of masks leads to a three dimensional
     tensor. 
        
  
@@ -1097,15 +1099,199 @@ For the sake of simplicity, this section is divided into four parts:
 ### Visualization Functions
 
 The following visualization functions are inspired by Figures 3, 5 and
-6 of [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). These
+7 of [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). These
 visualization mainly serve to evaluate the representation quality of
 the trained model. 
 
-* **MONet Decompositions and Reconstructions**
+* **MONet Reconstructions and Decompositions**: The most intuitive
+  visualization is to show some (arbitrarly chosen) fully
+  reconstructed images (i.e, `Reconstruction mixture` $\widetilde{\textbf{x}} = \sum_{k=1}^K
+  \textbf{m}_k \odot \widetilde{\textbf{x}}_k$) compared to the
+  original input $\textbf{x}$ (`Data`) together with the learned segmentation
+  masks (i.e., `Segmentation` $\\{ \textbf{m}_k \\}$) of the attention network. Note
+  that in order to visualize the segmentations 
+  in one plot, we cast the attenion masks into binary
+  attention masks by applying `arg max` pixel-wise over all $K$
+  attention masks. In addition, all
+  umasked component VAE reconstructions (i.e., `S(k)` 
+  $\widetilde{\textbf{x}}_k$) are shown, see figure below.
+  
+  | ![MONet Reconstruction and Decompositions](/assets/img/04_MONet/reconstruction_and_decompositions.png "MONet Reconstructions and Decompositions") |
+  | :--         |
+  | **Figure 7 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): Each example shows the image fed as input data to the model, with corresponding outputs from the model. Reconstruction mixtures show sum of components from all slots, weighted by the learned masks from the attention network. Colour-coded segmentation maps summarize the attention masks $\\{\textbf{m}_k \\}$. Rows labeld S1-5 show the reconstruction components of each slot. |
+  
 
-* **Component VAE Results**
+  ```python
+  def reconstructions_and_decompositions(trained_monet, dataset, num_slots, SEED=1):
+      np.random.seed(SEED)
+      device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+      n_samples = 8
+      i_samples = np.random.choice(range(len(dataset)), n_samples, replace=False)
+      colors = plt.cm.get_cmap('hsv', num_slots)
+      cmap = colors(np.linspace(0, 1, num_slots))
+
+      fig = plt.figure(figsize=(14, 10))
+      for counter, i_sample in enumerate(i_samples):
+          img = dataset[i_sample][0]
+          # data
+          plt.subplot(3 + num_slots, n_samples + 1, counter + 2)
+          plt.imshow(transforms.ToPILImage()(img))
+          plt.axis('off')
+          # monet related
+          img = img.unsqueeze(0).to(device)
+          [mu_hat,log_var_hat,x_mu,log_m,log_m_rec] = trained_monet(img, num_slots)
+          # reconstruction mixture
+          m_k = log_m.repeat_interleave(3, dim=1).exp().view(1, num_slots, 3, 64, 64)
+          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64) 
+          img_rec_mixture =  (m_k * x_mu_k).sum(axis=1)
+          img_rec = torch.clamp(img_rec_mixture, 0 , 1).squeeze(0).cpu()
+          plt.subplot(3 + num_slots, n_samples + 1, counter + 2 + (n_samples + 1))
+          plt.imshow(transforms.ToPILImage()(img_rec))
+          plt.axis('off')
+          # segmentation (binary) from attention network
+          m = log_m.exp().detach().cpu().numpy()[0]
+          m_binary_RGBA = cmap[np.argmax(m, 0)]
+          plt.subplot(3 + num_slots, n_samples + 1, counter + 2 + (n_samples + 1)*2)
+          plt.imshow(m_binary_RGBA)
+          plt.axis('off')
+          # unmasked component reconstructions
+          x_recs = x_mu.view(1, num_slots, 3, 64, 64)
+          for slot in range(num_slots):
+              x_rec = torch.clamp(x_recs[0][slot], 0, 1).cpu()
+              plot_idx =  counter + 2 + (n_samples + 1)*(slot+3)
+              plt.subplot(3 + num_slots, n_samples + 1, plot_idx)
+              plt.imshow(transforms.ToPILImage()(x_rec))
+              plt.axis('off')
+      # annotation plots 
+      ax = plt.subplot(3 + num_slots, n_samples + 1, 1)
+      ax.annotate('Data', xy=(1, 0.5), xycoords='axes fraction',
+                  fontsize=14, va='center', ha='right')
+      ax.set_aspect('equal')
+      ax.axis('off')
+      ax = plt.subplot(3 + num_slots, n_samples + 1, n_samples + 2)
+      ax.annotate('Reconstruction\nmixture', xy=(1, 0.5), xycoords='axes fraction',
+                  fontsize=14, va='center', ha='right')
+      ax.set_aspect('equal')
+      ax.axis('off')
+      ax = plt.subplot(3 + num_slots, n_samples + 1, 2*n_samples + 3)
+      ax.annotate('Segmentation', xy=(1, 0.5), xycoords='axes fraction',
+                  fontsize=14, va='center', ha='right')
+      ax.set_aspect('equal')
+      ax.axis('off')
+      for slot in range(num_slots):
+          ax = plt.subplot(3 + num_slots, n_samples + 1, 1 + (n_samples + 1)*(slot+3))
+          ax.annotate(f'S{slot+1}', xy=(1, 0.5), xycoords='axes fraction',
+                      fontsize=14, va='center', ha='right', weight='bold',
+                      color=cmap[slot])
+          ax.set_aspect('equal')
+          ax.axis('off')
+      return
+  ```
+
+* **Component VAE Results**: In order to evaluate the perfomance of
+  the component VAE, we are interested in the unmasked
+  slot-wise reconstructions (i.e., `unmasked` refers to
+  $\widetilde{\textbf{x}}_k$ for each slot $k$) and the slot-wise
+  reconstructions masked by the VAE's reconstructed masks (i.e.,
+  `masked` refers to $\widetilde{\textbf{m}}_k \odot
+  \widetilde{\textbf{x}}_k$). Ideally, masked versions capture either
+  a single object, the background or nothing at all (representing no
+  object), see figure below. In addition, we are going to plot the
+  ground truth masked reconstructions (i.e., `gt masked` refers to
+  $\textbf{m}_k \odot \widetilde{\textbf{x}}_k$) such that the
+  difference between `gt masked` and `masked` indicates the
+  reconstruction error of the attention masks. 
+
+  | ![Component VAE Results](/assets/img/04_MONet/component_VAE_results.png "Component VAE Results") |
+  | :--         |
+  | **Figure 3 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): Each example shows the image fet as input data to the model, with corresponding outputs from the model. Reconstruction mixtures show sum of components from all slots, weighted by the learned masks from the attention network. Color-coded segmentation maps summarise the attention masks $\\{\textbf{m}_k\\}$. Rows labeled S1-7 show the reconstruction components of each slot. Unmasked version are shown side-by-side with corresponding versions that are masked with the VAE's reconstructed masks $\widetilde{\textbf{m}}_k$. |
+  
+  ```python
+  def Component_VAE_reconstructions(trained_monet, dataset, num_slots, SEED=1):
+      np.random.seed(SEED)
+      device = 'cuda' if torch.cuda.is_available() else 'cpu'
+      trained_monet.to(device)
+
+      n_samples = 4
+      i_samples = np.random.choice(range(len(dataset)), n_samples, replace=False)
+      colors = plt.cm.get_cmap('hsv', num_slots + 1)
+      cmap = colors(np.linspace(0, 1, num_slots + 1))
+
+
+      fig = plt.figure(constrained_layout=False, figsize=(14, 14))
+      grid_spec = fig.add_gridspec(2, n_samples, hspace=0.1)
+
+      for counter, i_sample in enumerate(i_samples):
+          img = dataset[i_sample][0]
+          # monet related
+          img_tensor = img.unsqueeze(0).to(device)
+          [mu_hat,log_var_hat,x_mu,log_m,log_m_rec] = trained_monet(img_tensor, num_slots)
+          # reconstruction mixture
+          m_k = log_m.repeat_interleave(3, dim=1).exp().view(1, num_slots, 3, 64, 64)
+          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64) 
+          img_rec_mixture =  (m_k * x_mu_k).sum(axis=1)
+          img_rec = torch.clamp(img_rec_mixture, 0 , 1).squeeze(0).cpu()
+          # (binary) segmenation from attention network
+          m = log_m.exp().detach().cpu().numpy()[0]
+          m_binary_RGBA = cmap[np.argmax(m, 0)]
+          # Component VAE reconstructions 
+          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64)
+          m_rec = log_m_rec.repeat_interleave(3, dim=1).exp().view(1, num_slots, 3, 64, 64)
+          # upper plot: Data, Reconstruction Mixture, Segmentation
+          upper_grid = grid_spec[0, counter].subgridspec(3, 1)
+          for upper_plot_index in range(3):
+              ax = fig.add_subplot(upper_grid[upper_plot_index])
+              if upper_plot_index == 0:
+                  plt.imshow(transforms.ToPILImage()(img))
+              elif upper_plot_index == 1:
+                  plt.imshow(transforms.ToPILImage()(img_rec))
+              else:
+                  plt.imshow(m_binary_RGBA)
+              plt.axis('off')
+              if counter == 0:  # annotations
+                  if upper_plot_index == 0:  # Data
+                      ax.annotate('Data', xy=(-0.1, 0.5), xycoords='axes fraction',
+                                  fontsize=14, va='center', ha='right')
+                  elif upper_plot_index == 1:  # Reconstruction mixture
+                      ax.annotate('Reconstruction\nmixture', xy=(-0.1, 0.5), va='center',
+                                   xycoords='axes fraction', fontsize=14, ha='right')
+                  else:  # Segmentation
+                      ax.annotate('Segmentation', xy=(-0.1, 0.5), va='center',
+                                   xycoords='axes fraction', fontsize=14, ha='right')
+          # lower plot: Component VAE reconstructions
+          lower_grid = grid_spec[1, counter].subgridspec(num_slots, 2, wspace=0.1, hspace=0.1)
+          for row_index in range(num_slots):
+              for col_index in range(2):
+                  ax = fig.add_subplot(lower_grid[row_index, col_index])
+                  if col_index == 0:  # unmasked
+                      x_rec = torch.clamp(x_mu_k[0][row_index], 0, 1).cpu()
+                      plt.imshow(transforms.ToPILImage()(x_rec))
+                      if row_index == 0:
+                          plt.title('Unmasked', fontsize=14)
+                      plt.axis('off')
+                  else:  # masked
+                      m_k_tilde, x_k_tilde = m_rec[0][row_index], x_mu_k[0][row_index]
+                      masked = (1 - m_k_tilde)*torch.ones_like(x_k_tilde) + m_k_tilde*x_k_tilde
+                      plt.imshow(transforms.ToPILImage()(masked.cpu()))
+                      if row_index == 0:
+                          plt.title('Masked', fontsize=14)
+                      plt.xticks([])
+                      plt.yticks([])
+                  ax.set_aspect('equal')
+                  if counter == 0 and col_index == 0:  # annotations
+                      ax.annotate(f'S{row_index+1}', xy=(-0.1, 0.5), xycoords='axes fraction',
+                      fontsize=14, va='center', ha='right', weight='bold',
+                      color=cmap[row_index])
+      return
+  ```
 
 * **Latent Traversals**
+
+
+  | ![Latent Traversals](/assets/img/04_MONet/latent_traversals.png "Latent Traversals") |
+  | :--         |
+  | **Figure 5 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): |
 
 
     
@@ -1129,7 +1315,7 @@ class occur
   
   
 
-[^7]: In practice, the reconstruction error for a fixed component
+[^6]: In practice, the reconstruction error for a fixed component
     (fixed $k$) becomes incalculable for binary attention masks, since $\log 0$ is
     undefined. However, the reconstruction error is effectively
     unconstrained outside of masked regions, since for $\lim \log

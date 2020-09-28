@@ -7,6 +7,7 @@ tags: [interaction network, graph networks, generalization]
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
+type: "paper summary"
 ---
 
 Few years after the IN paper, [Battaglia et al.

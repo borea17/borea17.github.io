@@ -9,6 +9,8 @@ toc_sticky: true
 toc_label: "Table of Contents"
 published: true 
 nextjournal_link: "https://nextjournal.com/borea17/spatial-broadcast-decoder/"
+github_link: "https://github.com/borea17/Notebooks/blob/master/02_Spatial_Broadcast_Decoder.ipynb"
+type: "paper summary"
 ---
 
 [Watters et al. (2019)](https://arxiv.org/abs/1901.07017) introduce

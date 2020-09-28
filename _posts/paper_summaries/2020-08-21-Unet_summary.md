@@ -8,7 +8,9 @@ published: true
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
+type: "paper summary"
 nextjournal_link: "https://nextjournal.com/borea17/u-net/"
+github_link: "https://github.com/borea17/Notebooks/blob/master/03_U-Net.ipynb"
 ---
 
 [Ronneberger et al. (2015)](https://arxiv.org/abs/1505.04597)
@@ -1068,7 +1070,7 @@ def visualize_results(trained_u_net, test_dataset, num_test_images=None):
     return
 
 
-visualize_results(trained_unet, test_dataset, num_test_images=3)
+visualize_results(trained_u_net, test_dataset, num_test_images=3)
 ```
 
 ![visualize results](/assets/img/05_Unet/u_net_prediction.png "visualize results")

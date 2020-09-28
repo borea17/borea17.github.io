@@ -45,8 +45,23 @@ layout: default
           </aside>
         {% endif %}
         {% if page.nextjournal_link %}
-          <a href="{{page.nextjournal_link}}" target="_blank"><img src="/assets/img/nextjournal_button.png" alt="Download from GitHub" width="165" height="65"></a><br><br>
-{% endif %}
+          <center>
+              <table>
+                  <tbody>
+                      <tr>
+                          <td>
+                              <a href="{{page.github_link}}" target="_blank">
+                                  <img src="/assets/img/github.png" alt="Open on GitHub" width="165" height="65"></a>
+                          </td>
+                          <td>
+                              <a href="{{page.nextjournal_link}}" target="_blank">
+                                  <img src="/assets/img/NJ4.png" alt="Open in NextJournal" width="165" height="65"></a>
+                          </td>
+                      </tr>
+                  </tbody>
+              </table>
+          </center>
+        {% endif %}
         {{ content }}
         {% if page.link %}<div><a href="{{ page.link }}" class="btn btn--primary">{{ site.data.ui-text[site.locale].ext_link_label | default: "Direct Link" }}</a></div>{% endif %}
       </section>

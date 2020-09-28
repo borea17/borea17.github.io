@@ -5,9 +5,11 @@ permalink: "/paper_summaries/auto-encoding_variational_bayes"
 author: "Markus Borea"
 tags: [variational autoencoder, dimensionality reduction, generalization]
 nextjournal_link: "https://nextjournal.com/borea17/auto-encoding-variational-bayes"
+github_link: "https://github.com/borea17/Notebooks/blob/master/02_Spatial_Broadcast_Decoder.ipynb"
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
+type: "paper summary"
 ---
 
 [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) introduced the
