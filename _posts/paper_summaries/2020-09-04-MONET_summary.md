@@ -126,7 +126,7 @@ kind of neural networks that are trained in tandem:
      p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}_k \right). 
   $$
 
-  The negative (decoder) log likelihood *NLL* (can be understood as
+  The negative (decoder) log likelihood *NLL* (can be interpreted as
   the *reconstruction error*, see my post on
   [VAEs](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description)) 
   of the whole image is given by 
@@ -228,9 +228,11 @@ encode due to their complexity. [Burgess et al.
 the compositional structure of scenes (inductive bias) may help to
 reduce this complexity. Instead of decomposing the entire multi-object
 scene in one sweep, MONet breaks the image in multiple ($K$) tasks which it
-decomposes with the same VAE[^4]. As a result, the segmentation should 
-produce similar tasks (structurally similar scene elements) such that
-the VAE is capable of solving all tasks. The authors argue that
+decomposes with the same VAE[^4]. Restricting the model complexity of
+the decoder (e.g., by using few layers), forces the model to produce
+segmentation with similar tasks, i.e., segmentations over structurally
+similar scene elements such that the VAE is capable of solving all
+tasks (note that this is a hypothesis). The authors argue that
 optimization should push towards a meaningful decomposition.
 Furthermore, they empirically validate their hypothesis by showing
 that for the *Objects Room* dataset the reconstruction error is much

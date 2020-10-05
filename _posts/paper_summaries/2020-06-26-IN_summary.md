@@ -10,8 +10,6 @@ toc_label: "Table of Contents"
 type: "paper summary"
 ---
 
-
-
 [Battaglia et al. (2016)](https://arxiv.org/abs/1612.00222) introduce
 the *Interaction Network (IN)* as the first general-purpose learnable
 physics engine capable of zero-shot generalization in terms of varying
