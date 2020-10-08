@@ -2,7 +2,7 @@
 title: "How is linear regression connected to maximum likelihood?"
 permalink: "/ML_101/probability_theory/linear_regression_and_maximum_likelihood"
 author: "Markus Borea"
-published: false
+published: true
 type: "101 probability"
 ---
 
