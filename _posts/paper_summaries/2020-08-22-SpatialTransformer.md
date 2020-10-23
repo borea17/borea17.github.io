@@ -9,7 +9,7 @@ toc_sticky: true
 toc_label: "Table of Contents"
 type: "paper summary"
 nextjournal_link: "https://nextjournal.com/borea17/spatial_transformer_networks/"
-github_link: "https://github.com/borea17/Notebooks/blob/master/03_Spatial_Transformer_Networks.ipynb"
+github_link: "https://github.com/borea17/Notebooks/blob/master/04_Spatial_Transformer_Networks.ipynb"
 ---
 
 [Jaderberg et al. (2015)](https://arxiv.org/abs/1506.02025) introduced
