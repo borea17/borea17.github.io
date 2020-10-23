@@ -1,6 +1,5 @@
 ---
 title: "U-Net: Convolutional Networks for Biomedical Image Segmentation"
-abb_title: "U-Net: Convolutional Networks for Biomedical Image Segmentation"
 permalink: "/paper_summaries/u_net"
 author: "Markus Borea"
 tags: ["image segmentation"]
@@ -65,7 +64,7 @@ number of possible classes) and a deconvolutional (upsampling) layer.
 **U-Net architecture**: The main idea of the U-Net architecture is to 
 build an encoder-decoder FCN with skip connections between
 corresponding blocks, see figure below. The left side of U-Net, i.e.,
-*contractve path* or *encoder*, is very similar to the left side of
+*contractive path* or *encoder*, is very similar to the left side of
 the FC architecture above. The right side of U-Net, i.e., *expansive
 path* or *decoder*, differs due to its number of feature channels and the
 convolutional + ReLu layers. Note that the input image size is

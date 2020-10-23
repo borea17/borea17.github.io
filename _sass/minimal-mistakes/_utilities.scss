@@ -594,3 +594,45 @@ a.reversefootnote {
     position: static;
   }
 }
+
+.copy-code-container {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.2em;
+    background: #3b3b3b;
+    border-radius: 15px 15px 2px 2px; 
+}
+
+.copy-code-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    background-color: #616161;
+    color: #e7e7e7;
+    padding: 0.4em 0.5em;
+    border-radius: 15px;
+
+    &::before {
+        content: "Copy";
+    }
+
+    &::after {
+        margin-left: 4px;
+        content: "📋";
+        width: 1em;
+    }
+
+    // This class will be toggled via JavaScript
+    &.copied {
+        &::before {
+            content: "Copied!";
+        }
+
+        &::after {
+            content: "✔️";
+        }
+    }
+}

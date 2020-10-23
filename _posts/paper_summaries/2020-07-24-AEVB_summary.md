@@ -1,6 +1,5 @@
 ---
 title: "Auto-Encoding Variational Bayes"
-abb_title: "Auto-Encoding Variational Bayes"
 permalink: "/paper_summaries/auto-encoding_variational_bayes"
 author: "Markus Borea"
 tags: [variational autoencoder, dimensionality reduction, generalization]
