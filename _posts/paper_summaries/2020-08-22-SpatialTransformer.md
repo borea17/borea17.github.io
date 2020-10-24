@@ -37,7 +37,7 @@ performance on several benchmarks, see image below.
 The aim of STs is to provide neural networks with spatial
 transformation and attention capabilities in a reasonable and
 efficient way. Note that standard neural network architectures (e.g.,
-CNNs) are limited in this regard[^1]. Therefore, the ST consitutes
+CNNs) are limited in this regard[^1]. Therefore, the ST constitutes
 parametrized transformations $\mathcal{T}_{\boldsymbol{\theta}}$ that
 transform the regular input grid to a new sampling grid, see image
 below. Then, some form of interpolation is used to compute the pixel
@@ -80,7 +80,7 @@ To this end, the ST is divided into three consecutive parts:
   defined on the input/source feature map $\textbf{U}$ using a parametrized
   transformation $\mathcal{T}\_{\boldsymbol{\theta}}$, i.e., $\widetilde{G} =
   T\_{\boldsymbol{\theta}} (G)$. Visualizations have bee created by
-  myself, interactive versions can be found [here](https://github.com/borea17/InteractiveTransformations). 
+  me, interactive versions can be found [here](https://github.com/borea17/InteractiveTransformations). 
   
   <!-- * <ins>Affine Transformations</ins> -->
   
