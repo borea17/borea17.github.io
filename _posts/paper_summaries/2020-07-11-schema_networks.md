@@ -45,9 +45,7 @@ corresponding attributes. Accordingly, their representation could
 rather be understood as a 53-channel image where each entry can either
 be 0 or 1, e.g., one layer showing the walls. In this form, the
 entity-based state representation can also be provided to other
-algorithms such as A3C. Although it is not stated directly, it seems
-very likely that these 53 attributes do not include the position
-attribute.  
+algorithms such as A3C.  
 
 Similiar to OO-MDPs, state transitions are determined by a change of
 entity-attributes. However, due to the specific representation in Schema
