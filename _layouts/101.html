@@ -13,4 +13,13 @@ This is a loose collection of questions that I stumbled over during my studies.
         {% endif %}
         {% endfor %}
     </ol>
+
+    <h2 class="archive__subtitle">Engineering</h2>
+    <ol>
+        {% for post in site.posts %}
+        {% if post.type == "101 engineering" %}
+        <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+        {% endif %}
+        {% endfor %}
+    </ol>
 </section>

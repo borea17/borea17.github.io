@@ -3,7 +3,7 @@ title: "Attend, Infer, Repeat: Fast Scene Understanding with Generative Models"
 permalink: "/paper_summaries/AIR"
 author: "Markus Borea"
 tags: ["unsupervised learning", "object detection", "generalization"]
-published: false 
+published: false
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
@@ -29,12 +29,13 @@ process can be abstracted into three steps:
   Auto-Encoder (VAE)](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes).
   Note the same VAE is used for every cropped image.
 * **Repeat**: Lastly, these steps are repreated until the full image
-  is described.
+  is described or the maximum number of repetitions is reached.
 
-Notably, the model can handle a variable number of objects by treating
-inference as an iterative process. As a proof of concept, they show
-that AIR could successfully learn to decompose multi-object scenes in 
-multiple datasets (multiple MNIST, Sprites, Omniglot, 3D scenes).
+Notably, the model can handle a variable number of objects
+(upper-bounded) by treating inference as an iterative process. As a
+proof of concept, they show that AIR could successfully learn to
+decompose multi-object scenes in multiple datasets (multiple MNIST,
+Sprites, Omniglot, 3D scenes).
 
 | ![Paper Results](/assets/img/010_AIR/paper_results.gif "Paper Results") |
 | :--  |
@@ -180,7 +181,10 @@ matrix, i.e.,
 
 $$
 \begin{bmatrix} x_k^s \\ y_k^s \\ 1 \end{bmatrix} = \left(\textbf{A}^{(i)}\right)^{+}
-  \begin{bmatrix} x_k^t \\ y_k^t \\ 1\end{bmatrix}
+  \begin{bmatrix} x_k^t \\ y_k^t \\ 1\end{bmatrix} \stackrel{s\neq
+  0}{=} \begin{bmatrix} \frac {1}{s^{(i)}} & 0 & - \frac{t_x^{(i)}}{s} \\
+   0 & \frac {1}{s^{(i)}} & -\frac {t_y^{(i)}}{s} \\ 0 & 0 &
+   1\end{bmatrix}\begin{bmatrix} x_k^t \\ y_k^t \\ 1\end{bmatrix},
 $$
 
 where  $\left(\textbf{A}^{(i)}\right)^{+}$ denotes the Moore-Penrose
@@ -213,9 +217,10 @@ probabilistic model over which AIR operates. Similar to the [VAE
 paper](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes)
 by [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114),
 [Eslami et al. (2016)](https://arxiv.org/abs/1603.08575) introduce a
-modeling assumption for the generative process and variational
-approximation to allow for joint optimization of the inference
-(encoder) and generator (decoder) parameters.
+modeling assumption for the generative process and use a variational
+approximation for the true posterior of that process to allow for
+joint optimization of the inference (encoder) and generator (decoder)
+parameters. 
 
 In contrast to standard VAEs, the modeling assumption for the
 generative process is more structured in AIR, see image below. It
@@ -285,9 +290,6 @@ where $p\_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z},
  $\boldsymbol{\phi}$ can be learnt jointly by optimizing (maximizing)
  the ELBO. 
 
-
-
-
 [^4]: `Amortized` variational approximation means basically
     `parameterized` variational approximation, i.e., we introduce a
     parameterized function $q\_{\boldsymbol{\phi}} \left( \textbf{z},
@@ -312,14 +314,152 @@ where $p\_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z},
  
 ### Difficulties 
 
-Yet, we still haven't everything we need to implement the model. In
-the last section, I introduced the amortized approximation of the true
-posterior $q\_{\boldsymbol{\phi}} \left(\textbf{z}, n |
-\textbf{x}^{(i)}\right)$ as a neural network. But how can it extract
-a variable number of objects $n$ from scenes? 
+In the former explanation, it was assummed that we could easily define
+some parameterized probabilistic encoder $q\_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right)$ and 
+decoder $p\_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} |
+\textbf{z}, n \right)$ using neural networks. However, there are some
+obstacles in our way:
+
+- How can we infer a variable number of objects $n$? Actually, we
+  would need to evaluate $p_N \left(n | \textbf{x}\right) = \int
+  q\_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x} \right)
+  d \textbf{z}$ for all $n=1,\dots, N$ and then sample from the
+  resulting distribution. 
+  <!-- Depending on the maximum number of objects -->
+  <!-- $N$, this would quickly become computationally inefficient. -->
+  
+- The number of objects $n$ is clearly a discrete variable. How can we
+  backprograte if we sample from a discrete distribution?
+
+- What priors should we choose? Especially, the prior for the number of
+  objects in a scene $n \sim p_N$ is unclear.
+
+- What the `first` or `second` object in a scene constitutes is
+  somewhat arbitrary. As a result, object assigments
+  $\begin{bmatrix} \textbf{z}^{(1)} & \dots & \textbf{z}^{(n)}
+  \end{bmatrix} =\textbf{z} \sim q\_{\boldsymbol{\phi}} \left(\textbf{z} |
+  \textbf{x}^{(i)}, n \right)$ 
+  should be exchangeable and the decoder $p\_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} |
+\textbf{z}, n \right)$ should be permutation invariant in terms of
+  $\textbf{z}^{(i)}$. Thus, the latent representation needs to
+  preserve some strong symmetries. 
+  
+[Eslami et al. (2016)](https://arxiv.org/abs/1603.08575) tackle these
+challenges by defining inference as an iterative process using a
+recurrent neural network (RNN) that is run for $N$ steps. As a result, the
+number of objects $n$ can be encoded in the latent distribution by
+defining the approximated posterior as follows 
+
+$$
+  q_{\boldsymbol{\phi}} \left( \textbf{z}, \textbf{z}_{\text{pres}} |
+  \textbf{x} \right) = q_{\boldsymbol{\phi}} \left(
+  z_{\text{pres}}^{(n+1)} = 0 | \textbf{z}^{(1:n)} , \textbf{x}\right)
+  \prod_{i=1}^n q_{\boldsymbol{\phi}} \left( \textbf{z}^{(i)} ,
+  z_{\text{pres}}^{(i)}=1 | \textbf{x}, \textbf{z}^{(1:i-1)}\right),
+$$
+
+where $z\_{\text{pres}}^{(i)}$ is an introduced binary variable that
+is predicted at each iteration step. Whenever
+$z_{\text{pres}}^{(i)}=0$ the inference process stops and no more
+objects can be described, i.e., the vector $\textbf{z}\_{\text{pres}}$
+looks as follows
+
+$$
+\textbf{z}_{\text{pres}} = \begin{bmatrix} \smash[t]{\overbrace{\begin{matrix}1 & 1 & \dots &
+1\end{matrix}}^{n \text{ times}}}   & 0 \end{bmatrix}
+$$
+
+  
+Thus, $z\_{\text{pres}}^{(i)}$ may be understood as an *interruption
+variable*. Recurrence is required to avoid explaining the same object
+twice.
+
+**Backpropagation for Discrete Variables**: While we can easily draw
+samples from the binary distribution $z\_{\text{pres}}^{(i)}$,
+backpropagation turns out to be problematic. Remind that for continuous
+variables such as Gaussian distributions parameterized by mean and
+variance (e.g., $\textbf{z}^{(i)}\_{\text{what}}$,
+$\textbf{z}^{(i)}\_{\text{where}}$) there is the reparameterization
+trick to circumvent this problem. However, any reparameterization of
+discrete variables includes discontinuous operations through which we
+cannot backprograte. Thus, [Eslami et al.
+(2016)](https://arxiv.org/abs/1603.08575)  use a variant of the [score-function
+estimator](https://borea17.github.io/ML_101/probability_theory/score_function_estimator)
+as a gradient estimator. More precisely, the reconstruction accuracy
+gradient is approximated by the score-function estimator, i.e., 
+
+$$
+\begin{align}
+\nabla_{\boldsymbol{\phi}}\mathbb{E}_{q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right)} \left[ \log
+p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n
+\right) \right] &= \mathbb{E}_{q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right)} \left[ \log
+p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n
+\right) \nabla_{\boldsymbol{\phi}} q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right) \right] \\
+&\approx \frac {1}{N} \sum_{k=1}^N \log p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \left(\textbf{z}, n\right)^{(k)}
+\right) \nabla_{\boldsymbol{\phi}} q_{\boldsymbol{\phi}} \left(
+ \left(\textbf{z}, n\right)^{(k)} | \textbf{x}^{(i)} \right)\\
+ &\quad \text{with} \quad \left(\textbf{z}, n\right)^{(k)} \sim q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right)
+\end{align}
+$$
+
+[Eslami et al. (2016)](https://arxiv.org/abs/1603.08575) note that in
+this raw form the gradient estimate `is likely to have high variance`.
+To reduce variance, they use `appropriately structured neural
+baselines` citing a paper from [Minh and Gregor,
+2014](https://arxiv.org/abs/1402.0030). 
+
+
+<!-- However, this is true for -->
+<!-- the ladder, i.e., given a sampled latent representation $\textbf{z} = -->
+<!-- \left( \textbf{z}^{(1)}, \dots, \textbf{z}^{(N)} \right)$ where each -->
+<!-- vector is divided into $\textbf{z}^{(i)} = \begin{bmatrix} -->
+<!-- \textbf{z}^{(i)}\_{\text{what}} & \textbf{z}^{(i)}\_{\text{where}} &  \textbf{z}^{(i)}\_{\text{where}}\end{bmatrix}^{\text{T}}$ -->
+
 
 
 ## Implementation
+
+The following reimplementation aims to reproduce the results of the
+multi-MNIST experiment, see image below. As noted by [Eslami et al.
+(2016)](https://arxiv.org/abs/1603.08575), their model successfully
+learned to count the number of digits and their location in each image
+(i.e., appropriate attention windows) without any supervision.
+Furthermore, the scanning policy of the inference network (i.e.,
+object assignment policy) converges to spatially divided regions where
+the direction of the spatial border seems to be random (dependent on
+random initialization). Lastly, the model also learned that
+it never needs to assign a third object (all images in the training
+dataset contained a maximum of two digits). 
+<!-- This ensures that different regions are -->
+<!-- assigned as different objects. -->
+
+| ![Multi-MNIST Paper Results](/assets/img/010_AIR/paper_results.png "Multi-MNIST Paper Results") |
+| :--  |
+|  **Paper Results of Multi-MNIST Experiment**. Taken from [Eslami et al. (2016)](https://arxiv.org/abs/1603.08575). |
+
+[Eslami et al. (2016)](https://arxiv.org/abs/1603.08575) argue that the architecture of
+their model 
+
+inference network learns a suitable scanning policy 
+
+They
+argue that the reasons 
+
+in which AIR could successfully learn to identify
+the number of digits 
+
+
+### Multi-MNIST Dataset
+
+
+### Model Implementation
+
+### Results
 
 
 ## Drawbacks
@@ -329,6 +469,9 @@ a variable number of objects $n$ from scenes?
 
 ## Acknowledgements
 
-This [blog post](http://akosiorek.github.io/ml/2017/09/03/implementing-air.html) by Adam Kosiorek was very helpful.
+The [blog post](http://akosiorek.github.io/ml/2017/09/03/implementing-air.html)
+by Adam Kosiorek and the [pyro tutorial on
+AIR](https://pyro.ai/examples/air.html) helped very much to understand
+the whole paper.
 
 --------------------------------------------------------------------------------------
