@@ -26,13 +26,13 @@ without any supervision or modification to the optimization, i.e., STs
 are differentiable plug-in modules. The authors could show that STs
 help the models to learn invariances to translation, scale, rotation
 and more generic warping which resulted in state-of-the-art
-performance on several benchmarks, see image below. 
+performance on several benchmarks, see image below.
 
 | ![Spatial Transformer in Practice](/assets/img/09_spatial_transformer/ST_inpractice.gif "Spatial Transformer in Practice") |
 | :--  |
 |  **ST Example**: Results (after training) of using a ST as the first layer of a fully-connected network (`ST-FCN Affine`, left) or a convolutional neural network (`ST-CNN Affine`, right) trained for cluttered MNIST digit recognition are shown. Clearly, the output of the ST exhibits much less translation variance and attends to the digit. Taken from [Jaderberg et al. (2015)](https://arxiv.org/abs/1506.02025) linked [video](https://goo.gl/qdEhUu).|
 
-## Model Description 
+## Model Description
 
 The aim of STs is to provide neural networks with spatial
 transformation and attention capabilities in a reasonable and
@@ -42,7 +42,7 @@ parametrized transformations $\mathcal{T}_{\boldsymbol{\theta}}$ that
 transform the regular input grid to a new sampling grid, see image
 below. Then, some form of interpolation is used to compute the pixel
 values in the new sampling grid (i.e., interpolation between values of
-the old grid). 
+the old grid).
 
 | ![Parametrized Sampling Grids](/assets/img/09_spatial_transformer/parametrised_sampling_grid.png "Parametrized Sampling Grids") |
 | :--  |
@@ -60,42 +60,42 @@ To this end, the ST is divided into three consecutive parts:
   to be defined beforehand, see some examples below. Furthermore, the
   localisation network can take any differentiable form, e.g., a CNN
   or FCN.
-  
-  <ins>*Examples of Spatial Transformations*</ins>  
-  The following examples highlight how a regular grid 
-  
+
+  <ins>*Examples of Spatial Transformations*</ins>
+  The following examples highlight how a regular grid
+
   $$
   \textbf{G} = \left\{ \begin{bmatrix} x_i^t \\ y_i^t \end{bmatrix}
   \right\}_{i=1}^{H^t \cdot W^t}
   $$
 
   defined on the output/target map $\textbf{V}$ (i.e., $H^t$ and $W^t$ denote
-  height and width of $\textbf{V}$) can be transformed into a new sampling grid 
-  
+  height and width of $\textbf{V}$) can be transformed into a new sampling grid
+
   $$
   \widetilde{\textbf{G}} = \left\{ \begin{bmatrix} x_i^s \\ y_i^s \end{bmatrix}
   \right\}_{i=1}^{H^s \cdot W^s}
   $$
-  
+
   defined on the input/source feature map $\textbf{U}$ using a parametrized
   transformation $\mathcal{T}\_{\boldsymbol{\theta}}$, i.e., $\widetilde{G} =
   T\_{\boldsymbol{\theta}} (G)$. Visualizations have bee created by
-  me, interactive versions can be found [here](https://github.com/borea17/InteractiveTransformations). 
-  
+  me, interactive versions can be found [here](https://github.com/borea17/InteractiveTransformations).
+
   <!-- * <ins>Affine Transformations</ins> -->
-  
-    | <img width="800" height="512" src='/assets/img/09_spatial_transformer/affine_transform.gif'> |
+
+    | <img width="900" height="512" src='/assets/img/09_spatial_transformer/affine_transform.gif'> |
     | :--  |
     |  This transformation allows cropping, translation, rotation, scale and skew to be applied to the input feature map. It has 6 degrees of freedom (DoF). |
 
   <!-- * <ins>(Standard) Attention</ins> -->
 
-    | <img width="800" height="512" src='/assets/img/09_spatial_transformer/attention_transform.gif'> |
+    | <img width="900" height="512" src='/assets/img/09_spatial_transformer/attention_transform.gif'> |
     | :--  |
     |  This transformation is more constrained with only 3-DoF. Therefore it only allows cropping, translation and isotropic scaling to be applied to the input feature map.|
-  
 
-    | <img width="800" height="512" src='/assets/img/09_spatial_transformer/projective_transform.gif'> |
+
+    | <img width="900" height="512" src='/assets/img/09_spatial_transformer/projective_transform.gif'> |
     | :--  |
     |  This transformation has 8-DoF and can be seen as an extension to the affine transformation. The main difference is that affine transformations are constrained to preserve parallelism.  |
 
@@ -105,7 +105,7 @@ To this end, the ST is divided into three consecutive parts:
   $\widetilde{\textbf{G}}$ on the input feature map $\textbf{U}$ by applying
   the predefined parametrized transformation using the parameters
   $\boldsymbol{\theta}$ obtained from the localisation network, see
-  examples above. 
+  examples above.
   <!-- Note that [Jaderberg et al. -->
   <!-- (2015)](https://arxiv.org/abs/1506.02025) define normalized -->
   <!-- coordinates for the target feature map, i.e., $-1 \le x_i^t, y_i^t \le 1$.  -->
@@ -118,13 +118,13 @@ To this end, the ST is divided into three consecutive parts:
   interpolation is needed. [Jaderberg et al.
   (2015)](https://arxiv.org/abs/1506.02025) formulate this
   interpolation as the application of a sampling kernel centered at a
-  particular location in the input feature map, i.e., 
-  
+  particular location in the input feature map, i.e.,
+
   $$
     V_i^c = \sum_{n=1}^{H^s} \sum_{m=1}^{W^s} U_{n,m}^c \cdot \underbrace{k(x_i^s - x_m^t;
-    \boldsymbol{\Phi}_x)}_{k_{\boldsymbol{\Phi}_x}} \cdot \underbrace{k(y_i^s - y_n^t; \boldsymbol{\Phi}_y)}_{k_{\boldsymbol{\Phi}_y}}, 
+    \boldsymbol{\Phi}_x)}_{k_{\boldsymbol{\Phi}_x}} \cdot \underbrace{k(y_i^s - y_n^t; \boldsymbol{\Phi}_y)}_{k_{\boldsymbol{\Phi}_y}},
   $$
-  
+
   where $V_i^c \in \mathbb{R}^{W^t \times H^t}$ denotes the new pixel
   value of the $c$-th channel at the $i$-th position of the new
   sampling grid coordinates[^2] $\begin{bmatrix} x_i^s &
@@ -135,19 +135,19 @@ To this end, the ST is divided into three consecutive parts:
   in the same way resulting in spatial consistency between channels.
   Note that although in theory we need to sum over all input
   locations, in practice we can ignore this sum by just looking at the
-  kernel support region for each $V_i^c$ (similar to CNNs). 
-  
+  kernel support region for each $V_i^c$ (similar to CNNs).
+
   The sampling kernel can be chosen freely as long as (sub-)gradients
   can be defined with respect to $x_i^s$ and $y_i^s$. Some possible
   choices are shown below.
-  
+
   $$
     \begin{array}{lcc}
     \hline
       \textbf{Interpolation Method} & k_{\boldsymbol{\Phi}_x} &
     k_{\boldsymbol{\Phi}_x} \\ \hline
       \text{Nearest Neightbor} &  \delta( \lfloor x_i^s + 0.5\rfloor -
-    x_m^t) &  \delta( \lfloor y_i^s + 0.5\rfloor - y_n^t) \\ 
+    x_m^t) &  \delta( \lfloor y_i^s + 0.5\rfloor - y_n^t) \\
       \text{Bilinear} &  \max \left(0, 1 -  \mid x_i^s - x_m^t \mid
     \right) &  \max (0, 1 - \mid y_i^s - y_m^t\mid ) \\ \hline
     \end{array}
@@ -158,7 +158,7 @@ individual parts interact with each other.
 
 | ![Architecture of Spatial Transformer](/assets/img/09_spatial_transformer/spatial_transformer.png "Architecture of Spatial Transformer") |
 | :--  |
-|  Taken from [Jaderberg et al. (2015)](https://arxiv.org/abs/1506.02025)  |
+|  **Architecture of ST Module**. Taken from [Jaderberg et al. (2015)](https://arxiv.org/abs/1506.02025).  |
 
 
 [^1]: Clearly, convolutional layers are not rotation or scale
@@ -166,14 +166,14 @@ individual parts interact with each other.
     necessarily make CNNs translation-invariant as typically some
     fully connected layers are added at the end. Max-pooling layers
     can introduce some translation invariance, however are limited by
-    their size such that often large translation are not captured. 
-    
-    
+    their size such that often large translation are not captured.
+
+
 [^2]: [Jaderberg et al. (2015)](https://arxiv.org/abs/1506.02025)
     define the transformation with normalized coordinates, i.e., $-1
     \le x_i^s, y_i^s \le 1$. However, in the sampling kernel equations
     it seems more likely that they assume unnormalized/absolute coordinates, e.g.,
-    in equation 4 of the paper normalized coordinates would be nonsensical. 
+    in equation 4 of the paper normalized coordinates would be nonsensical.
 
 
 **Motivation**: With the introduction of GPUs, convolutional layers
@@ -181,7 +181,7 @@ enabled computationally efficient training of feature detectors on
 patches due to their weight sharing and local connectivity concepts.
 Since then, CNNs have proven to be the most powerful framework when it
 comes to computer vision tasks such as image classification or
-segmentation.  
+segmentation.
 
 Despite their success, [Jaderberg et al.
 (2015)](https://arxiv.org/abs/1506.02025) note that CNNs are still
@@ -193,7 +193,7 @@ spatially invariant to the position of features, this invariance is
 limited to the (typically) small spatial support of max-pooling (e.g.,
 $2\times 2$). As a result, CNNs are typically not invariant to larger
 transformations, thus need to learn complicated functions to
-approximate these invariances. 
+approximate these invariances.
 
 <!-- Data augmentation is a standard trick -->
 <!-- to increase the performance of CNNs by  -->
@@ -219,7 +219,7 @@ The following reimplementation aims to reproduce a subset of the
 distored MNIST experiment (RTS distorted MNIST) comparing a standard
 CNN with a ST-CNN architecture. A starting point for the
 implementation was [this pytorch tutorial by Ghassen
-Hamrouni](https://pytorch.org/tutorials/intermediate/spatial_transformer_tutorial.html). 
+Hamrouni](https://pytorch.org/tutorials/intermediate/spatial_transformer_tutorial.html).
 
 ### RTS Distorted MNIST
 
@@ -264,17 +264,17 @@ def load_data():
         x_pos, y_pos = torch.randint(0, 42-28, (2,))
         new_img[y_pos:y_pos+28, x_pos:x_pos+28] = img
         return new_img
-        
+
     transform = transforms.Compose([
-        transforms.RandomAffine(degrees=(-45, 45), 
+        transforms.RandomAffine(degrees=(-45, 45),
                                 scale=(0.7, 1.2)),
         transforms.ToTensor(),
         transforms.Lambda(lambda img: place_digit_randomly(img)),
         transforms.Lambda(lambda img: img.unsqueeze(0))
     ])
-    train_dataset = datasets.MNIST('./data', transform=transform, 
+    train_dataset = datasets.MNIST('./data', transform=transform,
                                    train=True, download=True)
-    test_dataset = datasets.MNIST('./data', transform=transform, 
+    test_dataset = datasets.MNIST('./data', transform=transform,
                                    train=True, download=True)
     return train_dataset, test_dataset
 
@@ -296,10 +296,10 @@ The model implementation can be divided into three tasks:
   due to the number of added trainable parameters. To allow for a fair
   comparison, we therefore increase the capacity of the convolutional
   and linear layers in the standard CNN.
-  
+
   The code below creates both architectures and counts their trainable
   parameters.
-  
+
   ```python
   import torch.nn as nn
   import numpy as np
@@ -335,7 +335,7 @@ The model implementation can be divided into three tasks:
             nn.Linear(out_conv**2*c_dim, 50),
             nn.ReLU(True),
             nn.Linear(50, 10),
-            nn.LogSoftmax(dim=1),            
+            nn.LogSoftmax(dim=1),
         )
         if include_ST:
             loc_conv_out_dim = int((int(img_size/2) - 4)/2) - 4
@@ -354,7 +354,7 @@ The model implementation can be divided into three tasks:
                 nn.Linear(loc_conv_out_dim**2*20, 20),
                 nn.ReLU(True),
                 loc_regression_layer
-            ) 
+            )
         return
 
     def forward(self, img):
@@ -389,8 +389,8 @@ The model implementation can be divided into three tasks:
         theta_matrix = theta_vector.view(2, 3).detach()
         # create normalized target rectangle input image
         target_rectangle = torch.tensor([
-            [-1., -1., 1., 1., -1.], 
-            [-1., 1., 1., -1, -1.], 
+            [-1., -1., 1., 1., -1.],
+            [-1., 1., 1., -1, -1.],
             [1., 1., 1., 1., 1.]]
         ).to(inp.device)
         # get source rectangle by transformation
@@ -414,41 +414,41 @@ The model implementation can be divided into three tasks:
   with standard SGD, batch size of $256$ and base learning rate of
   $0.01$. To reduce computation time, the number of epochs is limited
   to $50$.
-  
-  The loss function is the multinomial cross entropy loss, i.e., 
-  
+
+  The loss function is the multinomial cross entropy loss, i.e.,
+
   $$
     \text{Loss} = - \sum_{i=1}^N \sum_{k=1}^C p_i^{(k)} \cdot \log
     \left( \widehat{p}_i^{(k)} \right),
   $$
-  
+
   where $k$ enumerates the number of classes, $i$ enumerates the
   number of images, $p_i^{k} \in \\{0, 1\\}$ denotes the true probability of image
   $i$ and class $k$ and $\widehat{p}_i^{k} \in [0, 1]$ is the
   probability predicted by the network. Note that the true probability
   distribution is categorical (hard labels), i.e.,
-  
+
   $$
     p_i^{(k)} = 1_{k = y_i} = \begin{cases}1 & \text{if } k = y_i \\ 0
     & \text{else}\end{cases}
   $$
-  
+
   where $y_i \in \\{0, 1, \cdots, 9 \\}$ is the label assigned to the
-  $i$-th image $\textbf{x}_i$. Thus, we can rewrite the loss as follows  
-  
+  $i$-th image $\textbf{x}_i$. Thus, we can rewrite the loss as follows
+
   $$
     \text{Loss} = - \sum_{i=1}^N \log \left( \widehat{p}_{i, y_i}
     \right),
   $$
-  
+
   which is the definition of the negative log likelihood loss
   ([NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html))
   in Pytorch, when the logarithmized predictions $\log \left(
   \widehat{p}_{i, y_i} \right)$ (matrix of size $N\times C$) and
-  class labels $y_i$ (vector of size $N$) are given as input. 
-  
+  class labels $y_i$ (vector of size $N$) are given as input.
+
   The code below summarizes the whole training procedure.
-  
+
   ```python
   from livelossplot import PlotLosses
   from torch.utils.data import DataLoader
@@ -461,7 +461,7 @@ The model implementation can be divided into three tasks:
       batch_size = 256
       step_size_scheduler = 50000
       gamma_scheduler = 0.1
-      # set device    
+      # set device
       device = 'cuda' if torch.cuda.is_available() else 'cpu'
       print(f'Device: {device}')
 
@@ -493,13 +493,13 @@ The model implementation can be divided into three tasks:
           losses_plot.update({'log loss': np.log(avg_loss)})
           losses_plot.send()
       trained_model = model
-      return trained_model 
+      return trained_model
   ```
 
 * **Test Procedure**: A very simple test procedure to evaluate both
   models is shown below. It is basically the same as in [the pytorch
-  tutorial](https://pytorch.org/tutorials/intermediate/spatial_transformer_tutorial.html). 
-  
+  tutorial](https://pytorch.org/tutorials/intermediate/spatial_transformer_tutorial.html).
+
   ```python
   def test(trained_model, test_dataset):
       device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -528,43 +528,43 @@ The model implementation can be divided into three tasks:
 Lastly, the results can also divided into three sections:
 
 * **Training Results**: Firstly, we train our models on the training dataset and compare the logarithmized losses:
-  
+
   ```python
   trained_cnn = train(cnn, train_dataset)
   ```
 
   ![Training Results CNN](/assets/img/09_spatial_transformer/train_cnn_results.png "Training Results CNN")
-  
+
   ```python
   trained_st_cnn = train(st_cnn, train_dataset)
-  ``` 
-  
+  ```
+
   ![Training Results ST-CNN](/assets/img/09_spatial_transformer/train_st_cnn_results.png "Training Results ST-CNN")
-  
+
   The logarithmized losses already indicate that the ST-CNN performs
   better than the standard CNN (at least, it decreases the loss
   faster). However, it can also be noted that training the ST-CNN
-  seems less stable. 
+  seems less stable.
 
 * **Test Performance**: While the performance on the training dataset
   may be a good indicator, test set performance is much more
   meaningful. Let's compare the losses and accuracies between both
   trained models:
-  
+
   ```python
   for trained_model in [trained_cnn, trained_st_cnn]:
       test(trained_model, test_dataset)
   ```
 
   ![Test Results](/assets/img/09_spatial_transformer/test_results.png "Test Results")
-  
+
   Clearly, the ST-CNN performs much better than the standard CNN. Note
   that training for more epochs would probably result in even better
-  accuracies in both models. 
+  accuracies in both models.
 
 * **Visualization of Learned Transformations**: Lastly, it might be
   interesting to see what the ST module actually does after training:
-  
+
   ```python
   import matplotlib.pyplot as plt
   from matplotlib.patches import ConnectionPatch
@@ -611,8 +611,8 @@ Lastly, the results can also divided into three sections:
               ax2.annotate('ST', xy=(-0.3, 0.5), xycoords='axes fraction',
                           fontsize=14, va='center', ha='right')
           # add arrow between
-          con = ConnectionPatch(xyA=(21, 41), xyB=(21, 0), coordsA='data', 
-                                coordsB='data', axesA=ax1, axesB=ax2, 
+          con = ConnectionPatch(xyA=(21, 41), xyB=(21, 0), coordsA='data',
+                                coordsB='data', axesA=ax1, axesB=ax2,
                                 arrowstyle="-|>", shrinkB=5)
           ax2.add_artist(con)
 
@@ -626,7 +626,7 @@ Lastly, the results can also divided into three sections:
               ax3.annotate('ST Output', xy=(-0.3, 0.5), xycoords='axes fraction',
                           fontsize=14, va='center', ha='right')
           # add arrow between
-          con = ConnectionPatch(xyA=(21, 41), xyB=(21, 0), coordsA='data', 
+          con = ConnectionPatch(xyA=(21, 41), xyB=(21, 0), coordsA='data',
                                 coordsB='data', axesA=ax2, axesB=ax3,
                                 arrowstyle="-|>", shrinkB=5)
           ax3.add_artist(con)
@@ -643,8 +643,8 @@ Lastly, the results can also divided into three sections:
               ax4.annotate('Prediction', xy=(-0.3, 0.5), xycoords='axes fraction',
                           fontsize=14, va='center', ha='right')
           # add arrow between
-          con = ConnectionPatch(xyA=(21, 41), xyB=(0.5, 0.65), coordsA='data', 
-                                coordsB='data', axesA=ax3, axesB=ax4, 
+          con = ConnectionPatch(xyA=(21, 41), xyB=(0.5, 0.65), coordsA='data',
+                                coordsB='data', axesA=ax3, axesB=ax4,
                                 arrowstyle="-|>", shrinkB=5)
           ax4.add_artist(con)
       return
@@ -654,15 +654,15 @@ Lastly, the results can also divided into three sections:
    ```
 
   ![Transformation Visualization](/assets/img/09_spatial_transformer/transformation_visualization.png "Transformation Visualization")
-  
+
   Clearly, the ST module attends to the digits such that the
   ST output has much less variation in terms of rotation, translation
   and scale making the classification task for the follow up CNN easier.
-  
+
   Pretty cool, hugh?
-   
-   
-  
+
+
+
 
 
 

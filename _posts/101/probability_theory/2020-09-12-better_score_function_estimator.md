@@ -7,7 +7,7 @@ type: "101 probability"
 ---
 
 Remind that the score function estimator moves the gradient of an
-expectation inside the expecation to allow for Monte Carlo integration, i.e., 
+expectation inside the expecation to allow for Monte Carlo integration, i.e.,
 
 $$
 \begin{align}
@@ -26,7 +26,7 @@ $$
 
 where the term $\nabla\_{\boldsymbol{\theta}}\log p\_{\boldsymbol{\theta}} (\textbf{z})$ is called
 the score function. A nice property of the score function is that its
-expectated value is zero, i.e., 
+expectated value is zero, i.e.,
 
 $$
 \mathbb{E}_{\textbf{z} \sim
@@ -55,11 +55,7 @@ $$
 
 where $\lambda$ is called **control variate** or **baseline** which
 allows us to decrease the variance. Note that the choice of $\lambda$
-is non-trivial and an arbitrary function with zero mean could clearly
-increase the variance. 
-
-
-
+is non-trivial and an arbitrary function could also increase the variance.
 
 ## Derivation
 
@@ -78,10 +74,19 @@ $$
   (\textbf{z}) d\textbf{z} &&\text{(log derivative trick)}\\
   &= \nabla_{\boldsymbol{\theta}} \int p_{\boldsymbol{\theta}}
   (\textbf{z}) d\textbf{z} &&\text{(Leibniz integral rule)}\\
-  &= \nabla_{\boldsymbol{\theta}} \textbf{1} = \textbf{0} 
+  &= \nabla_{\boldsymbol{\theta}} \textbf{1} = \textbf{0}
 \end{align}
 $$
 
 The log derivative trick comes from the application of the chain rule,
 see [this
-post](https://borea17.github.io/ML_101/probability_theory/score_function_estimator#derivation). 
+post](https://borea17.github.io/ML_101/probability_theory/score_function_estimator#derivation).
+
+The variance of the score function estimator (including the baseline $\lambda$)
+
+$$
+\text{Var} \Big[ \mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \left[
+  \Big(f(\textbf{z}) - \lambda \Big)\nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z}) \right] \Big] =
+$$
