@@ -3,14 +3,14 @@ title: "Attend, Infer, Repeat: Fast Scene Understanding with Generative Models"
 permalink: "/paper_summaries/AIR"
 author: "Markus Borea"
 tags: ["unsupervised learning", "object detection", "generalization"]
-published: false
+published: true
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
 type: "paper summary"
+nextjournal_link: "https://nextjournal.com/borea17/attend-infer-repeat/"
+github_link: "https://github.com/borea17/Notebooks/blob/master/05_Attend-Infer-Repeat.ipynb"
 ---
-
-NOTE: THIS IS CURRENTLY WIP!
 
 [Eslami et al. (2016)](https://arxiv.org/abs/1603.08575) introduce the
 **Attend-Infer-Repeat (AIR)** framework as an end-to-end trainable
@@ -243,7 +243,8 @@ given the generative model parameters can be stated as follows
 
 $$
  p_{\boldsymbol{\theta}} (\textbf{x}) = \sum_{n=1}^N p_N (n) \int
- p_{\boldsymbol{\theta}}^z \left( \textbf{z} | n \right) p_{\boldsymbol{\theta}}^x \left( \textbf{x} | \textbf{z}\right)
+ p_{\boldsymbol{\theta}}^z \left( \textbf{z} | n \right)
+ p_{\boldsymbol{\theta}}^x \left( \textbf{x} | \textbf{z}\right) d \textbf{z}
 $$
 
 | ![Generative Model VAE vs AIR](/assets/img/010_AIR/VAE_vs_AIR.png "Generative Model VAE vs AIR") |
@@ -482,7 +483,7 @@ that we need to define in advance:
 
 * $p\_{\boldsymbol{\theta}} \left(\textbf{z}\_{\text{pres}}^{(i)}\right) \sim
   \text{Bern} (p\_{\text{pres}})$: [Eslami et
-al. (2016)](https://arxiv.org/abs/1603.08575) used an anealing geometric
+al. (2016)](https://arxiv.org/abs/1603.08575) used an annealing geometric
   distribution as a prior on the number of objects[^7], i.e., the success
   probability decreases from a value close to 1 to some small value close to 0
   during the course of the training. The intuitive idea behind this process is
@@ -493,8 +494,9 @@ al. (2016)](https://arxiv.org/abs/1603.08575) used an anealing geometric
   For simplicity, we use a fixed Bernoulli distribution for each step as
   suggested in [the pyro tutorial](https://pyro.ai/examples/air.html#In-practice) with
   $p\_{\text{pres}} = 0.01$, i.e., we will constrain the number of objects from
-  the beginning. Note that we encourage the use of objects by an empty scene
-  initialization in the `what`-decoder (also inspired by
+  the beginning. To encourage the model to use objects we initialize the
+  `what`-decoder to produce empty scenes such that things do not get much worse
+  in terms of reconstruction accuracy when objects are used (also inspired by
   [pyro](https://pyro.ai/examples/air.html#In-practice)).
 
 
@@ -513,7 +515,7 @@ multi-MNIST experiment, see image below. We will make some adaptations inspired
 by [this pyro tutorial](https://pyro.ai/examples/air.html) and [this pytorch
 reimplementation](https://github.com/addtt/attend-infer-repeat-pytorch) from
 Andrea Dittadi. As a result, the following reimplementation receives a huge
-speed up in terms of convergence time and can be trained in less than 20 minutes on a
+speed up in terms of convergence time and can be trained in less than 10 minutes on a
 Nvidia Tesla K80 (compared to 2 days on a Nvidia Quadro K4000 GPU by [Eslami et
 al. (2016)](https://arxiv.org/abs/1603.08575)).
 
@@ -622,14 +624,14 @@ For the sake of clarity, the model implementation is divided into its constituti
 parts:
 
 * `what`-**VAE implementation**: The `what`-VAE can be implemented as an
-  independent class that receives an image patch and outputs its reconstruction
+  independent class that receives an image patch (crop) and outputs its reconstruction
   as well as its latent distribution parameters. Note that we could also compute
   the KL divergence and reconstruction error within that class, however we will
   put the whole loss computation in another function to have everything in one
   place. As shown in a [previous
   summary](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#vae-implementation),
   two fully connected layers with ReLU non-linearity in between suffice for
-  decent reconstruction of MNIST digits.
+  decent reconstructions of MNIST digits.
 
   We have additional prior knowledge about the output distribution: It should
   only be between 0 and 1. It is always useful to put as much prior knowledge as
@@ -650,71 +652,87 @@ parts:
   * *Sigmoid Layer*: This is a typical choice in classification problems and is
     commonly used in VAEs when the decoder approximates a Bernoulli
     distribution. However, it should be noted that using MSE loss (Gaussian
-    decoder) with a sigmoid is generally bad practice due to the
-    vanishing/saturating gradients (explained [here](https://borea17,gitbub.io/ML_101/probability_theory/sigmoid_loss)).
-    WHY DOES IT WORK SO GOOD HERE?
+    decoder distribution) with a sigmoid is generally not advised due to the
+    vanishing/saturating gradients (explained
+    [here](https://borea17,gitbub.io/ML_101/probability_theory/sigmoid_loss)).
 
-  * *Sigmoid Layer with Bias*:
+    On the other hand, using a Bernoulli distribution for the reconstruction of
+    the whole image (sum over multiple reconstruction) comes with additional
+    problems, e.g., numerical instabilities due to empty canvas (binary cross
+    entropy can not be computed when probabilties are exactly 0) and due to
+    clamping (as the sum over multiple bernoulli means could easily overshoot
+    1). While there might be some workarounds, I decided to take the easier
+    path: A **sigmoid layer with MSE loss**.
+
+    To avoid vanishing gradients, we use a small variance for the Gaussian
+    decoder (i.e., scale the nll loss by some hyperparameter which is the
+    inverse of the fixed variance). Furthermore, the decoder is initialized to
+    generate mostly empty objects to encourage the model to use objects. This is
+    done by adding `SIGMOID_BIAS` to the input of the sigmoid layer[^8] as
+    suggested in [here](https://pyro.ai/examples/air.html#In-practice).
+
+[^8]: Note that weights and biases of linear layers are [defaulty
+    initialized](https://discuss.pytorch.org/t/how-are-layer-weights-and-biases-initialized-by-default/13073/2)
+    by drawing uniformly in the interval $[-\frac {1}{\sqrt{n_o}}, \frac
+    {1}{\sqrt{n_o}}]$, where $n_o$ denotes the number of outputs of the linear layer.
+
 
   {% capture code %}{% raw %}from torch import nn
 
-  WINDOW_SIZE = MNIST_SIZE        # patch size (in one dimension) of what-VAE
-  Z_WHAT_HIDDEN_DIM = 400         # hidden dimension of what-VAE
-  Z_WHAT_LATENT_DIM = 20          # latent dimension of what-VAE
+WINDOW_SIZE = MNIST_SIZE        # patch size (in one dimension) of what-VAE
+Z_WHAT_HIDDEN_DIM = 400         # hidden dimension of what-VAE
+Z_WHAT_LATENT_DIM = 20          # latent dimension of what-VAE
+SIGMOID_BIAS = -3.              # bias to encourage objects use
+FIXED_VAR = 0.6**2              # fixed variance of Gaussian decoder
 
 
-  class VAE(nn.Module):
-      """simple VAE class with a Gaussian encoder (mean and diagonal variance
-      structure) and a Gaussian decoder with fixed variance
+class VAE(nn.Module):
+    """simple VAE class with a Gaussian encoder (mean and diagonal variance
+    structure) and a Gaussian decoder with fixed variance
 
-      Attributes:
-          encoder (nn.Sequential): encoder network for mean and log_var
-          decoder (nn.Sequential): decoder network for mean (fixed var)
-      """
+    Attributes:
+        encoder (nn.Sequential): encoder network for mean and log_var
+        decoder (nn.Sequential): decoder network for mean (fixed var)
+    """
 
-      def __init__(self, bias=-5.):
-          super(VAE, self).__init__()
-          self.encoder = nn.Sequential(
-              nn.Linear(WINDOW_SIZE**2, Z_WHAT_HIDDEN_DIM),
-              nn.ReLU(),
-              nn.Linear(Z_WHAT_HIDDEN_DIM, Z_WHAT_LATENT_DIM*2),
-          )
+    def __init__(self):
+        super(VAE, self).__init__()
+        self.encoder = nn.Sequential(
+            nn.Linear(WINDOW_SIZE**2, Z_WHAT_HIDDEN_DIM),
+            nn.ReLU(),
+            nn.Linear(Z_WHAT_HIDDEN_DIM, Z_WHAT_LATENT_DIM*2),
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(Z_WHAT_LATENT_DIM, Z_WHAT_HIDDEN_DIM),
+            nn.ReLU(),
+            nn.Linear(Z_WHAT_HIDDEN_DIM, WINDOW_SIZE**2),
+        )
+        self.bias = SIGMOID_BIAS
+        return
 
-          out_layer = nn.Linear(Z_WHAT_HIDDEN_DIM, WINDOW_SIZE**2)
-          out_layer.weight.data = nn.Parameter(
-            torch.zeros(WINDOW_SIZE**2, Z_WHAT_HIDDEN_DIM)
-          )
-          out_layer.bias.data = nn.Parameter(torch.zeros(WINDOW_SIZE**2))
-          self.decoder = nn.Sequential(
-              nn.Linear(Z_WHAT_LATENT_DIM, Z_WHAT_HIDDEN_DIM),
-              nn.ReLU(),
-              nn.Linear(Z_WHAT_HIDDEN_DIM, WINDOW_SIZE**2),
-          )
-          self.bias = bias
-          return
+    def forward(self, x_att_i):
+        z_what_i, mu_E_i, log_var_E_i = self.encode(x_att_i)
+        x_tilde_att_i = self.decode(z_what_i)
+        return x_tilde_att_i, z_what_i, mu_E_i, log_var_E_i
 
-      def forward(self, x_att_i):
-          z_what_i, mu_E_i, log_var_E_i = self.encode(x_att_i)
-          x_tilde_att_i = self.decode(z_what_i)
-          return x_tilde_att_i, z_what_i, mu_E_i, log_var_E_i
+    def encode(self, x_att_i):
+        batch_size = x_att_i.shape[0]
+        # get encoder distribution parameters
+        out_encoder = self.encoder(x_att_i.view(batch_size, -1))
+        mu_E_i, log_var_E_i = torch.chunk(out_encoder, 2, dim=1)
+        # sample noise variable for each batch
+        epsilon = torch.randn_like(log_var_E_i)
+        # get latent variable by reparametrization trick
+        z_what_i = mu_E_i + torch.exp(0.5*log_var_E_i) * epsilon
+        return z_what_i, mu_E_i, log_var_E_i
 
-      def encode(self, x_att_i):
-          batch_size = x_att_i.shape[0]
-          # get encoder distribution parameters
-          out_encoder = self.encoder(x_att_i.view(batch_size, -1))
-          mu_E_i, log_var_E_i = torch.chunk(out_encoder, 2, dim=1)
-          # sample noise variable for each batch
-          epsilon = torch.randn_like(log_var_E_i)
-          # get latent variable by reparametrization trick
-          z_what_i = mu_E_i + torch.exp(0.5*log_var_E_i) * epsilon
-          return z_what_i, mu_E_i, log_var_E_i
-
-      def decode(self, z_what_i):
-          # get decoder distribution parameters
-          x_tilde_att_i = self.decoder(z_what_i)
-          x_tilde_att_i = torch.sigmoid(x_tilde_att_i + self.bias)
-          x_tilde_att_i = x_tilde_att_i.view(-1, 1, WINDOW_SIZE, WINDOW_SIZE)
-          return x_tilde_att_i{% endraw %}{% endcapture %}
+    def decode(self, z_what_i):
+        # get decoder distribution parameters
+        x_tilde_att_i = self.decoder(z_what_i)
+        x_tilde_att_i = torch.sigmoid(x_tilde_att_i + self.bias)
+        # reshape to [1, WINDOW_SIZE, WINDOW_SIZE] (input shape)
+        x_tilde_att_i = x_tilde_att_i.view(-1, 1, WINDOW_SIZE, WINDOW_SIZE)
+        return x_tilde_att_i{% endraw %}{% endcapture %}
   {% include code.html code=code lang="python" %}
 
 * **Recurrent Inference Network**: [Eslami et al.
@@ -734,18 +752,22 @@ parts:
   \text{Bern}\left( p^{(i)}\_{\text{pres}} \right)$ and
   $\textbf{z}\_{\text{where}}^{(i)} \sim \mathcal{N} \left( \boldsymbol{\mu}\_{\text{where}},
    \boldsymbol{\sigma}^2\_{\text{where}}\textbf{I}\right)$, and the next hidden
-  state $\textbf{h}^{(i)}$.
+  state $\textbf{h}^{(i)}$. They did not provide any specifics about the network
+  architecture, however in my experiments it turned out that a simple 3 layer
+  (fully-connected) network suffices for this task.
 
+  To speed up convergence, we initialize useful distribution parameters:
 
-  A simple 3 layer (fully-connected) network should be
-  enough for this task.
+  * $p\_{\text{pres}}^{(i)}\approx 0.8$: This encourages AIR to use objects in the
+    beginning of training.
+  * $\boldsymbol{\mu}\_{\text{where}} = \begin{bmatrix} -3 & 0 &
+    0\end{bmatrix}^{\text{T}}$: This leads to a center crop with (approximate)
+    size of the inserted digits.
+  * $\boldsymbol{\sigma}\_{\text{where}}^2 \approx \begin{bmatrix} 0.05 & 0.05 &
+    0.05\end{bmatrix}^{\text{T}}$: Start with low variance.
 
-  To speedup convergence, we initialize useful the distribution parameters:
-
-  * $p\_{\text{pres}}^{(i)}=0.7$: This encourages AIR to use objects in the
-    beginning of the training.
-
-
+  Note: We use a very similar recurrent network architecture for the neural baseline
+  model (to predict the negative log-likelihood), see code below.
 
 {% capture code %}{% raw %}Z_PRES_LATENT_DIM = 1               # latent dimension of z_pres
 Z_WHERE_LATENT_DIM = 3              # latent dimension of z_where
@@ -794,68 +816,480 @@ class RNN(nn.Module):
         return omega_i, h_i{% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-* **AIR Implementation**: Lastly, we put everything together to obtain the whole
-  AIR model. To better understand what's happening, let's take a closer look
-  on the two main functions:
+* **AIR Implementation**: The whole AIR model is obtained by putting everything
+  together. To better understand what's happening, let's take a closer look on
+  the two main functions:
 
-  * `forward(x)`:
+  * `forward(x)`: This function essentially does what is described in
+    [High-Level
+    Overview](https://borea17.github.io/paper_summaries/AIR#high-level-overview).
+    Its purpose is to obtain a structured latent representation $\textbf{z}=\bigg\\{ \left[
+    \textbf{z}\_{\text{pres}}^{(i)}, \textbf{z}\_{\text{where}}^{(i)},
+    \textbf{z}\_{\text{what}}^{(i)}\right]\_{i=1}^N \bigg\\}$ for a given input
+    (batch of images) $\textbf{x}$ and to collect everything needed to compute
+    the loss.
 
-  * `compute_loss(x)`
+  * `compute_loss(x)`: This function is only necessary for training. It computes
+    four loss quantities:
+
+    1. *KL Divergence*: As noted
+       [above](https://borea17.github.io/paper_summaries/AIR#difficulties) the
+       KL divergence term can be computed by summing the KL divergences of each
+       type (`pres`, `what`, `where`) for each step.
+
+    2. *NLL*: We assume a Gaussian decoder such that the negative log-likelihood
+       can be computed as follows
+
+       $$
+        \text{NLL} = \frac {1}{2 \cdot \sigma^2}\sum_{i=1}^{W \cdot H} \left(x_i - \widetilde{x}_i \right)^2,
+       $$
+
+       where $i$ enumerates the pixel space, $\textbf{x}$ denotes the original
+       image, $\widetilde{\textbf{x}}$ the reconstructed image and $\sigma^2$ is
+       a the fixed variance of the Gaussian distribution (hyperparameter).
+
+    3. *REINFORCE Term*: Since the image reconstruction is build by sampling
+       from a discrete distribution, backpropagation stops at the sampling
+       operation. In order to optimize the distribution parameters
+       $p\_{\text{pres}}^{(i)}$, we use a score-function estimator with a
+       data-dependent neural baseline.
+
+    4. *Baseline Loss*: This loss is needed to approximately fit the neural
+       baseline to the true NLL in order to reduce the variance of the REINFORCE
+       estimator.
+
+  {% capture code %}{% raw %}import torch.nn.functional as F
+from torch.distributions import Bernoulli
 
 
-* **Training Procedure**
-
-<!-- where -->
-<!-- https://mr-easy.github.io/2020-04-16-kl-divergence-between-2-gaussian-distributions/  -->
-<!-- https://pytorch.org/docs/stable/_modules/torch/distributions/kl.html#kl_divergence -->
-
-**From Inference to Generation**: In the generative model, we assume that the
-number of objects $n$ is drawn from a geometrical distribution $n\sim
-\text{Geom} (\rho)$. However, the inference network produces a 1-dimensional
-Bernoulli variable $\text{z}^{(i)}\_{\text{pres}}$ at every time-step $i$, i.e.,
-
-$$
-  q_{\boldsymbol{\phi}} \left( \text{z}_{\text{pres}}^{(i)} = 1 | \textbf{x},
-  \textbf{z}^{(1:i-1)} \right) = \text{z}_{\text{pres}}^{(i-1)} \cdot
-  \text{z}_{\text{pres}}^{(i)} \quad \text{with} \quad
-  \text{z}_{\text{pres}}^{(i)} \sim \text{Binom} \left(
-  p_{\boldsymbol{\phi}}^{(i)} \left( \textbf{x}, \textbf{z}^{(1:i-1)} \right) \right)
-$$
-
-such that at the end $n$ is encoded in the $\textbf{z}\_{\text{pres}}$ variable.
-As we need to compute the KL-divergence between the geometrical prior
-distribution and the infered geometrical distribution, we need to ask how do we
-transform the Bernoulli distribution probabilities $p\_{\boldsymbol{\phi}}^{(i)}
-\left( \textbf{x}, \textbf{z}^{(1:i-1)} \right)$ into a success probability of
-the infered geometric distribution $\widetilde{\rho}$.
-
-To do this, [Eslami et al. (2016)](https://arxiv.org/abs/1603.08575) assume that
-
-$$
-p_{\boldsymbol{\phi}}^{(i)}
-\left( \textbf{x}, \textbf{z}^{(1:i-1)} \right) = \frac {\mu_{n\ge (i)}}
-{\mu_{n\ge (i-1)}}
-$$
+N = 3                                 # number of inference steps
+EPS = 1e-32                           # numerical stability
+PRIOR_MEAN_WHERE = [3., 0., 0.]       # prior for mean of z_i_where
+PRIOR_VAR_WHERE = [0.1**2, 1., 1.]    # prior for variance of z_i_where
+PRIOR_P_PRES = [0.01]                 # prior for p_i_pres of z_i_pres
+BETA = 0.7                            # hyperparameter to scale KL div
+OMEGA_DIM = Z_PRES_DIM + 2*Z_WHERE_DIM + 2*Z_WHAT_DIM
 
 
-each Bernoulli distribution probability
+class AIR(nn.Module):
+
+    PRIOR_MEAN_Z_WHERE = nn.Parameter(torch.tensor(PRIOR_MEAN_WHERE),
+                                      requires_grad=False)
+    PRIOR_VAR_Z_WHERE = nn.Parameter(torch.tensor(PRIOR_VAR_WHERE),
+                                     requires_grad=False)
+    PRIOR_P_Z_PRES = nn.Parameter(torch.tensor(PRIOR_P_PRES),
+                                  requires_grad=False)
+
+    expansion_indices = torch.LongTensor([1, 0, 2, 0, 1, 3])
+    target_rectangle = torch.tensor(
+      [[-1., -1., 1., 1., -1.],
+       [-1., 1., 1., -1, -1.],
+       [1., 1., 1., 1., 1.]]
+    ).view(1, 3, 5)
+
+    def __init__(self):
+        super(AIR, self).__init__()
+        self.vae = VAE()
+        self.rnn = RNN()
+        self.baseline = RNN(True)
+        return
+
+    def compute_loss(self, x):
+        """compute the loss of AIR (essentially a VAE loss)
+        assuming the following prior distributions for the latent variables
+
+            z_where ~ N(PRIOR_MEAN_WHERE, PRIOR_VAR_WHERE)
+            z_what ~ N([0, 1])
+            z_pres ~ Bern(p_pres)
+
+        and a
+
+            Gaussian decoder with fixed diagonal var (FIXED_VAR)
+        """
+        batch_size = x.shape[0]
+        results = self.forward(x, True)
+        # kl_div for z_pres (between two Bernoulli distributions)
+        q_z_pres = results['all_prob_pres']
+        P_Z_PRES = AIR.PRIOR_P_Z_PRES.expand(q_z_pres.shape).to(x.device)
+        kl_div_pres = AIR.bernoulli_kl(q_z_pres, P_Z_PRES).sum(axis=2)
+        # kl_div for z_what (standard VAE regularization term)
+        q_z_what = [results['all_mu_what'], results['all_log_var_what']]
+        P_MU_WHAT = torch.zeros_like(results['all_mu_what'])
+        P_VAR_WHAT = torch.ones_like(results['all_log_var_what'])
+        P_Z_WHAT = [P_MU_WHAT, P_VAR_WHAT]
+        kl_div_what = AIR.gaussian_kl(q_z_what, P_Z_WHAT).sum(axis=2)
+        # kl_div for z_where (between two Gaussian distributions)
+        q_z_where = [results['all_mu_where'], results['all_log_var_where']]
+        P_MU_WHERE=AIR.PRIOR_MEAN_Z_WHERE.expand(results['all_mu_where'].shape)
+        P_VAR_WHERE=AIR.PRIOR_VAR_Z_WHERE.expand(results['all_mu_where'].shape)
+        P_Z_WHERE = [P_MU_WHERE.to(x.device), P_VAR_WHERE.to(x.device)]
+        kl_div_where = AIR.gaussian_kl(q_z_where, P_Z_WHERE).sum(axis=2)
+        # sum all kl_divs and use delayed mask to zero out irrelevants
+        delayed_mask = results['mask_delay']
+        kl_div = (kl_div_pres + kl_div_where + kl_div_what) * delayed_mask
+        # negative log-likelihood for Gaussian decoder (no gradient for z_pres)
+        factor = 0.5 * (1/FIXED_VAR)
+        nll = factor * ((x - results['x_tilde'])**2).sum(axis=(1,2,3))
+        # REINFORCE estimator for nll (gradient for z_pres)
+        baseline_target = nll.unsqueeze(1)
+        reinforce_term = ((baseline_target - results['baseline_values']
+                           ).detach()
+                          *results['z_pres_likelihood']*delayed_mask).sum(1)
+
+        # baseline model loss
+        baseline_loss = ((results['baseline_values'] -
+                          baseline_target.detach())**2 * delayed_mask).sum(1)
+        loss = dict()
+        loss['kl_div'] = BETA*kl_div.sum(1).mean()
+        loss['nll'] = nll.mean()
+        loss['reinforce'] = reinforce_term.mean()
+        loss['baseline'] = baseline_loss.mean()
+        return loss, results
+
+    def forward(self, x, save_attention_rectangle=False):
+        batch_size = x.shape[0]
+        # initializations
+        all_z = torch.empty((batch_size, N, Z_DIM), device=x.device)
+        z_pres_likelihood = torch.empty((batch_size, N), device=x.device)
+        mask_delay = torch.empty((batch_size, N), device=x.device)
+        all_omega = torch.empty((batch_size, N, OMEGA_DIM), device=x.device)
+        all_x_tilde = torch.empty((batch_size, N, CANVAS_SIZE, CANVAS_SIZE),
+                                 device=x.device)
+        baseline_values = torch.empty((batch_size, N), device=x.device)
+
+        z_im1 = torch.ones((batch_size, Z_DIM)).to(x.device)
+        h_im1 = torch.zeros((batch_size, RNN_HIDDEN_STATE_DIM)).to(x.device)
+        h_im1_b = torch.zeros((batch_size, RNN_HIDDEN_STATE_DIM)).to(x.device)
+        if save_attention_rectangle:
+            attention_rects = torch.empty((batch_size, N, 2, 5)).to(x.device)
+        for i in range(N):
+            z_im1_pres = z_im1[:, 0:1]
+            # mask_delay is used to zero out all steps AFTER FIRST z_pres = 0
+            mask_delay[:, i] = z_im1_pres.squeeze(1)
+            # obtain parameters of sampling distribution and hidden state
+            omega_i, h_i = self.rnn(x, z_im1, h_im1)
+            # baseline version
+            baseline_i, h_i_b = self.baseline(x.detach(), z_im1.detach(),
+                                              h_im1_b)
+            # set baseline 0 if z_im1_pres = 0
+            baseline_value = (baseline_i * z_im1_pres).squeeze()
+            # extract sample distributions parameters from omega_i
+            prob_pres_i = omega_i[:, 0:1]
+            mu_where_i = omega_i[:, 1:4]
+            log_var_where_i = omega_i[:, 4:7]
+            # sample from distributions to obtain z_i_pres and z_i_where
+            z_i_pres_post = Bernoulli(probs=prob_pres_i)
+            z_i_pres = z_i_pres_post.sample() * z_im1_pres
+            # likelihood of sampled z_i_pres (only if z_im_pres = 1)
+            z_pres_likelihood[:, i] = (z_i_pres_post.log_prob(z_i_pres) *
+                                       z_im1_pres).squeeze(1)
+            # get z_i_where by reparametrization trick
+            epsilon_w = torch.randn_like(log_var_where_i)
+            z_i_where = mu_where_i + torch.exp(0.5*log_var_where_i)*epsilon_w
+            # use z_where and x to obtain x_att_i
+            x_att_i = AIR.image_to_window(x, z_i_where)
+            # put x_att_i through VAE
+            x_tilde_att_i, z_i_what, mu_what_i, log_var_what_i = \
+                self.vae(x_att_i)
+            # create image reconstruction
+            x_tilde_i = AIR.window_to_image(x_tilde_att_i, z_i_where)
+            # update im1 with current versions
+            z_im1 = torch.cat((z_i_pres, z_i_where, z_i_what), 1)
+            h_im1 = h_i
+            h_im1_b = h_i_b
+            # put all distribution parameters into omega_i
+            omega_i = torch.cat((prob_pres_i, mu_where_i, log_var_where_i,
+                                 mu_what_i, log_var_what_i), 1)
+            # store intermediate results
+            all_z[:, i:i+1] = z_im1.unsqueeze(1)
+            all_omega[:, i:i+1] = omega_i.unsqueeze(1)
+            all_x_tilde[:, i:i+1] = x_tilde_i
+            baseline_values[:, i] = baseline_value
+            # for nice visualization
+            if save_attention_rectangle:
+                attention_rects[:, i] = (AIR.get_attention_rectangle(z_i_where)
+                                         *z_i_pres.unsqueeze(1))
+        # save results in dict (easy accessibility)
+        results = dict()
+        # fixes Z_PRES_DIM = 1 and Z_WHERE_DIM = 3
+        results['z_pres_likelihood'] = z_pres_likelihood
+        results['all_z_pres'] = all_z[:, :, 0:1]
+        results['mask_delay'] = mask_delay
+        results['all_prob_pres'] = all_omega[:, :, 0:1]
+        results['all_z_where'] = all_z[:, :, 1:4]
+        results['all_mu_where'] =  all_omega[:, :, 1:4]
+        results['all_log_var_where'] = all_omega[:, :, 4:7]
+        results['all_z_what'] = all_z[:, :, 4::]
+        results['all_mu_what'] =  all_omega[:, :, 7:7+Z_WHAT_DIM]
+        results['all_log_var_what'] = all_omega[:, :, 7+Z_WHAT_DIM::]
+        results['baseline_values'] = baseline_values
+        if save_attention_rectangle:
+            results['attention_rects'] = attention_rects
+        # compute reconstructed image (take only x_tilde_i with z_i_pres=1)
+        results['x_tilde_i'] = all_x_tilde
+        x_tilde = (all_z[:, :, 0:1].unsqueeze(2) * all_x_tilde).sum(axis=1,
+                                                              keepdim=True)
+        results['x_tilde'] = x_tilde
+        # compute counts as identified objects (sum z_i_pres)
+        results['counts'] = results['all_z_pres'].sum(1).to(dtype=torch.long)
+        return results
+
+    @staticmethod
+    def image_to_window(x, z_i_where):
+        grid_shape = (z_i_where.shape[0], 1, WINDOW_SIZE, WINDOW_SIZE)
+        z_i_where_inv = AIR.invert_z_where(z_i_where)
+        x_att_i = AIR.spatial_transform(x, z_i_where_inv, grid_shape)
+        return x_att_i
+
+    @staticmethod
+    def window_to_image(x_tilde_att_i, z_i_where):
+        grid_shape = (z_i_where.shape[0], 1, CANVAS_SIZE, CANVAS_SIZE)
+        x_tilde_i = AIR.spatial_transform(x_tilde_att_i, z_i_where, grid_shape)
+        return x_tilde_i
+
+    @staticmethod
+    def spatial_transform(x, z_where, grid_shape):
+        theta_matrix = AIR.z_where_to_transformation_matrix(z_where)
+        grid = F.affine_grid(theta_matrix, grid_shape, align_corners=False)
+        out = F.grid_sample(x, grid, align_corners=False)
+        return out
+
+    @staticmethod
+    def z_where_to_transformation_matrix(z_i_where):
+        """taken from
+        https://github.com/pyro-ppl/pyro/blob/dev/examples/air/air.py
+        """
+        batch_size = z_i_where.shape[0]
+        out = torch.cat((z_i_where.new_zeros(batch_size, 1), z_i_where), 1)
+        ix = AIR.expansion_indices
+        if z_i_where.is_cuda:
+            ix = ix.cuda()
+        out = torch.index_select(out, 1, ix)
+        theta_matrix = out.view(batch_size, 2, 3)
+        return theta_matrix
+
+    @staticmethod
+    def invert_z_where(z_where):
+        z_where_inv = torch.zeros_like(z_where)
+        scale = z_where[:, 0:1] + 1e-9
+        z_where_inv[:, 1:3] = -z_where[:, 1:3] / scale
+        z_where_inv[:, 0:1] = 1 / scale
+        return z_where_inv
+
+    @staticmethod
+    def get_attention_rectangle(z_i_where):
+        batch_size = z_i_where.shape[0]
+        z_i_where_inv = AIR.invert_z_where(z_i_where)
+        theta_matrix = AIR.z_where_to_transformation_matrix(z_i_where_inv)
+        target_rectangle = AIR.target_rectangle.expand(batch_size, 3,
+                                                       5).to(z_i_where.device)
+        source_rectangle_normalized = torch.matmul(theta_matrix,
+                                                   target_rectangle)
+        # remap into absolute values
+        source_rectangle = 0 + (CANVAS_SIZE/2)*(source_rectangle_normalized + 1)
+        return source_rectangle
+
+    @staticmethod
+    def bernoulli_kl(q_probs, p_probs):
+        # https://github.com/pytorch/pytorch/issues/15288
+        p1 = p_probs
+        p0 = 1 - p1
+        q1 = q_probs
+        q0 = 1 - q1
+
+        logq1 = (q1 + EPS).log()
+        logq0 = (q0 + EPS).log()
+        logp1 = (p1).log()
+        logp0 = (p0).log()
+
+        kl_div_1 = q1*(logq1 - logp1)
+        kl_div_0 = q0*(logq0 - logp0)
+        return kl_div_1 + kl_div_0
+
+    @staticmethod
+    def gaussian_kl(q, p):
+        # https://pytorch.org/docs/stable/_modules/torch/distributions/kl.html
+        mean_q, log_var_q = q[0], q[1]
+        mean_p, var_p = p[0], p[1]
+
+        var_ratio = log_var_q.exp()/var_p
+        t1 = (mean_q - mean_p).pow(2)/var_p
+        return -0.5 * (1 + var_ratio.log() - var_ratio - t1){% endraw %}{% endcapture %}
+  {% include code.html code=code lang="python" %}
+
+
+* **Training Procedure**: Lastly, a standard training procedure is implemented.
+  We will use two optimizers, one for the model parameters and one
+  for the neural baseline parameters. Note that the training process is
+  completely unsupervised, i.e., the model only receives a batch of images to
+  compute the losses.
+
+{% capture code %}{% raw %}from livelossplot import PlotLosses, outputs
+from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
+
+
+EPOCHS = 50
+BATCH_SIZE = 64
+LEARNING_RATE = 1e-4
+BASE_LEARNING_RATE = 1e-2
+EPOCHS_TO_SAVE_MODEL = [1, 10, EPOCHS]
+
+
+def train(air, dataset):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print('Device: {}'.format(device))
+
+    data_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True,
+                             num_workers=4)
+    optimizer = torch.optim.Adam([{'params': list(air.rnn.parameters()) +
+                                   list(air.vae.parameters()),
+                                   'lr': LEARNING_RATE,},
+                                  {'params': air.baseline.parameters(),
+                                   'lr': BASE_LEARNING_RATE}])
+    air.to(device)
+
+    # prettify livelossplot
+    def custom(ax: plt.Axes, group: str, x_label: str):
+        ax.legend()
+        if group == 'accuracy':
+            ax.set_ylim(0, 1)
+        elif group == 'loss base':
+            ax.set_ylim(0, 300)
+
+    matplot = [outputs.MatplotlibPlot(after_subplot=custom,max_cols=3)]
+    losses_plot = PlotLosses(groups={'loss model':['KL div','NLL','REINFORCE'],
+                                     'loss base': ['baseline'],
+                                     'accuracy': ['count accuracy']},
+                             outputs=matplot)
+    for epoch in range(1, EPOCHS+1):
+        avg_kl_div, avg_nll, avg_reinforce, avg_base, avg_acc = 0, 0, 0, 0, 0
+        for x, label in data_loader:
+            air.zero_grad()
+
+            losses, results = air.compute_loss(x.to(device, non_blocking=True))
+            loss  = (losses['kl_div'] + losses['nll'] + losses['reinforce']
+                     +losses['baseline'])
+            loss.backward()
+            optimizer.step()
+
+            # compute accuracy
+            label = label.unsqueeze(1).to(device)
+            acc = (results['counts']==label).sum().item()/len(results['counts'])
+            # update epoch means
+            avg_kl_div += losses['kl_div'].item() / len(data_loader)
+            avg_nll += losses['nll'].item() / len(data_loader)
+            avg_reinforce += losses['reinforce'].item() / len(data_loader)
+            avg_base += losses['baseline'].item() / len(data_loader)
+            avg_acc += acc / len(data_loader)
+
+        if epoch in EPOCHS_TO_SAVE_MODEL:  # save model
+            torch.save(air, f'./results/checkpoint_{epoch}.pth')
+        losses_plot.update({'KL div': avg_kl_div,
+                            'NLL': avg_nll,
+                            'REINFORCE': avg_reinforce,
+                            'baseline': avg_base,
+                            'count accuracy': avg_acc}, current_step=epoch)
+        losses_plot.send()
+    print(f'Accuracy after Training {avg_acc:.2f} (on training dataset)')
+    torch.save(air, f'./results/checkpoint_{epoch}.pth')
+    trained_air = air
+    return trained_air{% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
+
 
 ### Results
 
+Let's train our model:
 
-### Notes
+{% capture code %}{% raw %}air_model = AIR()
+train_dataset = generate_dataset(num_images=10000, SEED=np.random.randint(1000))
+trained_air = train(air_model, train_dataset){% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
 
-* introduced a lot of prior knowledge to obtain good results
+![Training Results](/assets/img/010_AIR/training_results.png "Training Results")
 
-## Drawbacks
+This looks pretty awesome! It seems that our model nearly perfectly learns to
+count the number of digits without even knowing what a digit is.
 
-*
+Let us look in more detail what's happening and plot the results of the model
+at different stages of the training against a test dataset.
+
+{% capture code %}{% raw %}def plot_results(dataset):
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    n_samples = 7
+
+    i_samples = np.random.choice(range(len(dataset)), n_samples, replace=False)
+    colors_rect = ['red', 'green', 'yellow']
+    num_rows = len(EPOCHS_TO_SAVE_MODEL) + 1
+
+    fig = plt.figure(figsize=(14, 8))
+    for counter, i_sample in enumerate(i_samples):
+        orig_img = dataset[i_sample][0]
+        # data
+        ax = plt.subplot(num_rows, n_samples, 1 + counter)
+        plt.imshow(orig_img[0].numpy(), cmap='gray', vmin=0, vmax=1)
+        plt.axis('off')
+        if counter == 0:
+            ax.annotate('Data', xy=(-0.05, 0.5), xycoords='axes fraction',
+                        fontsize=14, va='center', ha='right', rotation=90)
+        # outputs after epochs of training
+        MODELS = [, , ]
+        for j, (epoch, model) in enumerate(zip(EPOCHS_TO_SAVE_MODEL, MODELS)):
+            trained_air = torch.load(model)
+            trained_air.to(device)
+
+            results = trained_air(orig_img.unsqueeze(0).to(device), True)
+
+            attention_recs = results['attention_rects'].squeeze(0)
+            x_tilde = torch.clamp(results['x_tilde'][0], 0 , 1)
+
+            ax = plt.subplot(num_rows, n_samples, 1 + counter + n_samples*(j+1))
+            plt.imshow(x_tilde[0].cpu().detach().numpy(), cmap='gray',
+                       vmin=0, vmax=1)
+            plt.axis('off')
+            # show attention windows
+            for step_counter, step in enumerate(range(N)):
+                rect = attention_recs[step].detach().cpu().numpy()
+                if rect.sum() > 0:  # valid rectangle
+                    plt.plot(rect[0], rect[1]-0.5,
+                             color=colors_rect[step_counter])
+            if counter == 0:
+                # compute accuracy
+                data_loader = DataLoader(dataset, batch_size=BATCH_SIZE)
+                avg_acc = 0
+                for batch, label in data_loader:
+                    label = label.unsqueeze(1).to(device)
+                    r = trained_air(batch.to(device))
+                    acc = (r['counts']==label).sum().item()/len(r['counts'])
+                    avg_acc += acc / len(data_loader)
+                # annotate plot
+                ax.annotate(f'Epoch {epoch}\n Acc {avg_acc:.2f}',
+                            xy=(-0.05, 0.5), va='center',
+                            xycoords='axes fraction', fontsize=14,  ha='right',
+                            rotation=90)
+    return
 
 
-<!-- Possible Enhancement -->
-<!-- * scheduled learning => divide learning into parts where we learn useful -->
-<!--   reconstructions and and part where we learn useful attention crops -->
+test_dataset = generate_dataset(num_images=17, SEED=2)
+plot_results(test_dataset){% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
 
+![Test Results](/assets/img/010_AIR/test_results.png "Test Results")
+
+Very neat results, indeed! Note that this looks very similar to Figure 3 in the
+[AIR paper](https://arxiv.org/abs/1603.08575).
+
+
+### Closing Notes
+
+Alright, time to step down from our high horse. Actually, it took me quite some
+time to tweak the hyperparameters to obtain such good results. I put a lot of
+prior knowledge into the model so that `completely unsupervised` is probably
+exaggerated. Using a slightly different setup might result in entirely different
+results. Furthermore, even in this setup, there may be cases in which the training
+converges to some local maximum (depending on the random network initializations
+and random training dataset).
 
 ## Acknowledgements
 
