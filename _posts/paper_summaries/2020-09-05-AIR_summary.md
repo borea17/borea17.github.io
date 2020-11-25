@@ -661,15 +661,16 @@ parts:
     problems, e.g., numerical instabilities due to empty canvas (binary cross
     entropy can not be computed when probabilties are exactly 0) and due to
     clamping (as the sum over multiple bernoulli means could easily overshoot
-    1). While there might be some workarounds, I decided to take the easier
-    path: A **sigmoid layer with MSE loss**.
+    1). While there might be some workarounds, I decided to go an easier path.
 
-    To avoid vanishing gradients, we use a small variance for the Gaussian
-    decoder (i.e., scale the nll loss by some hyperparameter which is the
-    inverse of the fixed variance). Furthermore, the decoder is initialized to
-    generate mostly empty objects to encourage the model to use objects. This is
-    done by adding `SIGMOID_BIAS` to the input of the sigmoid layer[^8] as
-    suggested in [here](https://pyro.ai/examples/air.html#In-practice).
+  * **Output Distribution** $\mathbb{R}\_{+}$: This is motivated by the
+    observations I made during the *network initialization* approach. By
+    impeding the network to produce negative outputs, we indirectly force
+    outputs between $0$ and $1$. Thereby, we do not need to get our hands dirty
+    with a Bernoulli distribution or vanishing gradient problems. Furthermore,
+    we use Pytorch's default initialization[^8] to produce mostly empty objects.
+    This encourages the model to try out objects in the beginning of the
+    training.
 
 [^8]: Note that weights and biases of linear layers are [defaulty
     initialized](https://discuss.pytorch.org/t/how-are-layer-weights-and-biases-initialized-by-default/13073/2)
@@ -682,8 +683,7 @@ parts:
 WINDOW_SIZE = MNIST_SIZE        # patch size (in one dimension) of what-VAE
 Z_WHAT_HIDDEN_DIM = 400         # hidden dimension of what-VAE
 Z_WHAT_LATENT_DIM = 20          # latent dimension of what-VAE
-SIGMOID_BIAS = -3.              # bias to encourage objects use
-FIXED_VAR = 0.6**2              # fixed variance of Gaussian decoder
+FIXED_VAR = 0.5**2              # fixed variance of Gaussian decoder
 
 
 class VAE(nn.Module):
@@ -707,7 +707,6 @@ class VAE(nn.Module):
             nn.ReLU(),
             nn.Linear(Z_WHAT_HIDDEN_DIM, WINDOW_SIZE**2),
         )
-        self.bias = SIGMOID_BIAS
         return
 
     def forward(self, x_att_i):
@@ -729,7 +728,8 @@ class VAE(nn.Module):
     def decode(self, z_what_i):
         # get decoder distribution parameters
         x_tilde_att_i = self.decoder(z_what_i)
-        x_tilde_att_i = torch.sigmoid(x_tilde_att_i + self.bias)
+        # force output to be positive (EPS for numerical stability)
+        x_tilde_att_i = (x_tilde_att_i + EPS).abs()
         # reshape to [1, WINDOW_SIZE, WINDOW_SIZE] (input shape)
         x_tilde_att_i = x_tilde_att_i.view(-1, 1, WINDOW_SIZE, WINDOW_SIZE)
         return x_tilde_att_i{% endraw %}{% endcapture %}
@@ -867,7 +867,7 @@ EPS = 1e-32                           # numerical stability
 PRIOR_MEAN_WHERE = [3., 0., 0.]       # prior for mean of z_i_where
 PRIOR_VAR_WHERE = [0.1**2, 1., 1.]    # prior for variance of z_i_where
 PRIOR_P_PRES = [0.01]                 # prior for p_i_pres of z_i_pres
-BETA = 0.7                            # hyperparameter to scale KL div
+BETA = 0.5                            # hyperparameter to scale KL div
 OMEGA_DIM = Z_PRES_DIM + 2*Z_WHERE_DIM + 2*Z_WHAT_DIM
 
 
@@ -1212,7 +1212,7 @@ trained_air = train(air_model, train_dataset){% endraw %}{% endcapture %}
 This looks pretty awesome! It seems that our model nearly perfectly learns to
 count the number of digits without even knowing what a digit is.
 
-Let us look in more detail what's happening and plot the results of the model
+Let us take a closer look and plot the results of the model
 at different stages of the training against a test dataset.
 
 {% capture code %}{% raw %}def plot_results(dataset):
@@ -1271,14 +1271,15 @@ at different stages of the training against a test dataset.
     return
 
 
-test_dataset = generate_dataset(num_images=17, SEED=2)
+test_dataset = generate_dataset(num_images=300, SEED=2)
 plot_results(test_dataset){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
 ![Test Results](/assets/img/010_AIR/test_results.png "Test Results")
 
 Very neat results, indeed! Note that this looks very similar to Figure 3 in the
-[AIR paper](https://arxiv.org/abs/1603.08575).
+[AIR paper](https://arxiv.org/abs/1603.08575). The accuracy on the left denotes
+the count accuracy of the test dataset.
 
 
 ### Closing Notes
@@ -1286,7 +1287,7 @@ Very neat results, indeed! Note that this looks very similar to Figure 3 in the
 Alright, time to step down from our high horse. Actually, it took me quite some
 time to tweak the hyperparameters to obtain such good results. I put a lot of
 prior knowledge into the model so that `completely unsupervised` is probably
-exaggerated. Using a slightly different setup might result in entirely different
+exaggerated. Using a slightly different setup might lead to entirely different
 results. Furthermore, even in this setup, there may be cases in which the training
 converges to some local maximum (depending on the random network initializations
 and random training dataset).

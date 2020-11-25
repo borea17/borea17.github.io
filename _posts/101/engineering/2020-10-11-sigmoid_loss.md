@@ -121,7 +121,7 @@ $$
 \left(\widetilde{p}_i - p_i \right)^2,
 $$
 
-The gradient w.r.t. network parameters will proportional to the gradient w.r.t.
+The gradient w.r.t. network parameters will be proportional to the gradient w.r.t.
 $\textbf{x}$ (backpropagation rule) which is as follows
 
 $$
