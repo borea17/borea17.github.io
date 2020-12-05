@@ -4,7 +4,7 @@ abb_title: "MONet: Unsupervised Scene Decomposition and Representation"
 permalink: "/paper_summaries/multi-object_network"
 author: "Markus Borea"
 tags: ["unsupervised learning", "object detection", "generalization", "varational autoencoder"]
-published: true
+published: false
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
@@ -29,7 +29,7 @@ region. As a proof of concept, they show that their model could learn
 disentangled representations in a common latent code (i.e.,
 representations of object features in latent space) and object
 segmentations (i.e., attention masks on the original image) on
-non-trivial 3D scenes. 
+non-trivial 3D scenes.
 
 ## Model Description
 
@@ -37,7 +37,7 @@ MONet builds upon the inductive bias that the world (or rather
 *simple images* of the world) can often be approximated as a composition of
 individual objects with the same underlying structure (i.e., different
 instantiations of the same class). To put this into practice, [Burgess
-et al. (2019)](https://arxiv.org/abs/1901.11390) developed a 
+et al. (2019)](https://arxiv.org/abs/1901.11390) developed a
 compositional generative model architecture in which scenes are
 spatially decomposed into parts that have to be individually modelled
 through a common representation code. The architecture incorporates two
@@ -47,18 +47,18 @@ kind of neural networks that are trained in tandem:
   masks $\textbf{m}\_k$ for the image such that the whole image is
   completely spatially decomposed into $K$ parts, i.e., $\sum_{k=1}^K
   \textbf{m}_k = \textbf{1}$. Ideally, after training each mask focuses on a
-  semantically meaningful element/segment of the image. 
+  semantically meaningful element/segment of the image.
   Thus, it may also be understood as a *segmentation network*.
-  
+
   To allow for a variable number of attention masks, [Burgess et al.
   (2019)](https://arxiv.org/abs/1901.11390) use a
   recurrent neural network $\alpha_{\boldsymbol{\psi}}$ for the
   decomposition. Therein, an auto-regressive process is defined for the
-  ongoing state. 
+  ongoing state.
   This state is called "scope" $\textbf{s}_k \in [0, 1]^{W\times
   H}$ (image width $W$ and height $H$) as it is
   used to track the image parts that remain to be explained, i.e., the
-  scope for the next state is given by 
+  scope for the next state is given by
 
   $$
      \textbf{s}_{k+1} = \textbf{s}_k \odot \left(\textbf{1} -
@@ -69,20 +69,20 @@ kind of neural networks that are trained in tandem:
   with the first scope $\textbf{s}_0 = \textbf{1}$ ($\odot$ denotes
   element-wise multiplication). The attention
   masks are given by
-  
+
   $$
     \textbf{m}_k  = \begin{cases} \textbf{s}_{k-1} \odot
     \alpha_{\boldsymbol{\psi}} \left( \textbf{x}; \textbf{s}_{k-1}
-    \right) & \forall k < K \\ 
+    \right) & \forall k < K \\
     \textbf{s}_{k-1} & k=K \end{cases}
   $$
-  
-  By construction, we get that 
-  
+
+  By construction, we get that
+
   $$
   \begin{align}
     &\textbf{s}_{k} = \textbf{s}_{k+1} + \textbf{m}_{k + 1} =
-    \textbf{s}_{k+2} + \textbf{m}_{k+2} + \textbf{m}_{k+1} \\ 
+    \textbf{s}_{k+2} + \textbf{m}_{k+2} + \textbf{m}_{k+1} \\
     \textbf{1}=&\textbf{s}_0 =
     \textbf{s}_{K-1} + \sum_{k=1}^{K-1} \textbf{m}_{k} = \sum_{k=1}^K \textbf{m}_k,
   \end{align}
@@ -93,8 +93,8 @@ kind of neural networks that are trained in tandem:
   $\textbf{m}\_{k+1}$ and a new scope $\textbf{s}\_{k+1}$ such that
   with $\textbf{s}_0=\textbf{1}$ the entire image is explained by the
   resulting segmentation masks, i.e., $\sum\_{k=1}^K \textbf{m}_k = \textbf{1}$.
-    
-  
+
+
 * **Component VAE**: Its purpose is to represent each masked region in a
   common latent code, i.e., each segment is encoded by the same
   VAE[^1]. The encoder distribution $q\_{\boldsymbol{\phi}}
@@ -107,7 +107,7 @@ kind of neural networks that are trained in tandem:
   latent codes $\textbf{z}_k$ (termed "slots") which represent the
   features of each object (masked region) in a common latent/feature
   space across all objects.
-  
+
   The decoder distribution $p\_{\boldsymbol{\theta}}$ is required to
   reconstruct the image component $\widetilde{\textbf{x}}_k \sim p\_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z}_k \right)$
   and the attention masks[^2] $\widetilde{\textbf{m}}_k \sim p\_{\boldsymbol{\theta}}
@@ -115,26 +115,26 @@ kind of neural networks that are trained in tandem:
   Note that $p\_{\boldsymbol{\theta}} \left(\textbf{c} | \textbf{z}_k
   \right)$ defines the mask distribution of the Component VAE, whereas
   $q\_{\boldsymbol{\psi}} \left(\textbf{c} | \textbf{x}\right)$
-  denotes the mask distribution of the attention network[^3]. 
-  
+  denotes the mask distribution of the attention network[^3].
+
   Importantly, each of the $k$ component reconstruction distributions is
   multiplied with the corresponding attention mask
-  $\textbf{m}_k$, i.e., 
+  $\textbf{m}_k$, i.e.,
 
   $$
   \text{Reconstruction Distribution}_k = \textbf{m}_k \odot
-     p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}_k \right). 
+     p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}_k \right).
   $$
 
   The negative (decoder) log likelihood *NLL* (can be interpreted as
   the *reconstruction error*, see my post on
-  [VAEs](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description)) 
-  of the whole image is given by 
-  
+  [VAEs](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description))
+  of the whole image is given by
+
   $$
   \text{NLL} = - \log \left( \sum_{k=1}^K \textbf{m}_k \odot p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}_k \right)\right),
   $$
-  
+
   where the sum can be understood as the reconstruction distribution
   of the whole image (mixture of components) conditioned on the latent
   codes $\textbf{z}_k$ and the attention masks $\textbf{m}_k$. Note
@@ -142,8 +142,8 @@ kind of neural networks that are trained in tandem:
   p\_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z}_k\right)$
   are unconstrained outside of the masked regions (i.e., where
   $m\_{k,i} = 0$).
-  
-  
+
+
 The figure below summarizes the whole architecture of the model by
 showing the individual components (attention network, component VAE)
 and their interaction.
@@ -153,7 +153,7 @@ and their interaction.
 | **Schematic of MONet**. (a) The overall compositional generative model architecture is represented by showing schematically how the attention network and the component VAE interact with the ground truth image. (There is a small mistake, the last attention mask should be $\textbf{s}_{K-1}$ instead of $\textbf{s}_K$). (b) The attention network is used for a recursive decomposition process to generate attention masks $\textbf{m}_k$. (c) The Component VAE takes as input the image $\textbf{x}$ and the corresponding attention mask $\textbf{m}_k$ and reconstructs both. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). |
 
 The whole model is end-to-end trainable with the following loss
-function 
+function
 
 $$
 \begin{align}
@@ -184,7 +184,7 @@ close to the prior distribution, it is commonly referred to as
 hyperparameter $\beta$ to encourage learning of disentanglement latent
 representions, see [Higgins et al.
 (2017)](https://deepmind.com/research/publications/beta-VAE-Learning-Basic-Visual-Concepts-with-a-Constrained-Variational-Framework).
-Note that the first two terms are derived from the standard VAE loss.  
+Note that the first two terms are derived from the standard VAE loss.
 The third term is the KL divergence between the attention mask
 distribution generated by the attention network
 $q\_{\boldsymbol{\psi}} \left( \textbf{c} | \textbf{x} \right)$ and
@@ -199,23 +199,23 @@ also react by pushing the attention mask distribution towards the
 reconstructed mask distribution of the VAE. $\gamma$ is a tuneable
 hypeterparameter to modulate the importance of this term, i.e.,
 increasing $\gamma$ results in close distributions.
-  
-  
+
+
 [^1]: Encoding each segment through the same VAE can be understood as
     an architectural prior on common structure within individual
-    objects. 
-  
+    objects.
+
 [^2]: [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) do not
     explain why the Component VAE should also model the attention
     masks. Note however that this allows for better generalization,
-    e.g., shape/class variation depends on attention mask. 
+    e.g., shape/class variation depends on attention mask.
 
 
 [^3]: For completeness $\textbf{c} \in \\{1, \dots, K\\}$ denotes a
     categorical variable to indicate the probability that pixels
     belong to a particular component $k$, i.e., $\textbf{m}_k =
-    p(\textbf{c} = k)$. 
-    
+    p(\textbf{c} = k)$.
+
 **Motivation**: The model aims to produce semantically meaningful
 decompositions in terms of segmentation and latent space attributes.
 Previous work such as the [Spatial Broadcast
@@ -247,7 +247,7 @@ instantiations (i.e., different color/shape/size/...), it seems most
 natural to recover this process by decomposing the image and then
 decoding each part.
 
-[^4]: Philosophical note: Humans also tend to work better when focusing on one task at a time. 
+[^4]: Philosophical note: Humans also tend to work better when focusing on one task at a time.
 
 
 ## Implementation
@@ -263,7 +263,7 @@ on three different multi-object scene datasets (*Objects Room*, *CLEVR*,
 * decompose scenes into semantically meaningful parts, i.e.,
   produce meaningful segmentation masks,
 * represent each segmented object in a common (nearly disentangled) latent
-  code, and 
+  code, and
 * generalize to unseen scene configurations
 
 without any supervision. Notably, MONet can handle a variable number
@@ -284,7 +284,7 @@ while providing an in-depth understanding of the model architecture.
 Therefore, a dataset that is similar to the *Multi-dSprites* dataset
 is created, then the whole model (as faithfully as possible close to
 the original architecture) is reimplemented and trained in Pytorch and
-lastly, some useful visualizations of the trained model are created. 
+lastly, some useful visualizations of the trained model are created.
 
 ### Data Generation
 
@@ -294,7 +294,7 @@ generated this dataset by sampling $1-4$ images randomly from the
 binary [dsprites dataset](https://github.com/deepmind/dsprites-dataset)(consisting of
 $737,280$ images), colorizing these by sampling from a uniform random
 RGB color and compositing those (with occlusion) onto a uniform random
-RGB background. 
+RGB background.
 
 To reduce training time, we going to generate a much simpler dataset
 of $x$ images with two non-overlaping objects (`square` or `circle`) and a
@@ -302,7 +302,7 @@ fixed color space (`red`, `green` or `aqua`) for these objects, see
 image below. The dataset is generated by sampling uniformly random
 from possible latent factors, i.e., random non-overlaping
 positions for the two objects, random object constellations and random
-colors from color space, see code below image. 
+colors from color space, see code below image.
 
 
 | ![Examples of Dataset](/assets/img/04_MONet/self_dataset.png "Examples of Dataset") |
@@ -319,7 +319,7 @@ import torch
 
 def generate_img(x_positions, y_positions, shapes, colors, img_size, size=20):
     """Generate an RGB image from the provided latent factors
-    
+
     Args:
         x_position (list): normalized x positions (float)
         y_position (list): normalized y positions (float)
@@ -327,7 +327,7 @@ def generate_img(x_positions, y_positions, shapes, colors, img_size, size=20):
         colors (list): color names or rgb strings
         img_size (int): describing the image size (img_size, img_size)
         size (int): size of shape
-        
+
     Returns:
         torch tensor [3, img_size, img_size] (dtype=torch.float32)
     """
@@ -344,19 +344,19 @@ def generate_img(x_positions, y_positions, shapes, colors, img_size, size=20):
         img1 = ImageDraw.Draw(img)
         if shape == 'square':
             img1.rectangle([(x_0, y_0), (x_1, y_1)], fill=color)
-        elif shape == 'circle':       
+        elif shape == 'circle':
             img1.ellipse([(x_0, y_0), (x_1, y_1)], fill=color)
     return transforms.ToTensor()(img).type(torch.float32)
 
 def generate_dataset(n_samples, obj_size, colors, SEED=1):
     """simplified version of the multi dsprites dataset without overlap
-    
+
     Args:
            n_samples (int): number of images to generate
-           obj_size (int): size of objects 
+           obj_size (int): size of objects
            colors (list): possible colors
            SEED (int): generation of dataset is a random process
-    
+
     Returns:
            data: torch tensor [n_samples, 3, img_size, img_size]
     """
@@ -364,17 +364,17 @@ def generate_dataset(n_samples, obj_size, colors, SEED=1):
     num_objs = 2
     shapes = ['square', 'circle']
     pos_positions = np.arange(64 - obj_size - 1)
-    
+
     data = torch.empty([n_samples, 3, img_size, img_size])
-    
+
     np.random.seed(SEED)
     positions_0 = np.random.choice(pos_positions, size=(n_samples, 2),
                                    replace=True)
-    
+
     rand_colors = np.random.choice(colors, size=(n_samples, num_objs),
                                    replace=True)
     rand_shapes = np.random.choice(shapes, size=(n_samples, num_objs),
-                                   replace=True)   
+                                   replace=True)
     for index in range(n_samples):
         x_0, y_0 = positions_0[index][0], positions_0[index][1]
         # make sure that there is no overlap
@@ -382,12 +382,12 @@ def generate_dataset(n_samples, obj_size, colors, SEED=1):
         impos_y_pos = np.arange(y_0 - obj_size, y_0 + obj_size + 1)
         x_1 = np.random.choice(np.setdiff1d(pos_positions, impos_x_pos), size=1)
         y_1 = np.random.choice(np.setdiff1d(pos_positions, impos_y_pos), size=1)
-        
+
         x_positions, y_positions = [x_0, x_1], [y_0, y_1]
         shapes = rand_shapes[index]
         colors = rand_colors[index]
-        
-        img = generate_img(x_positions, y_positions, shapes, colors, 
+
+        img = generate_img(x_positions, y_positions, shapes, colors,
                            img_size, obj_size)
         data[index] = img
     return data
@@ -419,7 +419,7 @@ For the sake of simplicity, this section is divided into four parts:
   H}$ in which each entry can be interpreted as the logits probability
   $\text{logits }\boldsymbol{\alpha}_k$. A sigmoid layer can be used to
   transform these logits into probabilities, i.e.,
-  
+
   $$
   \begin{align}
     \boldsymbol{\alpha}_k &= \text{Sigmoid} \left(\text{logits }
@@ -431,11 +431,11 @@ For the sake of simplicity, this section is divided into four parts:
     \boldsymbol{\alpha}_k \right)}
   \end{align}
   $$
-  
+
   Additionally, [Burgess et al.
   (2019)](https://arxiv.org/abs/1901.11390) transform these
   probabilties into logaritmic units, i.e.,
-  
+
   $$
   \begin{align}
      \log \boldsymbol{\alpha}_k &= - \log \left( 1 + \exp\left(- \text{logits }
@@ -443,9 +443,9 @@ For the sake of simplicity, this section is divided into four parts:
   \text{logits } \boldsymbol{\alpha}_k \right)\\
      \log \left(1 - \boldsymbol{\alpha}_k\right) &= - \text{logits }
   \boldsymbol{\alpha}_k + \log \boldsymbol{\alpha}_k,
-  \end{align} 
+  \end{align}
   $$
-  
+
   i.e., a LogSigmoid layer can be used (instead of a sigmoid
   layer with applying logarithm to both outputs) to speed up the computations.
   <!-- A sigmoid layer[^5] is used to transform -->
@@ -458,8 +458,8 @@ For the sake of simplicity, this section is divided into four parts:
   <!-- the logits probability for $\boldsymbol{\alpha}_k$. A pixel-wise log softmax layer is used to transform -->
   <!-- these logits into the log probabilities, i.e., $\log -->
   <!-- (\boldsymbol{\alpha}_k)$ and $\log (1 - \boldsymbol{\alpha}_k)$. -->
-  From the model description above, it follows 
-  
+  From the model description above, it follows
+
   $$
   \begin{align}
     \textbf{s}_{k+1} &= \textbf{s}_k \odot \left( 1 -
@@ -469,7 +469,7 @@ For the sake of simplicity, this section is divided into four parts:
   &&\Leftrightarrow \quad \log \textbf{m}_{k+1} = \log \textbf{s}_{k} + \log \boldsymbol{\alpha}_k,
   \end{align}
   $$
-  
+
   i.e., the output of the $k$th step can be computed by simply adding the
   log current scope $\log \textbf{s}_k$ to each log probability. As a
   result, the next log attention mask $\log \textbf{m}\_{k+1}$ and next
@@ -477,7 +477,7 @@ For the sake of simplicity, this section is divided into four parts:
   log units instead of standard units is beneficial as it ensures
   numerical stability while simplifying the optimization due
   to an increased learning signal. <!-- or simpliyfing the loss function computation -->
-  
+
   The code below summarizes the network architecture, [Burgess et al.
   (2019)](https://arxiv.org/abs/1901.11390) did not state the channel
   dimensionality within the U-Net blocks explicitely. However, as they
@@ -486,13 +486,13 @@ For the sake of simplicity, this section is divided into four parts:
   paper](https://borea17.github.io/paper_summaries/u_net). To reduce
   training time and memory capacity, the following implementation caps
   the channel dimensionality in the encoder to 512 output channels.
-    
+
   ```python
   from torch import nn
 
 
   class AttentionNetwork(nn.Module):
-      """Attention Network class for use in MONet, 
+      """Attention Network class for use in MONet,
       consists of a slightly modified standard U-Net blueprint as described by
       Burgess et al. (2019) in Appendix B.2,
 
@@ -559,10 +559,10 @@ For the sake of simplicity, this section is divided into four parts:
               if index == len(self.decoder_blocks) - 1:
                   out = decoder_block(inp)
               else:
-                  out = self.upsample(decoder_block(inp))       
+                  out = self.upsample(decoder_block(inp))
           alpha_logits = self.prediction(out)      # [batch_size, 1, 64, 64]
           ########################################################################
-          # transform into log probabilities log (alpha_k) and log (1 - alpha_k) 
+          # transform into log probabilities log (alpha_k) and log (1 - alpha_k)
           log_alpha_k = self.log_sigmoid(alpha_logits)
           log_1_m_alpha_k = -alpha_logits + log_alpha_k
           # compute log_new_mask, log_new_scope (logarithm rules)
@@ -586,7 +586,7 @@ For the sake of simplicity, this section is divided into four parts:
 
           """
           u_net_block = nn.Sequential(
-              nn.Conv2d(in_channels, out_channels, kernel_size=(3,3), stride=1, 
+              nn.Conv2d(in_channels, out_channels, kernel_size=(3,3), stride=1,
                         bias=False, padding=1),
               nn.InstanceNorm2d(num_features=out_channels, affine=True),
               nn.ReLU(),
@@ -623,8 +623,8 @@ For the sake of simplicity, this section is divided into four parts:
   \boldsymbol{\mu}\_{E, k}, \left(\boldsymbol{\sigma}^2\_{E,k} \right)^{\text{T}}\textbf{I}
   \right)$. Sampling from this distribution is avoided by using
   the reparametrization trick, i.e., the latent variable
-  $\textbf{z}_k$ is expressed as a deterministic variable[^5] 
-  
+  $\textbf{z}_k$ is expressed as a deterministic variable[^5]
+
   $$
     \textbf{z}_k = \boldsymbol{\mu}_{E, k} +
     \boldsymbol{\sigma}^2_{E,k} \odot \boldsymbol{\epsilon} \quad
@@ -632,7 +632,7 @@ For the sake of simplicity, this section is divided into four parts:
     \textbf{0}, \textbf{I}
     \right).
   $$
-  
+
   The component VAE uses a [Spatial Broadcast
   decoder](https://borea17.github.io/paper_summaries/spatial_broadcast_decoder) $p\_{\boldsymbol{\theta}}$
   to transform the latent vector $\textbf{z}_k$ into the reconstructed
@@ -652,16 +652,16 @@ For the sake of simplicity, this section is divided into four parts:
   image from which the first three channels correspond to the 3 RGB
   channels for the means of the image components
   $\boldsymbol{\mu}_k$ and the last channel corresponds to the logits probabilities
-  of the Bernoulli distribution $\text{logits }\textbf{p}_k$. 
+  of the Bernoulli distribution $\text{logits }\textbf{p}_k$.
   <!-- These logits are converted into -->
   <!-- probabilties $\textbf{p}_k$ using a sigmoid layer. -->
-  
+
   ```python
   from torch.distributions.multivariate_normal import MultivariateNormal
 
 
   class Encoder(nn.Module):
-      """"Encoder class for use in Component VAE of MONet, 
+      """"Encoder class for use in Component VAE of MONet,
       input is the image and a binary attention mask (same dimension as image)
 
       Args:
@@ -707,14 +707,14 @@ For the sake of simplicity, this section is divided into four parts:
           out_conv = self.encoder_conv(inp)
           # shape [batch_size, 1024]
           out_MLP = self.MLP(out_conv)
-          # shape [batch_size, 32] 
+          # shape [batch_size, 32]
           mu, log_var = torch.chunk(out_MLP, 2, dim=1)
           return [mu, log_var]
 
 
   class SpatialBroadcastDecoder(nn.Module):
       """SBD class for use in Component VAE of MONet,
-        a Gaussian distribution with fixed variance (identity times fixed 
+        a Gaussian distribution with fixed variance (identity times fixed
         variance as covariance matrix) used as the decoder distribution
 
       Args:
@@ -740,22 +740,22 @@ For the sake of simplicity, this section is divided into four parts:
           self.decoder_convs = nn.Sequential(
               # shape [batch_size, latent_dim + 2, 72, 72]
               nn.Conv2d(in_channels=self.latent_dim+2, out_channels=32,
-                        stride=(1, 1), kernel_size=(3,3)),           
+                        stride=(1, 1), kernel_size=(3,3)),
               nn.ReLU(),
               # shape [batch_size, 32, 70, 70]
-              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1), 
+              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1),
                         kernel_size=(3, 3)),
               nn.ReLU(),
               # shape [batch_size, 32, 68, 68]
-              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1), 
+              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1),
                         kernel_size=(3, 3)),
               nn.ReLU(),
-              # shape [batch_size, 32, 66, 66] 
-              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1), 
+              # shape [batch_size, 32, 66, 66]
+              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1),
                         kernel_size=(3, 3)),
               # shape [batch_size, 4, 64, 64]
               nn.ReLU(),
-              nn.Conv2d(in_channels=32, out_channels=4, stride=(1,1), 
+              nn.Conv2d(in_channels=32, out_channels=4, stride=(1,1),
                         kernel_size=(1, 1)),
           )
           return
@@ -794,7 +794,7 @@ For the sake of simplicity, this section is divided into four parts:
           super().__init__()
           self.encoder = Encoder(latent_dim)
           self.decoder = SpatialBroadcastDecoder(latent_dim)
-          self.normal_dist = MultivariateNormal(torch.zeros(latent_dim), 
+          self.normal_dist = MultivariateNormal(torch.zeros(latent_dim),
                                                 torch.eye(latent_dim))
           return
 
@@ -813,14 +813,14 @@ For the sake of simplicity, this section is divided into four parts:
     ```
 
 [^5]: This is explained in more detail in my [VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes) post. For simplicity, we are setting the number of (noise variable) samples $L$ per datapoint to 1 (see equation $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description) paragraph). Note that [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) stated that in their experiments setting $L=1$ sufficed as long as the minibatch size was large enough.
-  
-  
+
+
  * **MONet Implementation**: The compositional structure is achieved
     by looping for $K$ steps over the image and combining the attention
     network with the component VAE. While attention masks and latent
     codes can be generated easily (during test time), computing the
     loss $\mathcal{L}$ is more complicated. Remind that the loss
-    function is given by 
+    function is given by
 
     $$
     \begin{align}
@@ -849,17 +849,17 @@ For the sake of simplicity, this section is divided into four parts:
        the decoder distribution $p\_{\boldsymbol{\theta}} \left(
        x\_{i} | \textbf{z}_k \right) \sim \mathcal{N} \left(\mu\_{k,
        i}(\boldsymbol{\theta}), \sigma_k^2 \right)$, hence the term
-       can be rewritten as follows  
+       can be rewritten as follows
 
         $$
         \begin{align}
-          \text{NLL} &= -\sum_{i=1}^N \log \left(  \sum_{k=1}^K 
+          \text{NLL} &= -\sum_{i=1}^N \log \left(  \sum_{k=1}^K
         m_{k, i} \left(\boldsymbol{\psi} \right) \frac {1}{ \sqrt{2 \pi \sigma_k^2} } \exp \left( - \frac { \left[ x_i -
         \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right)
         \right)\\
-        &= -\sum_{i=1}^N \log \left( \frac {1} {\sqrt{2\pi}} 
+        &= -\sum_{i=1}^N \log \left( \frac {1} {\sqrt{2\pi}}
         \sum_{k=1}^K \exp \left(
-        \log \frac { m_{k, i} \left(\boldsymbol{\psi} \right) } {\sigma_k} 
+        \log \frac { m_{k, i} \left(\boldsymbol{\psi} \right) } {\sigma_k}
         - \frac { \big[x_i - \mu_{k, i} (\boldsymbol{\theta}) \big]^2 } {2 \sigma_k^2}  \right)
         \right)\\
         &= \frac {N \log 2 \pi}{2}\\
@@ -877,18 +877,18 @@ For the sake of simplicity, this section is divided into four parts:
         reconstruction accuracy of the whole image. The term inside
         the exponent is unconstrained outside of the masked regions[^6]
         (for each reconstruction, i.e., fixed $k$). Note that [Burgess
-        et al. (2019)](https://arxiv.org/abs/1901.11390) define the 
+        et al. (2019)](https://arxiv.org/abs/1901.11390) define the
         variances of the decoder distribution for each component as
-        follows 
+        follows
 
         $$
           \sigma_k^2 = \begin{cases} \sigma_{bg}^2 & \text{if } k=1
         \quad \text{(background variance)} \\
         \sigma_{fg}^2 & \text{if } k>1 \quad \text{(foreground variance)}\end{cases}
         $$
-        
+
     2. *Regularization Term for Distribution of $\textbf{z}_k$*: The
-       coding space is regularized using the KL divergence between the 
+       coding space is regularized using the KL divergence between the
        latent (posterior) distribution $q\_{\boldsymbol{\phi}} \left( \textbf{z}_k \right) \sim
        \mathcal{N} \left( \boldsymbol{\mu}_k, \left(\boldsymbol{\sigma}_k^2\right)^{\text{T}}
        \textbf{I} \right)$ factorized across slots and the latent prior distribution weighted with the hyperparameter
@@ -900,7 +900,7 @@ For the sake of simplicity, this section is divided into four parts:
        thus we can generate the new mean and covariance by
        concatenation (see [this
        post](https://stats.stackexchange.com/a/308137)), i.e.,
-       
+
        $$
          q(\textbf{z}_1, \dots, \textbf{z}_K) = \prod_{k=1}^K q_{\boldsymbol{\phi}} \left(\textbf{z}_k
        \right)  = q\left( \begin{bmatrix} \textbf{z}_1 \\ \vdots
@@ -913,14 +913,14 @@ For the sake of simplicity, this section is divided into four parts:
          \boldsymbol{\sigma}_K^2  \end{bmatrix}
          \right)}_{ \left(\widehat{\boldsymbol{\sigma}}^2\right)^{\text{T}} \textbf{I}}\right)
        $$
-       
+
        [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) chose
        a unit Gaussian distribution as the latent prior $p(\textbf{z})
        \sim \mathcal{N} \left(\textbf{0}, \textbf{I} \right)$ with
-       $\text{dim}(\textbf{0}) = \text{dim}(\hat{\boldsymbol{\mu}})$. 
+       $\text{dim}(\textbf{0}) = \text{dim}(\hat{\boldsymbol{\mu}})$.
        The KL divergence between those two Gaussian distributions
        can be calculated in closed form (see Appendix B of [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114))
-       
+
        $$
        \begin{align}
           D_{KL} \left( \prod_{k=1}^K q_{\boldsymbol{\phi}}
@@ -929,7 +929,7 @@ For the sake of simplicity, this section is divided into four parts:
        \widehat{\sigma}_j^2 \right) - \widehat{\mu}_j^2 - \widehat{\sigma}_j^2 \right),
        \end{align}
        $$
-       
+
        where $L$ denotes the dimensionality of the latent space.
 
     3. *Reconstruction Error between $\widetilde{\textbf{m}}_k$ and
@@ -939,21 +939,21 @@ For the sake of simplicity, this section is divided into four parts:
        \textbf{m}_k$. By construction $\sum\_{k=1}^K \textbf{m}_k =
        \textbf{1}$, i.e., concatentation of the attention masks
        $\textbf{m} = \begin{bmatrix} \textbf{m}_1 & \dots &
-       \textbf{m}_K \end{bmatrix}^{\text{T}}$ can be interpreted as a 
+       \textbf{m}_K \end{bmatrix}^{\text{T}}$ can be interpreted as a
        pixel-wise categorical distribution[^7]. Similarly,
        concatenating the logits probabilties of the component VAE and
-       applying a pixel-wise softmax, i.e., 
-       
+       applying a pixel-wise softmax, i.e.,
+
        $$
        \widetilde{\textbf{m}} = \begin{bmatrix} \widetilde{\textbf{m}}_1 \\ \vdots \\
        \widetilde{\textbf{m}}_K \end{bmatrix} = \text{Softmax}\left(\begin{bmatrix} \text{logits }\textbf{p}_1 \\ \vdots \\
        \text{logits }\textbf{p}_K \end{bmatrix}\right),
        $$
-       
+
        transforms the logits outputs of the component VAE into a pixel-wise
        categorical distribution. Thus, the KL-divergence can be
-       calculated as follows 
-       
+       calculated as follows
+
        $$
        \begin{align}
          D_{KL} \left( q_{\boldsymbol{\psi}} \left( \textbf{c} |
@@ -963,17 +963,17 @@ For the sake of simplicity, this section is divided into four parts:
          &= \sum_{i=1}^{H\cdot W} \textbf{m}_i \odot \left(\log \textbf{m}_i - \log \widetilde{\textbf{m}}_i \right),
        \end{align}
        $$
-       
+
        where $i$ denotes the pixel space, i.e., $\textbf{m}_i \in [0,
        1]^{K}$. To make the computation more efficient, we directly
        compute the reconstructed segmentations in logaritmic units
        using pixel-wise logsoftmax, i.e.,
-       
+
        $$
        \log \widetilde{\textbf{m}} = \text{LogSoftmax}\left(\begin{bmatrix} \text{logits }\textbf{p}_1 \\ \vdots \\
        \text{logits }\textbf{p}_K \end{bmatrix}\right).
        $$
-   
+
    ```python
     class MONet(nn.Module):
         """Multi-Object Network class as described by Burgess et al. (2019)
@@ -982,14 +982,14 @@ For the sake of simplicity, this section is divided into four parts:
             latent_dim (int): dimensionality of the latent space within VAE
             beta (float): hyperparameter to scale regularization
             gamma (float): hyperparameter to scale KL div of mask distributions
-            background_variance (float): hyperparamter for reconstruction loss 
+            background_variance (float): hyperparamter for reconstruction loss
             foreground_variance (float): hyperparamter for reconstruction loss
 
         Attributes:
-            comp_VAE (nn.Module): VAE (with SpatialBroadcastDecoder) 
-            attention_net (nn.Module): recurrent U-Net 
+            comp_VAE (nn.Module): VAE (with SpatialBroadcastDecoder)
+            attention_net (nn.Module): recurrent U-Net
             bg_var (float): refers to background_variance input
-            fg_var (float): refers to foreground_variance input        
+            fg_var (float): refers to foreground_variance input
         """
 
         def __init__(self, latent_dim, beta, gamma, background_var, foreground_var):
@@ -1030,7 +1030,7 @@ For the sake of simplicity, this section is divided into four parts:
 
         def compute_loss(self, x, num_slots):
             bs = x.shape[0]  # batch_size
-            # get all necessary 
+            # get all necessary
             [mu_hat, log_var_hat, x_recs, log_m, log_m_rec] = \
                 self.forward(x, num_slots)
             # prepare variance for NLL calculation
@@ -1039,7 +1039,7 @@ For the sake of simplicity, this section is divided into four parts:
             # compute NLL per batch
             NLL = -torch.logsumexp(log_m.repeat(1, 3, 1, 1)
                                    -  0.5*np.log(2*np.pi*var) - (0.5/var)*
-                                   ((x.repeat(1,num_slots,1,1)-x_recs).pow(2)), 
+                                   ((x.repeat(1,num_slots,1,1)-x_recs).pow(2)),
                                   dim=1).sum(axis=1).sum(axis=1)
             # compute regularization term per batch
             reg_term = 0.5*(1 + log_var_hat - mu_hat - log_var_hat.exp()).sum(axis=1)
@@ -1049,17 +1049,17 @@ For the sake of simplicity, this section is divided into four parts:
             loss = (NLL + self.beta*reg_term + self.gamma*kl_masks).mean(axis=0)
             return loss
    ```
-       
-       
+
+
 [^7]: Note that concatenation of masks leads to a three dimensional
-    tensor. 
-       
- 
+    tensor.
+
+
 * **Training Procedure**: [Burgess et al.
   (2019)](https://arxiv.org/abs/1901.11390) chose `RMSProp` for the
   optimization with a learning rate of `0.0001` and a batch size of
-  `64`, see Appendix B.3. 
-  
+  `64`, see Appendix B.3.
+
   ```python
   from livelossplot import PlotLosses
   from torch.utils.data import DataLoader
@@ -1103,7 +1103,7 @@ For the sake of simplicity, this section is divided into four parts:
 The following visualization functions are inspired by Figures 3, 5 and
 7 of [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). These
 visualization mainly serve to evaluate the representation quality of
-the trained model. 
+the trained model.
 
 * **MONet Reconstructions and Decompositions**: The most intuitive
   visualization is to show some (arbitrarly chosen) fully
@@ -1111,17 +1111,17 @@ the trained model.
   \textbf{m}_k \odot \widetilde{\textbf{x}}_k$) compared to the
   original input $\textbf{x}$ (`Data`) together with the learned segmentation
   masks (i.e., `Segmentation` $\\{ \textbf{m}_k \\}$) of the attention network. Note
-  that in order to visualize the segmentations 
+  that in order to visualize the segmentations
   in one plot, we cast the attenion masks into binary
   attention masks by applying `arg max` pixel-wise over all $K$
   attention masks. In addition, all
-  umasked component VAE reconstructions (i.e., `S(k)` 
+  umasked component VAE reconstructions (i.e., `S(k)`
   $\widetilde{\textbf{x}}_k$) are shown, see figure below.
-  
+
   | ![MONet Reconstruction and Decompositions](/assets/img/04_MONet/reconstruction_and_decompositions.png "MONet Reconstructions and Decompositions") |
   | :--         |
   | **Figure 7 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): Each example shows the image fed as input data to the model, with corresponding outputs from the model. Reconstruction mixtures show sum of components from all slots, weighted by the learned masks from the attention network. Colour-coded segmentation maps summarize the attention masks $\\{\textbf{m}_k \\}$. Rows labeld S1-5 show the reconstruction components of each slot. |
-  
+
 
   ```python
   def reconstructions_and_decompositions(trained_monet, dataset, num_slots, SEED=1):
@@ -1145,7 +1145,7 @@ the trained model.
           [mu_hat,log_var_hat,x_mu,log_m,log_m_rec] = trained_monet(img, num_slots)
           # reconstruction mixture
           m_k = log_m.repeat_interleave(3, dim=1).exp().view(1, num_slots, 3, 64, 64)
-          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64) 
+          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64)
           img_rec_mixture =  (m_k * x_mu_k).sum(axis=1)
           img_rec = torch.clamp(img_rec_mixture, 0 , 1).squeeze(0).cpu()
           plt.subplot(3 + num_slots, n_samples + 1, counter + 2 + (n_samples + 1))
@@ -1165,7 +1165,7 @@ the trained model.
               plt.subplot(3 + num_slots, n_samples + 1, plot_idx)
               plt.imshow(transforms.ToPILImage()(x_rec))
               plt.axis('off')
-      # annotation plots 
+      # annotation plots
       ax = plt.subplot(3 + num_slots, n_samples + 1, 1)
       ax.annotate('Data', xy=(1, 0.5), xycoords='axes fraction',
                   fontsize=14, va='center', ha='right')
@@ -1203,12 +1203,12 @@ the trained model.
   ground truth masked reconstructions (i.e., `gt masked` refers to
   $\textbf{m}_k \odot \widetilde{\textbf{x}}_k$) such that the
   difference between `gt masked` and `masked` indicates the
-  reconstruction error of the attention masks. 
+  reconstruction error of the attention masks.
 
   | ![Component VAE Results](/assets/img/04_MONet/component_VAE_results.png "Component VAE Results") |
   | :--         |
   | **Figure 3 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): Each example shows the image fet as input data to the model, with corresponding outputs from the model. Reconstruction mixtures show sum of components from all slots, weighted by the learned masks from the attention network. Color-coded segmentation maps summarise the attention masks $\\{\textbf{m}_k\\}$. Rows labeled S1-7 show the reconstruction components of each slot. Unmasked version are shown side-by-side with corresponding versions that are masked with the VAE's reconstructed masks $\widetilde{\textbf{m}}_k$. |
-  
+
   ```python
   def Component_VAE_reconstructions(trained_monet, dataset, num_slots, SEED=1):
       np.random.seed(SEED)
@@ -1231,13 +1231,13 @@ the trained model.
           [mu_hat,log_var_hat,x_mu,log_m,log_m_rec] = trained_monet(img_tensor, num_slots)
           # reconstruction mixture
           m_k = log_m.repeat_interleave(3, dim=1).exp().view(1, num_slots, 3, 64, 64)
-          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64) 
+          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64)
           img_rec_mixture =  (m_k * x_mu_k).sum(axis=1)
           img_rec = torch.clamp(img_rec_mixture, 0 , 1).squeeze(0).cpu()
           # (binary) segmenation from attention network
           m = log_m.exp().detach().cpu().numpy()[0]
           m_binary_RGBA = cmap[np.argmax(m, 0)]
-          # Component VAE reconstructions 
+          # Component VAE reconstructions
           x_mu_k = x_mu.view(1, num_slots, 3, 64, 64)
           m_rec = log_m_rec.repeat_interleave(3, dim=1).exp().view(1, num_slots, 3, 64, 64)
           # upper plot: Data, Reconstruction Mixture, Segmentation
@@ -1296,7 +1296,7 @@ the trained model.
   | **Figure 5 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): |
 
 
-    
+
 ### Results
 
 ## Drawbacks of Paper
@@ -1308,21 +1308,21 @@ class occur
 * lots of hyperparameters (network architectures, $\beta$, $\gamma$, optimization)
 * [see this](https://github.com/ChenYutongTHU/Learning-to-manipulate-individual-objects-in-an-image-Implementation)
 
- 
+
 
 ## Acknowledgement
 
-* 
+*
 * [model implementation](https://github.com/stelzner/monet/blob/master/model.py) by Karl Stelzner
-  
-  
+
+
 
 [^6]: In practice, the reconstruction error for a fixed component
     (fixed $k$) becomes incalculable for binary attention masks, since $\log 0$ is
     undefined. However, the reconstruction error is effectively
     unconstrained outside of masked regions, since for $\lim \log
     m\_{k,i} \rightarrow -\infty$ the reconstruction error for the
-    corresponding pixel and slot approaches 0. 
-  
- 
+    corresponding pixel and slot approaches 0.
+
+
 --------------------------------------------------------------------------------------------

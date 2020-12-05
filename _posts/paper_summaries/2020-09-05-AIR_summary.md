@@ -728,8 +728,8 @@ class VAE(nn.Module):
     def decode(self, z_what_i):
         # get decoder distribution parameters
         x_tilde_att_i = self.decoder(z_what_i)
-        # force output to be positive (EPS for numerical stability)
-        x_tilde_att_i = (x_tilde_att_i + EPS).abs()
+        # force output to be positive
+        x_tilde_att_i = x_tilde_att_i.abs()
         # reshape to [1, WINDOW_SIZE, WINDOW_SIZE] (input shape)
         x_tilde_att_i = x_tilde_att_i.view(-1, 1, WINDOW_SIZE, WINDOW_SIZE)
         return x_tilde_att_i{% endraw %}{% endcapture %}
