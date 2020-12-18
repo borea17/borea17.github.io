@@ -769,51 +769,49 @@ class VAE(nn.Module):
   Note: We use a very similar recurrent network architecture for the neural baseline
   model (to predict the negative log-likelihood), see code below.
 
-{% capture code %}{% raw %}Z_PRES_LATENT_DIM = 1               # latent dimension of z_pres
-Z_WHERE_LATENT_DIM = 3              # latent dimension of z_where
-RNN_HIDDEN_STATE_DIM = 256          # hidden state dimension of RNN
-P_PRES_INIT = [1.]                  # initialization of p_pres
-MU_WHERE_INIT = [3.0, 0., 0.]       # initialization of z_where mean
-LOG_VAR_WHERE_INIT = [-3.,-3.,-3.]  # initialization of z_where log var
+{% capture code %}{% raw %}class RNN(nn.Module):
 
-
-class RNN(nn.Module):
-
-    def __init__(self):
+    def __init__(self, baseline_net=False):
         super(RNN, self).__init__()
+        self.baseline_net = baseline_net
+        INPUT_SIZE = (CANVAS_SIZE**2) + RNN_HIDDEN_STATE_DIM + Z_DIM
+        if baseline_net:
+            OUTPUT_SIZE = (RNN_HIDDEN_STATE_DIM + 1)
+        else:
+            OUTPUT_SIZE = (RNN_HIDDEN_STATE_DIM + Z_PRES_DIM + 2*Z_WHERE_DIM)
+        output_layer = nn.Linear(RNN_HIDDEN_STATE_DIM, OUTPUT_SIZE)
 
-        RNN_INPUT_SIZE = (CANVAS_SIZE**2 + RNN_HIDDEN_STATE_DIM +
-                          Z_WHAT_LATENT_DIM + Z_PRES_LATENT_DIM +
-                          Z_WHERE_LATENT_DIM)
-        RNN_OUTPUT_SIZE = (RNN_HIDDEN_STATE_DIM + Z_PRES_LATENT_DIM +
-                           2*Z_WHERE_LATENT_DIM)
-
-        output_layer = nn.Linear(RNN_HIDDEN_STATE_DIM, RNN_OUTPUT_SIZE)
-        self.rnn = nn.Sequential(
-            nn.Linear(RNN_INPUT_SIZE, RNN_HIDDEN_STATE_DIM),
+        self.fc_rnn = nn.Sequential(
+            nn.Linear(INPUT_SIZE, RNN_HIDDEN_STATE_DIM),
             nn.ReLU(),
             nn.Linear(RNN_HIDDEN_STATE_DIM, RNN_HIDDEN_STATE_DIM),
             nn.ReLU(),
             output_layer
         )
-        # initialize distribution parameters (first 7 entries)
-        output_layer.weight.data[0:7] = nn.Parameter(
-            torch.zeros(1 + 2*3, RNN_HIDDEN_STATE_DIM)
-        )
-        output_layer.bias.data[0:7] = nn.Parameter(
-            torch.tensor(P_PRES_INIT + MU_WHERE_INIT + LOG_VAR_WHERE_INIT)
-        )
+        if not baseline_net:
+            # initialize distribution parameters
+            output_layer.weight.data[0:7] = nn.Parameter(
+                torch.zeros(Z_PRES_DIM+2*Z_WHERE_DIM, RNN_HIDDEN_STATE_DIM)
+            )
+            output_layer.bias.data[0:7] = nn.Parameter(
+                torch.tensor(P_PRES_INIT + MU_WHERE_INIT + LOG_VAR_WHERE_INIT)
+            )
         return
 
     def forward(self, x, z_im1, h_im1):
         batch_size = x.shape[0]
-        rnn_input = torch.cat((x.view(batch_size, -1), z_im1, h_im1), dim=1)
-        rnn_output = self.rnn(rnn_input)
-        omega_i = rnn_output[:, 0:7]
-        h_i = rnn_output[:, 7::]
-        # omega_i[:, 0] corresponds to z_pres probability
-        omega_i[:, 0] = torch.sigmoid(omega_i[:, 0])
-        return omega_i, h_i{% endraw %}{% endcapture %}
+        rnn_input = torch.cat((x.sum(axis=1).view(batch_size, -1), z_im1, h_im1), dim=1)
+        rnn_output = self.fc_rnn(rnn_input)
+        if self.baseline_net:
+            baseline_value_i = rnn_output[:, 0:1]
+            h_i = rnn_output[:, 1::]
+            return baseline_value_i, h_i
+        else:
+            omega_i = rnn_output[:, 0:(Z_PRES_DIM+2*Z_WHERE_DIM)]
+            h_i = rnn_output[:, (Z_PRES_DIM+2*Z_WHERE_DIM)::]
+            # omega_i[:, 0] corresponds to z_pres probability
+            omega_i[:, 0] = torch.sigmoid(omega_i[:, 0])
+            return omega_i, h_i{% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
 * **AIR Implementation**: The whole AIR model is obtained by putting everything
