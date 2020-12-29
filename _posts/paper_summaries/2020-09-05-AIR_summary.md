@@ -769,7 +769,16 @@ class VAE(nn.Module):
   Note: We use a very similar recurrent network architecture for the neural baseline
   model (to predict the negative log-likelihood), see code below.
 
-{% capture code %}{% raw %}class RNN(nn.Module):
+{% capture code %}{% raw %}Z_PRES_DIM = 1                      # latent dimension of z_pres
+Z_WHERE_DIM = 3                     # latent dimension of z_where
+RNN_HIDDEN_STATE_DIM = 256          # hidden state dimension of RNN
+P_PRES_INIT = [2.]                  # initialization p_pres (sigmoid -> 0.8)
+MU_WHERE_INIT = [3.0, 0., 0.]       # initialization z_where mean
+LOG_VAR_WHERE_INIT = [-3.,-3.,-3.]  # initialization z_where log var
+Z_DIM = Z_PRES_DIM + Z_WHERE_DIM + Z_WHAT_DIM
+
+
+class RNN(nn.Module):
 
     def __init__(self, baseline_net=False):
         super(RNN, self).__init__()
