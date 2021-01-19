@@ -15,21 +15,19 @@ NOTE: THIS IS CURRENTLY WIP
 
 [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) developed
 the **Multi-Object Network (MONet)** as an end-to-end trainable model to
-decompose images into meaningful entities such as objects. Notably,
-the whole training process is unsupervised, i.e., there are no labeled
-segmentations, handcrafted bounding boxes or whatsoever. In essence,
-their model combines a Variational Auto-Encoder
+decompose images into meaningful entities such as objects. Similar to
+[AIR](https://borea17.github.io/paper_summaries/AIR), the whole training process
+is unsupervised, i.e., there are no labeled segmentations, handcrafted bounding
+boxes or whatsoever. In essence, their model combines a Variational Auto-Encoder
 ([VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes))
 with a recurrent attention network
-([U-Net](https://borea17.github.io/paper_summaries/u_net)
-*segmentation network*) to spatially decompose
-scenes into attention masks (over which the VAE needs to
-reconstruct masked regions) and latent representations of each masked
+([U-Net](https://borea17.github.io/paper_summaries/u_net) *segmentation
+network*) to spatially decompose scenes into attention masks (over which the VAE
+needs to reconstruct masked regions) and latent representations of each masked
 region. As a proof of concept, they show that their model could learn
-disentangled representations in a common latent code (i.e.,
-representations of object features in latent space) and object
-segmentations (i.e., attention masks on the original image) on
-non-trivial 3D scenes.
+disentangled representations in a common latent code (i.e., representations of
+object features in latent space) and object segmentations (i.e., attention masks
+on the original image) on non-trivial 3D scenes.
 
 ## Model Description
 
@@ -862,7 +860,7 @@ For the sake of simplicity, this section is divided into four parts:
         \log \frac { m_{k, i} \left(\boldsymbol{\psi} \right) } {\sigma_k}
         - \frac { \big[x_i - \mu_{k, i} (\boldsymbol{\theta}) \big]^2 } {2 \sigma_k^2}  \right)
         \right)\\
-        &= \frac {N \log 2 \pi}{2}\\
+        &= \frac {N \log 2\pi}{2} \\%- \sum_{i=1}^N - \frac {\log 2 \pi}{2}\\
         & \quad -\sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left(
         \log \big[m_{k, i} \left(\boldsymbol{\psi} \right)\big]  -
         \log \sigma_k - \frac { \big[x_i - \mu_{k, i} (\boldsymbol{\theta}) \big]^2
@@ -1301,19 +1299,25 @@ the trained model.
 
 ## Drawbacks of Paper
 
-* static scene decomposition (valuable prior is ignored)
-* only works on simple images in which multiple objects of the same
-class occur
-* even simple images require high training times
+* deterministic attention mechanism implying that objective function is not a
+  valid lower bound on the marginal likelihood (as mentioned by [Engelcke et al. (2020)](https://arxiv.org/abs/1907.13052))
+* image generation suffers from discrepancy between inferred and reconstructed masks
+<!-- * only works on simple images in which multiple objects of the same class occur -->
+<!-- * even simple images require high training times -->
 * lots of hyperparameters (network architectures, $\beta$, $\gamma$, optimization)
-* [see this](https://github.com/ChenYutongTHU/Learning-to-manipulate-individual-objects-in-an-image-Implementation)
 
+## Acknowledgment
 
+There are a lot of implementations out there that helped me very much in
+understanding the paper:
 
-## Acknowledgement
-
-*
-* [model implementation](https://github.com/stelzner/monet/blob/master/model.py) by Karl Stelzner
+* [Darwin Bautista's implementation](https://github.com/baudm/MONet-pytorch)
+  includes derivation of the NLL.
+* [Karl Stelzner's implementation](https://github.com/stelzner/monet/) is kept
+  more simplisitic and is therefore easier to understand.
+* [Martin Engelcke, Claas Voelcker and Max
+  Morrison](https://github.com/applied-ai-lab/genesis) included an
+  implementation of MONet in the Genesis repository.
 
 
 
