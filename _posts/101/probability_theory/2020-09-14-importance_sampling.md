@@ -2,7 +2,7 @@
 title: "What is the idea behind importance sampling?"
 permalink: "/ML_101/probability_theory/importance_sampling"
 author: "Markus Borea"
-published: true
+published: false
 type: "101 probability"
 ---
 
