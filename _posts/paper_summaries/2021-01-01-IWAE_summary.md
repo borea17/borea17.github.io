@@ -785,7 +785,7 @@ class VAE(nn.Module):
       \log s^{(i, l)} = \log w^{(i,l)} - \underbrace{\max_{l \in [1, k]} \log w^{(i,l)}}_{=a}
       $$
 
-      Then, the normalized importance weights simply calculated as follows
+      Then, the normalized importance weights can simply be calculated as follows
 
       $$
       \widetilde{w}^{(i,l)} = \frac {\exp \left( \log s^{(i, l)} \right)} {
@@ -913,8 +913,8 @@ $\textbf{k=1}$
 $\textbf{k=10}$
 ![Training k=10](/assets/img/IWAE/k_10.png "Training k=10")
 
-Note that during training, we compared the loss of the VAE (ELBO) with the loss
-of the IWAE (empirical estimate of marginal log-likelihood). Clearly, for $k=1$
+Note that during training, we compared the **loss of the VAE (ELBO)** with the **loss
+of the IWAE (empirical estimate of marginal log-likelihood)**. Clearly, for $k=1$
 these losses are nearly equal (as expected). For $k=10$, the difference is much
 greater (also expected). Now let's compare the marginal log-likelihood on
 the test samples. Since the marginal log-likelihood estimator gets more accurate
