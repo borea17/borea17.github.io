@@ -237,7 +237,7 @@ dataset as follows:
   (MNIST digits are $28 \times 28$).
 
 | ![RTS Distorted MNIST Examples](/assets/img/09_spatial_transformer/distortedMNIST.png "RTS Distorted MNIST Examples") |
-| :--  |
+| :---: |
 | **RTS Distorted MNIST Examples** |
 
 Note that this transformation could also be used as a data
