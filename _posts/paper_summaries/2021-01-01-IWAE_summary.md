@@ -8,6 +8,7 @@ toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
 type: "paper summary"
+nextjournal_link: "https://nextjournal.com/borea17/attend-infer-repeat/"
 github_link: "https://github.com/borea17/Notebooks/blob/master/06_Importance_Weighted_Autoencoders.ipynb"
 ---
 

@@ -38,6 +38,14 @@ $$
 \end{align}
 $$
 
+The strength of the REINFORCE estimator is also its limitation: We do not need
+to compute a derivative w.r.t. to
+$\log p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}^{(i)}\right)$. While
+this is a nice feature, it leads to high variances, because it is missing
+information.
+
+<!-- It is actually a **random search in disguise**.  -->
+
 [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114), [Rezende et
 al. (2014)](https://arxiv.org/abs/1401.4082), [Titsias and Lázaro-Gredilla
 (2014)](http://proceedings.mlr.press/v32/titsias14.html) (independently)
