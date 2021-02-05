@@ -7,6 +7,8 @@ toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
 type: "paper summary"
+nextjournal_link: "https://nextjournal.com/borea17/attend-infer-repeat/"
+github_link: "https://github.com/borea17/Notebooks/blob/master/07_Concrete_Distribution.ipynb"
 ---
 
 [Maddison et al. (2016)](https://arxiv.org/abs/1611.00712) introduce
