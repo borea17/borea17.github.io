@@ -517,7 +517,7 @@ dataset = generate_dataset(N_SAMPLES_PER_CLASS,COLORS, SHAPES, SIZES, IMG_SIZE){
 
 ### Model Implementation
 
-* **Standard* VAE*
+* **Standard VAE**
 
 {% capture code %}{% raw %}import torch.nn as nn
 import torch.distributions as dists
