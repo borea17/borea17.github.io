@@ -674,7 +674,7 @@ class VAE(nn.Module):
         return z, mu_E, log_var_E
 
     def decode(self, z, k):
-        """computes the Gaussian mean of p(x|z)
+        """computes the Bernoulli mean of p(x|z)
         note that linear automatically parallelizes computation
 
         Args:
