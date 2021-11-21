@@ -4,14 +4,12 @@ abb_title: "MONet: Unsupervised Scene Decomposition and Representation"
 permalink: "/paper_summaries/multi-object_network"
 author: "Markus Borea"
 tags: ["unsupervised learning", "object detection", "generalization", "varational autoencoder"]
-published: false
+published: true
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
 type: "paper summary"
 ---
-
-NOTE: THIS IS CURRENTLY WIP
 
 [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) developed
 the **Multi-Object Network (MONet)** as an end-to-end trainable model to
@@ -54,7 +52,7 @@ kind of neural networks that are trained in tandem:
   recurrent neural network $\alpha_{\boldsymbol{\psi}}$ for the
   decomposition. Therein, an auto-regressive process is defined for the
   ongoing state.
-  This state is called "scope" $\textbf{s}_k \in [0, 1]^{W\times
+  This state is called *scope* $\textbf{s}_k \in [0, 1]^{W\times
   H}$ (image width $W$ and height $H$) as it is
   used to track the image parts that remain to be explained, i.e., the
   scope for the next state is given by
@@ -311,89 +309,107 @@ colors from color space, see code below image.
 | :--:        |
 | Visualization of self-written dataset. |
 
-```python
-from PIL import Image, ImageDraw
+{% capture code %}{% raw %}from PIL import Image, ImageDraw
 import torchvision.transforms as transforms
 import numpy as np
 from torch.utils.data import TensorDataset
 import torch
 
 
-def generate_img(x_positions, y_positions, shapes, colors, img_size, size=20):
-    """Generate an RGB image from the provided latent factors
+def generate_dataset(n_samples, SEED=1):
+    ############### CONFIGURATION ###############
+    canvas_size=64
+    min_obj_size, max_obj_size = 12, 20
+    min_num_obj, max_num_obj = 0, 2
+    shapes = ["circle", "square"]
+    colors = ["red", "green", "aqua"]
+    #############################################
+    data = torch.empty([n_samples, 3, canvas_size, canvas_size])
+    labels = torch.empty([n_samples, 1, canvas_size, canvas_size])
 
-    Args:
-        x_position (list): normalized x positions (float)
-        y_position (list): normalized y positions (float)
-        shapes (list): shape can only be 'circle' or 'square'
-        colors (list): color names or rgb strings
-        img_size (int): describing the image size (img_size, img_size)
-        size (int): size of shape
-
-    Returns:
-        torch tensor [3, img_size, img_size] (dtype=torch.float32)
-    """
-    # creation of image
-    img = Image.new('RGB', (img_size, img_size), color='black')
-    # map (x, y) position to pixel coordinates
-    for x, y, shape, color in zip (x_positions, y_positions, shapes, colors):
-        #x_position = (img_size - 2 - size) * x
-        #y_position = (img_size - 2 - size) * y
-        # define coordinates
-        x_0, y_0 = x, y
-        x_1, y_1 = x + size, y + size
-        # draw shapes
-        img1 = ImageDraw.Draw(img)
-        if shape == 'square':
-            img1.rectangle([(x_0, y_0), (x_1, y_1)], fill=color)
-        elif shape == 'circle':
-            img1.ellipse([(x_0, y_0), (x_1, y_1)], fill=color)
-    return transforms.ToTensor()(img).type(torch.float32)
-
-def generate_dataset(n_samples, obj_size, colors, SEED=1):
-    """simplified version of the multi dsprites dataset without overlap
-
-    Args:
-           n_samples (int): number of images to generate
-           obj_size (int): size of objects
-           colors (list): possible colors
-           SEED (int): generation of dataset is a random process
-
-    Returns:
-           data: torch tensor [n_samples, 3, img_size, img_size]
-    """
-    img_size = 64
-    num_objs = 2
-    shapes = ['square', 'circle']
-    pos_positions = np.arange(64 - obj_size - 1)
-
-    data = torch.empty([n_samples, 3, img_size, img_size])
+    pos_positions = np.arange(canvas_size - max_obj_size - 1)
 
     np.random.seed(SEED)
-    positions_0 = np.random.choice(pos_positions, size=(n_samples, 2),
-                                   replace=True)
+    rnd_positions = np.random.choice(pos_positions, size=(n_samples, 2), replace=True)
+    rnd_num_objs = np.random.randint(min_num_obj, max_num_obj + 1, size=(n_samples))
+    rnd_obj_sizes = np.random.randint(min_obj_size, max_obj_size + 1, 
+                                      size=(n_samples, max_num_obj))
+    rnd_shapes = np.random.choice(shapes, size=(n_samples, max_num_obj), replace=True)
+    rnd_colors = np.random.choice(colors, size=(n_samples, max_num_obj), replace=True)
+    for i_data in range(n_samples):
+        x_0, y_0 = rnd_positions[i_data]
+        num_objs = rnd_num_objs[i_data]
+        if num_objs > 1:
+            # make sure that there is no overlap
+            max_obj_size = max(rnd_obj_sizes[i_data])
+            impos_x_pos = np.arange(x_0 - max_obj_size, x_0 + max_obj_size + 1)
+            impos_y_pos = np.arange(y_0 - max_obj_size, y_0 + max_obj_size + 1)
+            x_1 = np.random.choice(np.setdiff1d(pos_positions, impos_x_pos), size=1)
+            y_1 = np.random.choice(np.setdiff1d(pos_positions, impos_y_pos), size=1)
+        else:
+            x_1 = 0
+            y_1 = 0
 
-    rand_colors = np.random.choice(colors, size=(n_samples, num_objs),
-                                   replace=True)
-    rand_shapes = np.random.choice(shapes, size=(n_samples, num_objs),
-                                   replace=True)
-    for index in range(n_samples):
-        x_0, y_0 = positions_0[index][0], positions_0[index][1]
-        # make sure that there is no overlap
-        impos_x_pos = np.arange(x_0 - obj_size, x_0 + obj_size + 1)
-        impos_y_pos = np.arange(y_0 - obj_size, y_0 + obj_size + 1)
-        x_1 = np.random.choice(np.setdiff1d(pos_positions, impos_x_pos), size=1)
-        y_1 = np.random.choice(np.setdiff1d(pos_positions, impos_y_pos), size=1)
-
+        # current latent factors
+        num_objs = rnd_num_objs[i_data]
         x_positions, y_positions = [x_0, x_1], [y_0, y_1]
-        shapes = rand_shapes[index]
-        colors = rand_colors[index]
+        obj_sizes = rnd_obj_sizes[i_data]
+        shapes = rnd_shapes[i_data]
+        colors = rnd_colors[i_data]
 
-        img = generate_img(x_positions, y_positions, shapes, colors,
-                           img_size, obj_size)
-        data[index] = img
-    return data
-```
+        # create img and label tensors
+        img, label = generate_img_and_label(
+            x_pos=x_positions[:num_objs],
+            y_pos=y_positions[:num_objs],
+            shapes=shapes[:num_objs],
+            colors=colors[:num_objs],
+            sizes=obj_sizes[:num_objs],
+            img_size=canvas_size
+        )
+        data[i_data] = img
+        labels[i_data] = label
+    dataset = TensorDataset(data, labels)
+    return dataset
+
+
+def generate_img_and_label(x_pos, y_pos, shapes, colors, sizes, img_size):
+    """generates a img and corresponding segmentation label mask
+    from the provided latent factors
+
+    Args:
+        x_pos (list): x positions of objects
+        y_post (list): y positions of objects
+        shapes (list): shape can only be `circle` or `square`
+        colors (list): colors of object
+        sizes (list): object sizes
+
+    Returns:
+        img (torch tensor): generated image represented as tensor
+        label (torch tensor): corresponding semantic segmentation mask
+    """
+    out_img = Image.new("RGB", (img_size, img_size), color="black")
+    labels = []
+    # add objects
+    for x, y, shape, color, size in zip(x_pos, y_pos, shapes, colors, sizes):
+        img = Image.new("RGB", (img_size, img_size), color="black")
+        # define end coordinates
+        x_1, y_1 = x + size, y + size
+        # draw new image onto black image
+        img1 = ImageDraw.Draw(img)
+        img2 = ImageDraw.Draw(out_img)
+        if shape == "square":
+            img1.rectangle([(x, y), (x_1, y_1)], fill=color)
+            img2.rectangle([(x, y), (x_1, y_1)], fill=color)
+        elif shape == "circle":
+            img1.ellipse([(x, y), (x_1, y_1)], fill=color)
+            img2.ellipse([(x, y), (x_1, y_1)], fill=color)
+        labels.append((transforms.ToTensor()(img).sum(0) > 0).unsqueeze(0))
+    out_image = transforms.ToTensor()(out_img).type(torch.float32)
+    out_label = torch.zeros(1, img_size, img_size)
+    for i_object in range(len(labels)):
+        out_label[labels[i_object]] = i_object + 1
+    return out_image, out_label{% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
 
 ### Model Implementation
 
@@ -487,114 +503,128 @@ For the sake of simplicity, this section is divided into four parts:
   the same dimensionality as in the original [U-Net
   paper](https://borea17.github.io/paper_summaries/u_net). To reduce
   training time and memory capacity, the following implementation caps
-  the channel dimensionality in the encoder to 512 output channels.
+  the channel dimensionality in the encoder to 64 output channels.
 
-  ```python
-  from torch import nn
+{% capture code %}{% raw %}import torch.nn as nn
+import torch.nn.functional as F
 
 
-  class AttentionNetwork(nn.Module):
-      """Attention Network class for use in MONet,
-      consists of a slightly modified standard U-Net blueprint as described by
-      Burgess et al. (2019) in Appendix B.2,
+class UNet(nn.Module):
+    """U-Net architecture with blocks proposed by Burgess et al. (2019)
 
-      Attributes:
-          encoder_blocks (list): 5 Unet blocks of encoder path
-          decoder_blocks (list): 5 Unet blocks of decoder path
-          bottleneck_block: bottleneck is a 3-layer MLP with ReLUs in-between
-          max_pool: down sample using max pool layer
-          upsample: upsample layer using nearest neighbor-resizing
-      """
+    Attributes:
+        encoder_blocks (list): u_net blocks of encoder path
+        decoder_blocks (list): u_net blocks of decoder path
+        bottleneck_MLP (list): bottleneck is a 3-layer MLP with ReLUs
+        out_conv (nn.Conv2d): convolutional classification layer
+    """
 
-      def __init__(self):
-          super().__init__()
-          self.encoder_blocks = nn.ModuleList([
-              AttentionNetwork._block(4, 64),      # [batch_size, 64, 64, 64]
-              AttentionNetwork._block(64, 128),    # [batch_size, 128, 32, 32]
-              AttentionNetwork._block(128, 256),   # [batch_size, 256, 16, 16]
-              AttentionNetwork._block(256, 512),   # [batch_size, 512, 8, 8]
-              AttentionNetwork._block(512, 512),   # [batch_size, 512, 4, 4]
-          ])
-          self.max_pool = nn.MaxPool2d(kernel_size=(2,2))
-          self.bottleneck = nn.Sequential(
-              nn.Flatten(),                        # [batch_size, 8192]
-              nn.Linear(8192, 128),                # [batch_size, 128]
-              nn.ReLU(),
-              nn.Linear(128, 128),                 # [batch_size, 128]
-              nn.ReLU(),
-              nn.Linear(128, 8192),                # [batch_size, 8192]
-              nn.ReLU()              # reshaped into [batch_size, 512, 4, 4]
-          )
-          # input channels are sum of skip connection and output of last block
-          self.decoder_blocks = nn.ModuleList([
-              AttentionNetwork._block(1024, 512),  # [batch_size, 512, 8, 8]
-              AttentionNetwork._block(1024, 256),  # [batch_size, 256, 8, 8]
-              AttentionNetwork._block(512, 128),   # [batch_size, 128, 16, 16]
-              AttentionNetwork._block(256, 64),    # [batch_size, 64, 32, 32]
-              AttentionNetwork._block(128, 64)     # [batch_size, 64, 64, 64]
-          ])
-          self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
-          self.prediction = nn.Conv2d(64, 1, kernel_size=(1,1), stride=1)
-          self.log_sigmoid = nn.LogSigmoid()
-          return
+    def __init__(self):
+        super().__init__()
+        self.encoder_blocks = nn.ModuleList(
+            [
+                UNet._block(4, 16),              # [batch_size, 16, 64, 64]
+                UNet._block(16, 32),             # [batch_size, 32, 32, 32]
+                UNet._block(32, 64),             # [batch_size, 64, 16, 16]
+                UNet._block(64, 64),             # [batch_size, 64, 8, 8]
+                UNet._block(64, 64),             # [batch_size, 75, 4, 4]
+            ]
+        )
+        self.bottleneck_MLP = nn.Sequential(
+            nn.Flatten(),                        # [batch_size, 512*4*4]
+            nn.Linear(64*4*4, 128),
+            nn.ReLU(),
+            nn.Linear(128, 128),                 # [batch_size, 512*4*4]
+            nn.ReLU(),
+            nn.Linear(128, 64*4*4),              # [batch_size, 512*4*4]
+            nn.ReLU(),             # reshaped into [batch_size, 512, 4, 4]
+        )
+        self.decoder_blocks = nn.ModuleList(
+            [
+                UNet._block(128, 64),             # [batch_size, 64, 4, 4]
+                UNet._block(128, 64),             # [batch_size, 64, 8, 8]
+                UNet._block(128, 32),             # [batch_size, 32, 16, 16]
+                UNet._block(64, 16),              # [batch_size, 32, 32, 32]
+                UNet._block(32, 16),              # [batch_size, 64, 64, 64]
+            ]
+        )
 
-      def forward(self, image, log_scope):
-          # concatenate image and current scope along channels
-          inp = torch.cat((image, log_scope), 1)   # [batch_size, 4, 64, 64]
-          ########################## U-Net Computation ##########################
-          # go through encoder path and store intermediate results
-          skip_tensors = []
-          for index, encoder_block in enumerate(self.encoder_blocks):
-              out = encoder_block(inp)
-              skip_tensors.append(out)
-              # no resizing in the last block
-              if index < len(self.encoder_blocks) - 1:
-                  inp = self.max_pool(out)
-          # feed last skip tensor through bottleneck
-          out_MLP = self.bottleneck(out)           # [batch_size, 128]
-          # reshape final output to match last skip tensor
-          out = out_MLP.view(-1, 512, 4, 4)          # [batch_size, 512, 4, 4]
-          # go through decoder path and use skip tensors
-          for index, decoder_block in enumerate(self.decoder_blocks):
-              inp = torch.cat((skip_tensors[-1 - index], out), 1)
-              # no resizing in the last block
-              if index == len(self.decoder_blocks) - 1:
-                  out = decoder_block(inp)
-              else:
-                  out = self.upsample(decoder_block(inp))
-          alpha_logits = self.prediction(out)      # [batch_size, 1, 64, 64]
-          ########################################################################
-          # transform into log probabilities log (alpha_k) and log (1 - alpha_k)
-          log_alpha_k = self.log_sigmoid(alpha_logits)
-          log_1_m_alpha_k = -alpha_logits + log_alpha_k
-          # compute log_new_mask, log_new_scope (logarithm rules)
-          log_new_mask = log_scope + log_alpha_k
-          log_new_scope = log_scope + log_1_m_alpha_k
-          return [log_new_mask, log_new_scope]
+        self.out_conv = nn.Conv2d(16, 1, kernel_size=(1,1), stride=1)
+        return
 
-      @staticmethod
-      def _block(in_channels, out_channels):
-          """each block consists of 3x3 bias-free convolution with stride 1,
-          followed by instance normalisation with a learned bias term
-          followed by a ReLU activation,
-          padding is added to keep image dimension
+    def forward(self, x):
+        # go through encoder path and store intermediate results
+        skip_tensors = []
+        for index, encoder_block in enumerate(self.encoder_blocks):
+            out = encoder_block(x)
+            skip_tensors.append(out)
+            # no resizing in the last block
+            if index < len(self.encoder_blocks) - 1:  # downsample
+                x = F.interpolate(
+                    out, scale_factor=0.5, mode="nearest", 
+					recompute_scale_factor=False
+                )
+        last_skip = out
+        # feed last skip tensor through bottleneck
+        out_MLP = self.bottleneck_MLP(last_skip)
+        # reshape output to match last skip tensor
+        out = out_MLP.view(last_skip.shape)
+        # go through decoder path and use skip tensors
+        for index, decoder_block in enumerate(self.decoder_blocks):
+            inp = torch.cat((skip_tensors[-1 - index], out), 1)
+            out = decoder_block(inp)
+            # no resizing in the last block
+            if index < len(self.decoder_blocks) - 1:  # upsample
+                out = F.interpolate(out, scale_factor=2, mode="nearest")
+        prediction = self.out_conv(out)
+        return prediction
 
-          Args:
-              in_channels (int): number of input channels for first convolution
-              out_channels (int): number of output channels for both convolutions
+    @staticmethod
+    def _block(in_channels, out_channels):
+        """U-Net block as described by Burgess et al. (2019)"""
+        u_net_block = nn.Sequential(
+            nn.Conv2d(
+                in_channels,
+                out_channels,
+                kernel_size=(3, 3),
+                stride=1,
+                padding=1,
+                bias=False,
+            ),
+            nn.InstanceNorm2d(num_features=out_channels, affine=True),
+            nn.ReLU(),
+        )
+        return u_net_block
 
-          Returns:
-              u_net_block (sequential): U-Net block as defined by Burgess et al.
 
-          """
-          u_net_block = nn.Sequential(
-              nn.Conv2d(in_channels, out_channels, kernel_size=(3,3), stride=1,
-                        bias=False, padding=1),
-              nn.InstanceNorm2d(num_features=out_channels, affine=True),
-              nn.ReLU(),
-          )
-          return u_net_block
-    ```
+class AttentionNetwork(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.unet = UNet()
+        return
+
+    def forward(self, x, num_slots):
+        log_s_k = torch.zeros_like(x[:, 0:1, :, :])
+        # initialize list to store intermediate results
+        log_m = []
+        for slot in range(num_slots - 1):
+            inp = torch.cat((x, log_s_k), 1)
+            alpha_logits = self.unet(inp)  # [batch_size, 1, image_dim, image_dim]
+            # transform into log probabilties log (alpha_k) and log (1 - alpha_k)
+            log_alpha_k = F.logsigmoid(alpha_logits)
+            log_1_m_alpha_k = -alpha_logits + log_alpha_k
+            # compute log_new_mask, log_new_scope
+            log_new_mask = log_s_k + log_alpha_k
+            log_new_scope = log_s_k + log_1_m_alpha_k
+            # store intermediate results in list
+            log_m.append(log_new_mask)
+            # update log scope
+            log_s_k = log_new_scope
+        log_m.append(log_s_k)
+        # convert list to tensor [batch_size, num_slots, 1, image_dim, image_dim]
+        log_m = torch.cat(log_m, dim=1).unsqueeze(2)
+        return log_m{% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
 
 
 <!-- [^5]: [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) state -->
@@ -658,161 +688,220 @@ For the sake of simplicity, this section is divided into four parts:
   <!-- These logits are converted into -->
   <!-- probabilties $\textbf{p}_k$ using a sigmoid layer. -->
 
-  ```python
-  from torch.distributions.multivariate_normal import MultivariateNormal
+{% capture code %}{% raw %}class CNN_VAE(nn.Module):
+    """simple CNN-VAE class with a Gaussian encoder (mean and diagonal variance
+    structure) and a Gaussian decoder with fixed variance 
+    (decoder is implemented as a Spatial Broadcast decoder) 
 
+    Attributes
+        latent_dim (int): dimension of latent space
+        encoder (nn.Sequential): encoder network for mean and log_var
+        decoder (nn.Sequential): spatial broadcast decoder  for mean (fixed var)
+        x_grid (torch tensor): appended x coordinates for spatial broadcast decoder
+        y_grid (torch tensor): appended x coordinates for spatial broadcast decoder
+    """
 
-  class Encoder(nn.Module):
-      """"Encoder class for use in Component VAE of MONet,
-      input is the image and a binary attention mask (same dimension as image)
+    def __init__(self):
+        super(CNN_VAE, self).__init__()
+        self.latent_dim = 8
+        self.encoder = nn.Sequential(
+            # shape: [batch_size, 4, 64, 64]
+            nn.Conv2d(4, 32, kernel_size=(3,3), stride=2, padding=1),
+            nn.ReLU(),
+            # shape: [batch_size, 32, 32, 32]
+            nn.Conv2d(32, 32, kernel_size=(3,3), stride=2, padding=1),
+            nn.ReLU(),
+            # shape: [batch_size, 32, 16, 16]
+            nn.Conv2d(32, 64, kernel_size=(3,3), stride=2, padding=1),
+            nn.ReLU(),
+            # shape: [batch_size, 64, 8, 8]
+            nn.Conv2d(64, 64, kernel_size=(3,3), stride=2, padding=1),
+            nn.ReLU(),
+            # shape: [batch_size, 64, 4, 4],
+            nn.Flatten(),
+            # shape: [batch_size, 1024]
+        )
+        self.MLP = nn.Sequential(
+            nn.Linear(64*4*4, 256),
+            nn.ReLU(),
+            nn.Linear(256, 2*self.latent_dim),
+        )
+        # spatial broadcast decoder configuration
+        img_size = 64
+        # "input width and height of CNN both 8 larger than target output"
+        x = torch.linspace(-1, 1, img_size + 8)
+        y = torch.linspace(-1, 1, img_size + 8)
+        x_grid, y_grid = torch.meshgrid(x, y)
+        # reshape into [1, 1, img_size, img_size] and save in state_dict
+        self.register_buffer('x_grid', x_grid.view((1, 1) + x_grid.shape).clone())
+        self.register_buffer('y_grid', y_grid.view((1, 1) + y_grid.shape).clone())
+        self.decoder = nn.Sequential(
+             # shape [batch_size, latent_dim + 2, 72, 72]
+            nn.Conv2d(in_channels=self.latent_dim+2, out_channels=16,
+                      stride=(1, 1), kernel_size=(3,3)),
+            nn.ReLU(),
+            # shape [batch_size, 16, 70, 70]
+            nn.Conv2d(in_channels=16, out_channels=16, stride=(1,1),
+                      kernel_size=(3, 3)),
+            nn.ReLU(),
+            # shape [batch_size, 16, 68, 68]
+            nn.Conv2d(in_channels=16, out_channels=16, stride=(1,1),
+                      kernel_size=(3, 3)),
+            nn.ReLU(),
+            # shape [batch_size, 16, 66, 66]
+            nn.Conv2d(in_channels=16, out_channels=16, stride=(1,1),
+                      kernel_size=(3, 3)),
+            # shape [batch_size, 4, 64, 64]
+            nn.ReLU(),
+            nn.Conv2d(in_channels=16, out_channels=4, stride=(1,1),
+                      kernel_size=(1, 1)),
+        )
+        return
 
-      Args:
-          latent_dim: dimensionality of latent distribution
+    def forward(self, x):
+        [z, mu_E, log_var_E] = self.encode(x)
+        x_rec = self.decode(z)
+        return x_rec, z, mu_E, log_var_E
 
-      Attributes:
-          encoder_conv: convolution layers of encoder
-          MLP: 2 layer MLP, output parametrises mu and log var of latent_dim Gaussian
-      """
+    def encode(self, x):
+        out_encoder = self.MLP(self.encoder(x))
+        mu_E, log_var_E = torch.chunk(out_encoder, 2, dim=1)
+        # sample noise variable for each batch
+        epsilon = torch.randn_like(log_var_E)
+        # get latent variable by reparametrization trick
+        z = mu_E + torch.exp(0.5 * log_var_E) * epsilon
+        return [z, mu_E, log_var_E]
 
-      def __init__(self, latent_dim):
-          super().__init__()
-          self.latent_dim = latent_dim
+    def decode(self, z):
+        batch_size = z.shape[0]
+        # reshape z into [batch_size, latent_dim, 1, 1]
+        z = z.view(z.shape + (1, 1))
+        # tile across image [batch_size, latent_im, 64+8, 64+8]
+        z_b = z.repeat(1, 1, 64 + 8, 64 + 8)
+        # upsample x_grid and y_grid to [batch_size, 1, 64+8, 64+8]
+        x_b = self.x_grid.repeat(batch_size, 1, 1, 1)
+        y_b = self.y_grid.repeat(batch_size, 1, 1, 1)
+        # concatenate vectors [batch_size, latent_dim+2, 64+8, 64+8]
+        z_sb = torch.cat((z_b, x_b, y_b), dim=1)
+        # apply convolutional layers mu_D
+        mu_D = self.decoder(z_sb)
+        return mu_D
 
-          self.encoder_conv = nn.Sequential(
-              # shape: [batch_size, 4, 64, 64]
-              nn.Conv2d(4,  32, kernel_size=(3,3), stride=2, padding=1),
-              nn.ReLU(),
-              # shape: [batch_size, 32, 32, 32]
-              nn.Conv2d(32, 32, kernel_size=(3,3), stride=2, padding=1),
-              nn.ReLU(),
-              # shape: [batch_size, 32, 16, 16]
-              nn.Conv2d(32, 64, kernel_size=(3,3), stride=2, padding=1),
-              nn.ReLU(),
-              # shape: [batch_size, 64, 8, 8]
-              nn.Conv2d(64, 64, kernel_size=(3,3), stride=2, padding=1),
-              nn.ReLU(),
-              # shape: [batch_size, 64, 4, 4],
-              nn.Flatten(),
-              # shape: [batch_size, 1024]
-          )
-          self.MLP = nn.Sequential(
-              nn.Linear(1024, 256),
-              nn.ReLU(),
-              nn.Linear(256, 2*self.latent_dim),
-          )
-          return
+	
+class ComponentVAE(CNN_VAE):
+    """Component VAE class for use in MONet as proposed by Burgess et al. (2019)
 
-      def forward(self, x, m):
-          # concatenate x and m along color channels
-          inp = torch.cat((x, m), dim=1)
-          # shape [batch_size, 4, 64, 64]
-          out_conv = self.encoder_conv(inp)
-          # shape [batch_size, 1024]
-          out_MLP = self.MLP(out_conv)
-          # shape [batch_size, 32]
-          mu, log_var = torch.chunk(out_MLP, 2, dim=1)
-          return [mu, log_var]
+    Attributes:
+        #################### CNN_VAE ########################
+        encoder (nn.Sequential): encoder network for mean and log_var
+        decoder (nn.Sequential): decoder network for mean (fixed var)
+        img_dim (int): image dimension along one axis
+        expand_dim (int): expansion of latent image to accomodate for lack of padding
+        x_grid (torch tensor): appended x coordinates for spatial broadcast decoder
+        y_grid (torch tensor): appended x coordinates for spatial broadcast decoder
+        #####################################################
+        img_channels (int): number of channels in image
+    """
 
+    def __init__(self,):
+        super().__init__()
+        self.img_channels = 3
+        return
 
-  class SpatialBroadcastDecoder(nn.Module):
-      """SBD class for use in Component VAE of MONet,
-        a Gaussian distribution with fixed variance (identity times fixed
-        variance as covariance matrix) used as the decoder distribution
+    def forward(self, image, log_mask, deterministic=False):
+        """
+        parellize computation of reconstructions
 
-      Args:
-          latent_dim: dimensionality of latent distribution
+        Args:
+            image (torch.tensor): input image [batch, img_channels, img_dim, img_dim]
+            log_mask (torch.tensor): all seg masks [batch, slots, 1, img_dim, img_dim]
 
-      Attributes:
-          img_size: image size (necessary for tiling)
-          decoder_convs: convolution layers of decoder (also upsampling)
-      """
+        Returns:
+            mu_z_k (torch.tensor): latent mean [batch, slot, latent_dim]
+            log_var_z_k (torch.tensor): latent log_var [batch, slot, latent_dim]
+            z_k (torch.tensor): latent log_var [batch, slot, latent_dim]
+            x_r_k (torch.tensor): img reconstruction 
+				[batch, slot, img_chan, img_dim, img_dim]
+            logits_m_r_k (torch.tensor): mask recons. [batch, slot, 1, img_dim, img_dim]
+        """
+        num_slots = log_mask.shape[1]
+        # create input [batch_size*num_slots, image_channels+1, img_dim, img_dim]
+        x = ComponentVAE._prepare_input(image, log_mask, num_slots)
+        # get encoder distribution parameters [batch*slots, latent_dim]
+        [z_k, mu_z_k, log_var_z_k] = self.encode(x)
+        if deterministic:
+            z_k = mu_z_k
+        # get decoder dist. parameters [batch*slots, image_channels, img_dim, img_dim]
+        [x_r_k, logits_m_r_k] = self.decode(z_k)
+        # convert outputs into easier understandable shapes
+        [mu_z_k, log_var_z_k, z_k, x_r_k, logits_m_r_k] = ComponentVAE._prepare_output(
+            mu_z_k, log_var_z_k, z_k, x_r_k, logits_m_r_k, num_slots
+        )
+        return [mu_z_k, log_var_z_k, z_k, x_r_k, logits_m_r_k]
 
-      def __init__(self, latent_dim):
-          super().__init__()
-          self.img_size = 64
-          self.latent_dim = latent_dim
-          # "input width and height of CNN both 8 larger than target output"
-          x = torch.linspace(-1, 1, self.img_size + 8)
-          y = torch.linspace(-1, 1, self.img_size + 8)
-          x_grid, y_grid = torch.meshgrid(x, y)
-          # reshape into [1, 1, img_size, img_size] and save in state_dict
-          self.register_buffer('x_grid', x_grid.view((1, 1) + x_grid.shape))
-          self.register_buffer('y_grid', y_grid.view((1, 1) + y_grid.shape))
+    def decode(self, z):
+        """
+        Args:
+            z (torch.tensor): [batch_size*num_slots, latent_dim]
 
-          self.decoder_convs = nn.Sequential(
-              # shape [batch_size, latent_dim + 2, 72, 72]
-              nn.Conv2d(in_channels=self.latent_dim+2, out_channels=32,
-                        stride=(1, 1), kernel_size=(3,3)),
-              nn.ReLU(),
-              # shape [batch_size, 32, 70, 70]
-              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1),
-                        kernel_size=(3, 3)),
-              nn.ReLU(),
-              # shape [batch_size, 32, 68, 68]
-              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1),
-                        kernel_size=(3, 3)),
-              nn.ReLU(),
-              # shape [batch_size, 32, 66, 66]
-              nn.Conv2d(in_channels=32, out_channels=32, stride=(1,1),
-                        kernel_size=(3, 3)),
-              # shape [batch_size, 4, 64, 64]
-              nn.ReLU(),
-              nn.Conv2d(in_channels=32, out_channels=4, stride=(1,1),
-                        kernel_size=(1, 1)),
-          )
-          return
+        Returns:
+            mu_x (torch.tensor): [batch*slots, img_channels, img_dim, img_dim]
+            logits_m (torch.tensor): [batch*slots, 1, img_dim, img_dim]
 
-      def forward(self, z):
-          batch_size = z.shape[0]
-          # reshape z into [batch_size, latent_dim, 1, 1]
-          z = z.view(z.shape + (1, 1))
-          # tile across image [batch_size, latent_im, img_size+8, img_size+8]
-          z_b = z.repeat(1, 1, self.img_size + 8, self.img_size + 8)
-          # upsample x_grid and y_grid to [batch_size, 1, img_size+8, img_size+8]
-          x_b = self.x_grid.expand(batch_size, -1, -1, -1)
-          y_b = self.y_grid.expand(batch_size, -1, -1, -1)
-          # concatenate vectors [batch_size, latent_dim+2, img_size+8, img_size+8]
-          z_sb = torch.cat((z_b, x_b, y_b), dim=1)
-          # apply convolutional layers mu_D [batch_size, 4, 64, 64]
-          mu_D = self.decoder_convs(z_sb)
-          # split into means of x and logits of m
-          mu_x, logits_m = torch.split(mu_D, 3, dim=1)
-          return [mu_x, logits_m]
+        """
+        mu_D = super().decode(z)
+        # split into means of x and logits of m
+        mu_x, logits_m = torch.split(mu_D, self.img_channels, dim=1)
+        # enforce positivity of mu_x
+        mu_x = mu_x.abs()
+        return [mu_x, logits_m]
 
+    @staticmethod
+    def _prepare_input(image, log_mask, num_slots):
+        """
+        Args:
+            image (torch.tensor): input image [batch, img_channels, img_dim, img_dim]
+            log_mask (torch.tensor): all seg masks [batch, slots, 1, img_dim, img_dim]
+            num_slots (int): number of slots (log_mask.shape[1])
 
-  class ComponentVAE(nn.Module):
-      """Component VAE class for use in MONet
+        Returns:
+            x (torch.tensor): input image [batch*slots, img_channels+1, img_dim, img_dim]
+        """
+        # prepare image [batch_size*num_slots, image_channels, img_dim, img_dim]
+        image = image.repeat(num_slots, 1, 1, 1)
+        # prepare log_mask [batch_size*num_slots, 1, img_dim, img_dim]
+        log_mask = torch.cat(log_mask.squeeze(2).chunk(num_slots, 1), 0)
+        # concatenate along color channel
+        x = torch.cat((image, log_mask), dim=1)
+        return x
 
-      Args:
-          latent_dim: dimensionality of latent distribution
+    @staticmethod
+    def _prepare_output(mu_z_k, log_var_z_k, z_k, x_r_k, logits_m_r_k, num_slots):
+        """
+        convert output into an easier understandable format
 
-      Attributes:
-          encoder: encoder neural network object (Encoder class)
-          decoder: decoder neural network object (SpatialBroadcastDecoder class)
-          normal_dist: unit normal distribution to sample noise variable
-      """
+        Args:
+            mu_z_k (torch.tensor): [batch_size*num_slots, latent_dim]
+            log_var_z_k (torch.tensor): [batch_size*num_slots, latent_dim]
+            z_k (torch.tensor): [batch_size*num_slots, latent_dim]
+            x_r_k (torch.tensor): [batch_size*num_slots, img_channels, img_dim, img_dim]
+            logits_m_r_k (torch.tensor): [batch_size*num_slots, 1, img_dim, img_dim]
+            num_slots (int): number of slots (log_mask.shape[1])
 
-      def __init__(self, latent_dim):
-          super().__init__()
-          self.encoder = Encoder(latent_dim)
-          self.decoder = SpatialBroadcastDecoder(latent_dim)
-          self.normal_dist = MultivariateNormal(torch.zeros(latent_dim),
-                                                torch.eye(latent_dim))
-          return
-
-      def forward(self, image, log_mask):
-          batch_size = image.shape[0]
-          # get encoder distribution parameters
-          [mu_E, log_var_E] = self.encoder(image, log_mask)
-          # sample noise variable for each batch
-          epsilon = self.normal_dist.sample(sample_shape=(batch_size, )
-                                            ).to(image.device)
-          # get latent variable by reparametrization trick
-          z = mu_E + torch.exp(0.5*log_var_E) * epsilon
-          # get decoder distribution parameters
-          mu_x, logits_m = self.decoder(z)
-          return [mu_E, log_var_E, z, mu_x, logits_m]
-    ```
+        Returns:
+            mu_z_k (torch.tensor): [batch, slot, latent_dim]
+            log_var_z_k (torch.tensor): [batch, slot, latent_dim]
+            z_k (torch.tensor): [batch, slot, latent_dim]
+            x_r_k (torch.tensor): [batch, slots, img_channels, img_dim, img_dim]
+            logits_m_r_k (torch.tensor): [batch, slots, 1, img_dim, img_dim]
+        """
+        mu_z_k = torch.stack(mu_z_k.chunk(num_slots, dim=0), 1)
+        log_var_z_k = torch.stack(log_var_z_k.chunk(num_slots, dim=0), 1)
+        z_k = torch.stack(z_k.chunk(num_slots, dim=0), 1)
+        x_r_k = torch.stack(x_r_k.chunk(num_slots, dim=0), 1)
+        logits_m_r_k = torch.stack(logits_m_r_k.chunk(num_slots, dim=0), 1)
+        return [mu_z_k, log_var_z_k, z_k, x_r_k, logits_m_r_k]{% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
 
 [^5]: This is explained in more detail in my [VAE](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes) post. For simplicity, we are setting the number of (noise variable) samples $L$ per datapoint to 1 (see equation $\displaystyle \widetilde{\mathcal{L}}$ in [*Reparametrization Trick*](https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#model-description) paragraph). Note that [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) stated that in their experiments setting $L=1$ sufficed as long as the minibatch size was large enough.
 
@@ -850,44 +939,46 @@ For the sake of simplicity, this section is divided into four parts:
        Gaussian distributions with fixed variance for each pixel as
        the decoder distribution $p\_{\boldsymbol{\theta}} \left(
        x\_{i} | \textbf{z}_k \right) \sim \mathcal{N} \left(\mu\_{k,
-       i}(\boldsymbol{\theta}), \sigma_k^2 \right)$, hence the term
-       can be rewritten as follows
+       i}(\boldsymbol{\theta}), \sigma_k^2 \right)$. 
 
-        $$
-        \begin{align}
-          \text{NLL} &= -\sum_{i=1}^N \log \left(  \sum_{k=1}^K
-        m_{k, i} \left(\boldsymbol{\psi} \right) \frac {1}{ \sqrt{2 \pi \sigma_k^2} } \exp \left( - \frac { \left[ x_i -
-        \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right)
-        \right)\\
-        &= -\sum_{i=1}^N \log \left( \frac {1} {\sqrt{2\pi}}
-        \sum_{k=1}^K \exp \left(
-        \log \frac { m_{k, i} \left(\boldsymbol{\psi} \right) } {\sigma_k}
-        - \frac { \big[x_i - \mu_{k, i} (\boldsymbol{\theta}) \big]^2 } {2 \sigma_k^2}  \right)
-        \right)\\
-        &= \frac {N \log 2\pi}{2} \\%- \sum_{i=1}^N - \frac {\log 2 \pi}{2}\\
-        & \quad -\sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left(
-        \log \big[m_{k, i} \left(\boldsymbol{\psi} \right)\big]  -
-        \log \sigma_k - \frac { \big[x_i - \mu_{k, i} (\boldsymbol{\theta}) \big]^2
-        } {2 \sigma_k^2}  \right) \right),
-        \end{align}
-        $$
+	   <!-- , hence the term -->
+       <!-- can be rewritten as follows -->
 
-        where $i$ enumerates the pixel space ($N=W\cdot H$). The inner
-        sum (index $k$) results in a reconstructed image distribution,
-        the outer sum (index $i$) computes the log likelihood of each
-        pixel independently and sums them to retrieve the
-        reconstruction accuracy of the whole image. The term inside
-        the exponent is unconstrained outside of the masked regions[^6]
-        (for each reconstruction, i.e., fixed $k$). Note that [Burgess
-        et al. (2019)](https://arxiv.org/abs/1901.11390) define the
-        variances of the decoder distribution for each component as
-        follows
+       <!--  $$ -->
+       <!--  \begin{align} -->
+       <!--    \text{NLL} &= -\sum_{i=1}^N \log \left(  \sum_{k=1}^K -->
+       <!--  m_{k, i} \left(\boldsymbol{\psi} \right) \frac {1}{ \sqrt{2 \pi \sigma_k^2} } \exp \left( - \frac { \left[ x_i - -->
+       <!--  \mu_{k,i} (\boldsymbol{\theta}) \right]^2 } {2 \sigma_k^2}  \right) -->
+       <!--  \right)\\ -->
+       <!--  &= -\sum_{i=1}^N \log \left( \frac {1} {\sqrt{2\pi}} -->
+       <!--  \sum_{k=1}^K \exp \left( -->
+       <!--  \log \frac { m_{k, i} \left(\boldsymbol{\psi} \right) } {\sigma_k} -->
+       <!--  - \frac { \big[x_i - \mu_{k, i} (\boldsymbol{\theta}) \big]^2 } {2 \sigma_k^2}  \right) -->
+       <!--  \right)\\ -->
+       <!--  &= \frac {N \log 2\pi}{2} \\%- \sum_{i=1}^N - \frac {\log 2 \pi}{2}\\ -->
+       <!--  & \quad -\sum_{i=1}^N \log \left( \sum_{k=1}^K \exp \left( -->
+       <!--  \log \big[m_{k, i} \left(\boldsymbol{\psi} \right)\big]  - -->
+       <!--  \log \sigma_k - \frac { \big[x_i - \mu_{k, i} (\boldsymbol{\theta}) \big]^2 -->
+       <!--  } {2 \sigma_k^2}  \right) \right), -->
+       <!--  \end{align} -->
+       <!--  $$ -->
 
-        $$
-          \sigma_k^2 = \begin{cases} \sigma_{bg}^2 & \text{if } k=1
-        \quad \text{(background variance)} \\
-        \sigma_{fg}^2 & \text{if } k>1 \quad \text{(foreground variance)}\end{cases}
-        $$
+       <!--  where $i$ enumerates the pixel space ($N=W\cdot H$). The inner -->
+       <!--  sum (index $k$) results in a reconstructed image distribution, -->
+       <!--  the outer sum (index $i$) computes the log likelihood of each -->
+       <!--  pixel independently and sums them to retrieve the -->
+       <!--  reconstruction accuracy of the whole image. The term inside -->
+       <!--  the exponent is unconstrained outside of the masked regions[^6] -->
+       <!--  (for each reconstruction, i.e., fixed $k$). Note that [Burgess -->
+       <!--  et al. (2019)](https://arxiv.org/abs/1901.11390) define the -->
+       <!--  variances of the decoder distribution for each component as -->
+       <!--  follows -->
+
+       <!--  $$ -->
+       <!--    \sigma_k^2 = \begin{cases} \sigma_{bg}^2 & \text{if } k=1 -->
+       <!--  \quad \text{(background variance)} \\ -->
+       <!--  \sigma_{fg}^2 & \text{if } k>1 \quad \text{(foreground variance)}\end{cases} -->
+       <!--  $$ -->
 
     2. *Regularization Term for Distribution of $\textbf{z}_k$*: The
        coding space is regularized using the KL divergence between the
@@ -976,81 +1067,320 @@ For the sake of simplicity, this section is divided into four parts:
        \text{logits }\textbf{p}_K \end{bmatrix}\right).
        $$
 
-   ```python
-    class MONet(nn.Module):
-        """Multi-Object Network class as described by Burgess et al. (2019)
+{% capture code %}{% raw %}import pytorch_lightning as pl
+import matplotlib.pyplot as plt
+from torch.utils.data import DataLoader
+
+
+class MONet(pl.LightningModule):
+    """Multi-Object Network class as described by Burgess et al. (2019)
+    
+    Atributes:
+        n_samples (int): number of samples in training dataset
+        attention_network (AttentionNetwork)
+        component_VAE (ComponentVAE)
+        ############## loss specific ##############
+        bg_var (float): background variance
+        fg_var (float): foreground variance
+        beta (float): hyperparamater for loss
+        gamma (float): hyperparameter for loss
+        ###########################################
+        ############ training specific ############
+        num_slots_train (int): number of slots used during training time
+        lr (float): learning rate
+        batch_size (int): batch size used during training
+        log_every_k_epochs (int): how often current result img should be logged
+        ###########################################
+    """
+
+    def __init__(self, n_samples):
+        super(MONet, self).__init__()
+        self.n_samples = n_samples
+        self.attention_network = AttentionNetwork()
+        self.component_VAE = ComponentVAE()
+        # initialize all biases to zero
+        self.attention_network.apply(MONet.weight_init)
+        self.component_VAE.apply(MONet.weight_init)
+        ############## loss specific ##############
+        self.num_slots_train = 3
+        self.bg_var, self.fg_var = 0.09**2, 0.11**2
+        self.beta = 0.5
+        self.gamma = 0.5
+        ###########################################
+        ############ training specific ############
+        self.lr, self.batch_size = 0.0001, 64
+        self.log_every_k_epochs = 1
+        # Initialise pixel output standard deviations (NLL calculation)
+        var = self.fg_var * torch.ones(1, self.num_slots_train, 1, 1, 1)
+        var[0, 0, 0, 0, 0] = self.bg_var  # first step
+        self.register_buffer("var", var)
+        self.save_hyperparameters()
+        return
+
+    def forward(self, x, num_slots):
+        """
+        defines the inference procedure of MONet, i.e., computes the latent
+        space and keeps track of useful metrics
 
         Args:
-            latent_dim (int): dimensionality of the latent space within VAE
-            beta (float): hyperparameter to scale regularization
-            gamma (float): hyperparameter to scale KL div of mask distributions
-            background_variance (float): hyperparamter for reconstruction loss
-            foreground_variance (float): hyperparamter for reconstruction loss
+            x (torch.tensor): image [batch_size, img_channels, img_dim, img_dim]
+            num_slots (int): number of slots
 
-        Attributes:
-            comp_VAE (nn.Module): VAE (with SpatialBroadcastDecoder)
-            attention_net (nn.Module): recurrent U-Net
-            bg_var (float): refers to background_variance input
-            fg_var (float): refers to foreground_variance input
+        Returns:
+            out (dict): output dictionary containing
+                log_m_k (torch.tensor) [batch, slots, 1, img_dim, img_dim]
+                    (logarithmized attention masks of attention_network)
+                mu_k (torch.tensor) [batch, slots, latent_dim]
+                    (means of component VAE latent space)
+                log_var_k (torch.tensor) [batch, slots, latent_dim]
+                    (logarithmized variances of component VAE latent space)
+                x_r_k (torch.tensor) [batch, slots, img_channels, img_dim, img_dim]
+                    (slot-wise VAE image reconstructions)
+                logits_m_r_k (torch.tensor) [batch, slots, 1, img_dim, img_dim]
+                    (slot-wise VAE mask reconstructions in logits)
+                x_tilde (torch.tensor) [batch, img_channels, img_dim, img_dim]
+                    (reconstructed image using x_r_k and log_m_k)
         """
+        # compute all logarithmized masks (iteratively)
+        log_m_k = self.attention_network(x, num_slots)
+        # compute all VAE reconstructions (parallel)
+        [mu_z_k, log_var_z_k, z_k, x_r_k, logits_m_r_k] = self.component_VAE(x, 
+                                                                             log_m_k.exp())
+        # store output in dict
+        output = dict()
+        output["log_m_k"] = log_m_k
+        output["mu_z_k"] = mu_z_k
+        output["log_var_z_k"] = log_var_z_k
+        output["z_k"] = z_k
+        output["x_r_k"] = x_r_k
+        output["logits_m_r_k"] = logits_m_r_k
+        output["x_tilde"] = (log_m_k.exp() * x_r_k).sum(axis=1)
+        return output
+    
+    
+    ########################################
+    #########  TRAINING FUNCTIONS  #########
+    ########################################
 
-        def __init__(self, latent_dim, beta, gamma, background_var, foreground_var):
-            super().__init__()
-            self.comp_VAE = ComponentVAE(latent_dim)
-            self.attention_net = AttentionNetwork()
-            self.latent_dim = latent_dim
-            self.bg_var = background_var
-            self.fg_var = foreground_var
-            self.beta = beta
-            self.gamma = gamma
-            self.log_softmax = nn.LogSoftmax(dim=1)
-            return
+    def training_step(self, batch, batch_idx):
+        x, labels = batch  # labels are not used here (unsupervised)
+        output = self.forward(x, self.num_slots_train)        
+        ############ NLL \sum_k m_k log p(x_k) #############################
+        NLL = (
+            output["log_m_k"].exp() * 
+            (((x.unsqueeze(1) - output["x_r_k"]) ** 2 / (2 * self.var)))
+        ).sum(axis=(1, 2, 3, 4))
+        # compute KL divergence of latent space (component VAE) per batch
+        KL_div_VAE = -0.5 * (
+            1 + output["log_var_z_k"] - output["mu_z_k"] ** 2 
+            - output["log_var_z_k"].exp()
+        ).sum(axis=(1, 2))
+        # compute KL divergence between masks
+        log_m_r_k = output["logits_m_r_k"].log_softmax(dim=1)
+        KL_div_masks = (output["log_m_k"].exp() * (output["log_m_k"] - log_m_r_k)).sum(
+            axis=(1, 2, 3, 4)
+        )
+        # compute loss
+        loss = (NLL.mean() + self.beta * KL_div_VAE.mean() 
+                + self.gamma * KL_div_masks.mean())
+        # log results in TensorBoard
+        step = self.global_step
+        self.logger.experiment.add_scalar("loss/NLL", NLL.mean(), step)
+        self.logger.experiment.add_scalar("loss/KL VAE", KL_div_VAE.mean(), step)
+        self.logger.experiment.add_scalar("loss/KL masks", KL_div_masks.mean(), step)
+        self.logger.experiment.add_scalar("loss/loss", loss, step)
+        return {"loss":loss, "x": x}
 
-        def forward(self, x, num_slots):
-            # initialization
-            logits_m_tilde, log_m = [], []
-            mu_hat, log_var_hat = [], []
-            x_recs = []
-            # start decomposition
-            log_s_k = torch.zeros_like(x[:, 0:1, : , :])  # [batch_size, 1, 64, 64]
-            for k in range(num_slots):
-                log_m_k, log_s_k = self.attention_net(x, log_s_k)
-                [mu_z, log_var_z, mu_x, logits_m] = self.comp_VAE(x, log_m_k)
-                # store values in list
-                mu_hat.append(mu_z)
-                log_var_hat.append(log_var_z)
-                x_recs.append(mu_x)
-                log_m.append(log_m_k)
-                logits_m_tilde.append(logits_m)
-            # concatenate tensors of each list
-            mu_hat = torch.cat(mu_hat, 1)  # [batch_size, num_slots*latent_dim]
-            log_var_hat = torch.cat(log_var_hat, 1)
-            x_recs = torch.cat(x_recs, 1)  # [batch_size, num_slots*3, 64, 64]
-            log_m = torch.cat(log_m, 1)  # [batch_size, num_slots, 64, 64]
-            log_m_rec = self.log_softmax(torch.cat(logits_m_tilde, 1))
-            return [mu_hat, log_var_hat, x_recs, log_m, log_m_rec]
+    def training_epoch_end(self, outputs):
+        """this function is called after each epoch"""
+        step = int(self.current_epoch)
+        if (step + 1) % self.log_every_k_epochs == 0:
+            # log some images, their segmentations and reconstructions
+            n_samples = 7
+            
+            last_x = outputs[-1]["x"]
+            i_samples = np.random.choice(range(len(last_x)), n_samples, False)
+            images = last_x[i_samples]
+            
+            fig_rec = self.plot_reconstructions_and_decompositions(images, 
+                                                                   self.num_slots_train)
+            self.logger.experiment.add_figure("image and reconstructions", 
+                                              fig_rec, global_step=step)
+        return
+    
+    ########################################
+    ######### TRAINING SETUP HOOKS #########
+    ########################################
 
-        def compute_loss(self, x, num_slots):
-            bs = x.shape[0]  # batch_size
-            # get all necessary
-            [mu_hat, log_var_hat, x_recs, log_m, log_m_rec] = \
-                self.forward(x, num_slots)
-            # prepare variance for NLL calculation
-            var = torch.cat((self.bg_var * torch.ones_like(x_recs[:, 0:3]),
-                            self.fg_var * torch.ones_like(x_recs[:, 3::])), dim=1)
-            # compute NLL per batch
-            NLL = -torch.logsumexp(log_m.repeat(1, 3, 1, 1)
-                                   -  0.5*np.log(2*np.pi*var) - (0.5/var)*
-                                   ((x.repeat(1,num_slots,1,1)-x_recs).pow(2)),
-                                  dim=1).sum(axis=1).sum(axis=1)
-            # compute regularization term per batch
-            reg_term = 0.5*(1 + log_var_hat - mu_hat - log_var_hat.exp()).sum(axis=1)
-            # compute KL divergence between mask distributions per batch
-            kl_masks = (log_m.exp() *(log_m - log_m_rec)).view(bs, -1).sum(axis=1)
-            # compute loss per batch and take mean
-            loss = (NLL + self.beta*reg_term + self.gamma*kl_masks).mean(axis=0)
-            return loss
-   ```
+    def configure_optimizers(self):
+        optimizer = torch.optim.RMSprop(self.parameters(), lr=self.lr)
+        return optimizer
+    
+    @staticmethod
+    def weight_init(m):
+        """initialize all bias to zero"""
+        if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+            if m.bias is not None:
+                torch.nn.init.zeros_(m.bias)
+        return
+    
+    ########################################
+    ####### PLOT AND HELPER FUNCTIONS ######
+    ########################################
+
+    @staticmethod
+    def convert_masks_indices_to_mask_rgb(masks_ind, slots):
+        colors = plt.cm.get_cmap("hsv", slots + 1)
+        cmap_rgb = colors(np.linspace(0, 1, slots + 1))[:, 0:3]
+        masks_RGB = cmap_rgb[masks_ind].squeeze(1)
+        masks_RGB_tensor = torch.from_numpy(masks_RGB)
+        return masks_RGB_tensor
+
+    def plot_reconstructions_and_decompositions(self, images, num_slots):
+        monet_output = self.forward(images, num_slots)
+        batch_size, img_channels = images.shape[0:2]
+        
+        colors = plt.cm.get_cmap("hsv", num_slots + 1)
+        cmap = colors(np.linspace(0, 1, num_slots + 1))
+        
+        # get mask indices using argmax [batch_size, 1, 64, 64]
+        masks_ind = monet_output["log_m_k"].exp().argmax(1).detach().cpu()
+        # convert into RGB values  [batch_size, 64, 64, 3]
+        masks_RGB = MONet.convert_masks_indices_to_mask_rgb(masks_ind, num_slots)              
+        fig = plt.figure(figsize=(14, 10))
+        for counter in range(batch_size):
+            orig_img = images[counter]
+            # data
+            plt.subplot(3 + num_slots, batch_size + 1, counter + 2)
+            plt.imshow(transforms.ToPILImage()(orig_img))
+            plt.axis('off')
+            # reconstruction mixture
+            x_tilde = monet_output["x_tilde"][counter].clamp(0, 1)
+            plt.subplot(3 + num_slots, batch_size + 1, counter + 2 + (batch_size + 1))
+            plt.imshow(transforms.ToPILImage()(x_tilde))
+            plt.axis('off')
+            # segmentation (binary) from attention network
+            plt.subplot(3 + num_slots, batch_size + 1, counter + 2 + (batch_size + 1)*2)
+            plt.imshow(masks_RGB[counter])
+            plt.axis('off')
+            # unmasked component reconstructions
+            x_r_k = monet_output["x_r_k"][counter].clamp(0, 1)
+            for slot in range(num_slots):
+                x_rec = x_r_k[slot]
+                plot_idx =  counter + 2 + (batch_size + 1)*(slot+3)
+                plt.subplot(3 + num_slots, batch_size + 1, plot_idx)
+                plt.imshow(transforms.ToPILImage()(x_rec))
+                plt.axis('off')
+        # annotation plots
+        ax = plt.subplot(3 + num_slots, batch_size + 1, 1)
+        ax.annotate('Data', xy=(1, 0.5), xycoords='axes fraction',
+                    fontsize=14, va='center', ha='right')
+        ax.set_aspect('equal')
+        ax.axis('off')
+        ax = plt.subplot(3 + num_slots, batch_size + 1, batch_size + 2)
+        ax.annotate('Reconstruction\nmixture', xy=(1, 0.5), xycoords='axes fraction',
+                    fontsize=14, va='center', ha='right')
+        ax.set_aspect('equal')
+        ax.axis('off')
+        ax = plt.subplot(3 + num_slots, batch_size + 1, 2*batch_size + 3)
+        ax.annotate('Segmentation', xy=(1, 0.5), xycoords='axes fraction',
+                    fontsize=14, va='center', ha='right')
+        ax.set_aspect('equal')
+        ax.axis('off')
+        for slot in range(num_slots):
+            ax = plt.subplot(3 + num_slots, batch_size + 1, 
+                             1 + (batch_size + 1)*(slot+3))
+            ax.annotate(f'S{slot+1}', xy=(1, 0.5), xycoords='axes fraction',
+                        fontsize=14, va='center', ha='right', weight='bold',
+                        color=cmap[slot])
+            ax.set_aspect('equal')
+            ax.axis('off')
+        return fig
+    
+    def plot_ComponentVAE_results(self, images, num_slots):
+        monet_output = self.forward(images, num_slots)
+        x_r_k = monet_output["x_r_k"]
+        masks = monet_output["log_m_k"].exp()
+        # get mask indices using argmax [batch_size, 1, 64, 64]
+        masks_ind = masks.argmax(1).detach().cpu()
+        # convert into RGB values  [batch_size, 64, 64, 3]
+        masks_RGB = MONet.convert_masks_indices_to_mask_rgb(masks_ind, num_slots) 
+        
+        colors = plt.cm.get_cmap('hsv', num_slots + 1)
+        cmap = colors(np.linspace(0, 1, num_slots + 1))
+        n_samples, img_channels = images.shape[0:2]
+        fig = plt.figure(constrained_layout=False, figsize=(14, 14))
+        grid_spec = fig.add_gridspec(2, n_samples, hspace=0.1)
+        
+        for counter in range(n_samples):
+            orig_img = images[counter]
+            x_tilde = monet_output["x_tilde"][counter].clamp(0, 1)
+            segmentation_mask = masks_RGB[counter]
+            # upper plot: Data, Reconstruction Mixture, Segmentation
+            upper_grid = grid_spec[0, counter].subgridspec(3, 1)
+            for upper_plot_index in range(3):
+                ax = fig.add_subplot(upper_grid[upper_plot_index])
+                if upper_plot_index == 0:
+                    plt.imshow(transforms.ToPILImage()(orig_img))
+                elif upper_plot_index == 1:
+                    plt.imshow(transforms.ToPILImage()(x_tilde))   
+                else:
+                    plt.imshow(segmentation_mask)
+                plt.axis('off')
+                if counter == 0:  # annotations
+                    if upper_plot_index == 0:  # Data
+                        ax.annotate('Data', xy=(-0.1, 0.5), 
+                                    xycoords='axes fraction', ha='right',
+                                    fontsize=14, va='center',)
+                    elif upper_plot_index == 1:  # Reconstruction mixture
+                        ax.annotate('Reconstruction\nmixture', xy=(-0.1, 0.5), 
+                                     va='center',
+                                     xycoords='axes fraction', fontsize=14, ha='right')
+                    else:  # Segmentation
+                        ax.annotate('Segmentation', xy=(-0.1, 0.5), va='center',
+                                     xycoords='axes fraction', fontsize=14, ha='right')
+            # lower plot: Component VAE reconstructions
+            lower_grid = grid_spec[1, counter].subgridspec(num_slots, 2, 
+                                                           wspace=0.1, hspace=0.1)
+            for row_index in range(num_slots):
+                x_slot_r = x_r_k[counter][row_index]
+                m_slot_r = masks[counter][row_index]
+                for col_index in range(2):
+                    ax = fig.add_subplot(lower_grid[row_index, col_index])
+                    if col_index == 0:  # unmasked
+                        plt.imshow(transforms.ToPILImage()(x_slot_r.clamp(0, 1)))
+                        if row_index == 0:
+                            plt.title('Unmasked', fontsize=14)
+                        plt.axis('off')
+                    else:  # masked
+                        masked = ((1 - m_slot_r)*torch.ones_like(x_slot_r) 
+                                  + m_slot_r*x_slot_r)
+                        #masked = m_slot_r*x_slot_r
+                        plt.imshow(transforms.ToPILImage()(masked.clamp(0, 1)))
+                        if row_index == 0:
+                            plt.title('Masked', fontsize=14)
+                        plt.axis('off')
+                    ax.set_aspect('equal')
+                    if counter == 0 and col_index == 0:  # annotations
+                        ax.annotate(f'S{row_index+1}', xy=(-0.1, 0.5), 
+                                    xycoords='axes fraction', ha='right',
+                                    fontsize=14, va='center', weight='bold',
+                                    color=cmap[row_index])
+        return
+                                   
+    ########################################
+    ########## DATA RELATED HOOKS ##########
+    ########################################
+
+    def prepare_data(self) -> None:
+        n_samples = self.n_samples
+        self.dataset = generate_dataset(n_samples=n_samples)
+        return
+
+    def train_dataloader(self):
+        return DataLoader(self.dataset, batch_size=self.batch_size, 
+                          num_workers=12, shuffle=True){% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
 
 
 [^7]: Note that concatenation of masks leads to a three dimensional
@@ -1060,52 +1390,47 @@ For the sake of simplicity, this section is divided into four parts:
 * **Training Procedure**: [Burgess et al.
   (2019)](https://arxiv.org/abs/1901.11390) chose `RMSProp` for the
   optimization with a learning rate of `0.0001` and a batch size of
-  `64`, see Appendix B.3.
+  `64`, see Appendix B.3. Thanks to the [PyTorch-Lightning](https://pytorch-lightning.readthedocs.io/en/latest/)
+  framework, these paramters are already defined in the model and we can easily integrate 
+  tensorboard into our training procedure:
 
-  ```python
-  from livelossplot import PlotLosses
-  from torch.utils.data import DataLoader
+{% capture code %}{% raw %}from pytorch_lightning import seed_everything
+from pytorch_lightning.loggers import TensorBoardLogger
 
-  def train(dataset, epochs, monet, num_slots):
-      device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-      print('Device: {}'.format(device))
+def train(n_samples, num_epochs, SEED=1):
+    seed_everything(SEED)
 
-      data_loader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
+    monet = MONet(n_samples)
+    logger = TensorBoardLogger('./results', name="SimplifiedMultiSprites")
+    # initialize pytorch lightning trainer
+    num_gpus = 1 if torch.cuda.is_available() else 0
+    trainer = pl.Trainer(
+        deterministic=True,
+        gpus=num_gpus,
+        track_grad_norm=2,
+        gradient_clip_val=2,  # don't clip
+        max_epochs=num_epochs,
+        progress_bar_refresh_rate=20,
+        logger=logger,
+    )
+     # train model
+    trainer.fit(monet)
+    trained_monet = monet
+    return trained_monet
 
-      monet.to(device)
-      optimizer = torch.optim.RMSprop(monet.parameters(), lr=0.0001)
+trained_monet = train(n_samples=50000, num_epochs=10){% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
 
-      losses_names = ['reconstruction', 'regularization', 'KL masks']
-      losses_plot = PlotLosses(groups={'avg loss': losses_names})
-      for epoch in range(epochs):
-          avg_rec, avg_reg, avg_kl_masks = 0, 0, 0
-          for counter, x in enumerate(data_loader):
-              monet.zero_grad()
+![Training](/assets/img/04_MONet/MONET_train.png "Training")
 
-              NLL, reg, kl_masks = monet.compute_loss(x[0].to(device), num_slots)
-              loss = NLL + monet.beta*reg + monet.gamma*kl_masks
-              loss.backward()
-              optimizer.step()
 
-              avg_rec += NLL.item() / len(data_loader)
-              avg_reg += reg.item() / len(data_loader)
-              avg_kl_masks += kl_masks.item() / len(data_loader)
+### Results
 
-          losses_plot.update({'reconstruction': avg_rec,
-                              'regularization': avg_reg,
-                              'KL masks': avg_kl_masks})
-          losses_plot.send()
-      trained_monet = monet
-      return trained_monet
-  ```
+The following visualization are inspired by Figure 3 and 7 of 
+[Burgess et al. (2019)](https://arxiv.org/abs/1901.11390) and mainly serve to evaluate
+the representation quality of the trained model.
 
-### Visualization Functions
-
-The following visualization functions are inspired by Figures 3, 5 and
-7 of [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390). These
-visualization mainly serve to evaluate the representation quality of
-the trained model.
 
 * **MONet Reconstructions and Decompositions**: The most intuitive
   visualization is to show some (arbitrarly chosen) fully
@@ -1125,73 +1450,12 @@ the trained model.
   | **Figure 7 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): Each example shows the image fed as input data to the model, with corresponding outputs from the model. Reconstruction mixtures show sum of components from all slots, weighted by the learned masks from the attention network. Colour-coded segmentation maps summarize the attention masks $\\{\textbf{m}_k \\}$. Rows labeld S1-5 show the reconstruction components of each slot. |
 
 
-  ```python
-  def reconstructions_and_decompositions(trained_monet, dataset, num_slots, SEED=1):
-      np.random.seed(SEED)
-      device = 'cuda' if torch.cuda.is_available() else 'cpu'
+{% capture code %}{% raw %}dataloader = trained_monet.train_dataloader()
+random_batch = next(iter(dataloader))[0]
+fig = trained_monet.plot_reconstructions_and_decompositions(batch[0: 4], 3){% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
 
-      n_samples = 8
-      i_samples = np.random.choice(range(len(dataset)), n_samples, replace=False)
-      colors = plt.cm.get_cmap('hsv', num_slots)
-      cmap = colors(np.linspace(0, 1, num_slots))
-
-      fig = plt.figure(figsize=(14, 10))
-      for counter, i_sample in enumerate(i_samples):
-          img = dataset[i_sample][0]
-          # data
-          plt.subplot(3 + num_slots, n_samples + 1, counter + 2)
-          plt.imshow(transforms.ToPILImage()(img))
-          plt.axis('off')
-          # monet related
-          img = img.unsqueeze(0).to(device)
-          [mu_hat,log_var_hat,x_mu,log_m,log_m_rec] = trained_monet(img, num_slots)
-          # reconstruction mixture
-          m_k = log_m.repeat_interleave(3, dim=1).exp().view(1, num_slots, 3, 64, 64)
-          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64)
-          img_rec_mixture =  (m_k * x_mu_k).sum(axis=1)
-          img_rec = torch.clamp(img_rec_mixture, 0 , 1).squeeze(0).cpu()
-          plt.subplot(3 + num_slots, n_samples + 1, counter + 2 + (n_samples + 1))
-          plt.imshow(transforms.ToPILImage()(img_rec))
-          plt.axis('off')
-          # segmentation (binary) from attention network
-          m = log_m.exp().detach().cpu().numpy()[0]
-          m_binary_RGBA = cmap[np.argmax(m, 0)]
-          plt.subplot(3 + num_slots, n_samples + 1, counter + 2 + (n_samples + 1)*2)
-          plt.imshow(m_binary_RGBA)
-          plt.axis('off')
-          # unmasked component reconstructions
-          x_recs = x_mu.view(1, num_slots, 3, 64, 64)
-          for slot in range(num_slots):
-              x_rec = torch.clamp(x_recs[0][slot], 0, 1).cpu()
-              plot_idx =  counter + 2 + (n_samples + 1)*(slot+3)
-              plt.subplot(3 + num_slots, n_samples + 1, plot_idx)
-              plt.imshow(transforms.ToPILImage()(x_rec))
-              plt.axis('off')
-      # annotation plots
-      ax = plt.subplot(3 + num_slots, n_samples + 1, 1)
-      ax.annotate('Data', xy=(1, 0.5), xycoords='axes fraction',
-                  fontsize=14, va='center', ha='right')
-      ax.set_aspect('equal')
-      ax.axis('off')
-      ax = plt.subplot(3 + num_slots, n_samples + 1, n_samples + 2)
-      ax.annotate('Reconstruction\nmixture', xy=(1, 0.5), xycoords='axes fraction',
-                  fontsize=14, va='center', ha='right')
-      ax.set_aspect('equal')
-      ax.axis('off')
-      ax = plt.subplot(3 + num_slots, n_samples + 1, 2*n_samples + 3)
-      ax.annotate('Segmentation', xy=(1, 0.5), xycoords='axes fraction',
-                  fontsize=14, va='center', ha='right')
-      ax.set_aspect('equal')
-      ax.axis('off')
-      for slot in range(num_slots):
-          ax = plt.subplot(3 + num_slots, n_samples + 1, 1 + (n_samples + 1)*(slot+3))
-          ax.annotate(f'S{slot+1}', xy=(1, 0.5), xycoords='axes fraction',
-                      fontsize=14, va='center', ha='right', weight='bold',
-                      color=cmap[slot])
-          ax.set_aspect('equal')
-          ax.axis('off')
-      return
-  ```
+![MONet Reconstructions and Decompositions after Train](/assets/img/04_MONet/MONET_rec.png "Reconstructions and Decompositions")
 
 * **Component VAE Results**: In order to evaluate the perfomance of
   the component VAE, we are interested in the unmasked
@@ -1211,95 +1475,13 @@ the trained model.
   | :--         |
   | **Figure 3 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): Each example shows the image fet as input data to the model, with corresponding outputs from the model. Reconstruction mixtures show sum of components from all slots, weighted by the learned masks from the attention network. Color-coded segmentation maps summarise the attention masks $\\{\textbf{m}_k\\}$. Rows labeled S1-7 show the reconstruction components of each slot. Unmasked version are shown side-by-side with corresponding versions that are masked with the VAE's reconstructed masks $\widetilde{\textbf{m}}_k$. |
 
-  ```python
-  def Component_VAE_reconstructions(trained_monet, dataset, num_slots, SEED=1):
-      np.random.seed(SEED)
-      device = 'cuda' if torch.cuda.is_available() else 'cpu'
-      trained_monet.to(device)
+{% capture code %}{% raw %}dataloader = trained_monet.train_dataloader()
+random_batch = next(iter(dataloader))[0]
+fig = trained_monet.plot_ComponentVAE_results(batch[0: 4], 3){% endraw %}{% endcapture %}
+{% include code.html code=code lang="python" %}
 
-      n_samples = 4
-      i_samples = np.random.choice(range(len(dataset)), n_samples, replace=False)
-      colors = plt.cm.get_cmap('hsv', num_slots + 1)
-      cmap = colors(np.linspace(0, 1, num_slots + 1))
+![MONet Component VAE](/assets/img/04_MONet/MONET_CompVAE.png "MONet Component VAE")
 
-
-      fig = plt.figure(constrained_layout=False, figsize=(14, 14))
-      grid_spec = fig.add_gridspec(2, n_samples, hspace=0.1)
-
-      for counter, i_sample in enumerate(i_samples):
-          img = dataset[i_sample][0]
-          # monet related
-          img_tensor = img.unsqueeze(0).to(device)
-          [mu_hat,log_var_hat,x_mu,log_m,log_m_rec] = trained_monet(img_tensor, num_slots)
-          # reconstruction mixture
-          m_k = log_m.repeat_interleave(3, dim=1).exp().view(1, num_slots, 3, 64, 64)
-          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64)
-          img_rec_mixture =  (m_k * x_mu_k).sum(axis=1)
-          img_rec = torch.clamp(img_rec_mixture, 0 , 1).squeeze(0).cpu()
-          # (binary) segmenation from attention network
-          m = log_m.exp().detach().cpu().numpy()[0]
-          m_binary_RGBA = cmap[np.argmax(m, 0)]
-          # Component VAE reconstructions
-          x_mu_k = x_mu.view(1, num_slots, 3, 64, 64)
-          m_rec = log_m_rec.repeat_interleave(3, dim=1).exp().view(1, num_slots, 3, 64, 64)
-          # upper plot: Data, Reconstruction Mixture, Segmentation
-          upper_grid = grid_spec[0, counter].subgridspec(3, 1)
-          for upper_plot_index in range(3):
-              ax = fig.add_subplot(upper_grid[upper_plot_index])
-              if upper_plot_index == 0:
-                  plt.imshow(transforms.ToPILImage()(img))
-              elif upper_plot_index == 1:
-                  plt.imshow(transforms.ToPILImage()(img_rec))
-              else:
-                  plt.imshow(m_binary_RGBA)
-              plt.axis('off')
-              if counter == 0:  # annotations
-                  if upper_plot_index == 0:  # Data
-                      ax.annotate('Data', xy=(-0.1, 0.5), xycoords='axes fraction',
-                                  fontsize=14, va='center', ha='right')
-                  elif upper_plot_index == 1:  # Reconstruction mixture
-                      ax.annotate('Reconstruction\nmixture', xy=(-0.1, 0.5), va='center',
-                                   xycoords='axes fraction', fontsize=14, ha='right')
-                  else:  # Segmentation
-                      ax.annotate('Segmentation', xy=(-0.1, 0.5), va='center',
-                                   xycoords='axes fraction', fontsize=14, ha='right')
-          # lower plot: Component VAE reconstructions
-          lower_grid = grid_spec[1, counter].subgridspec(num_slots, 2, wspace=0.1, hspace=0.1)
-          for row_index in range(num_slots):
-              for col_index in range(2):
-                  ax = fig.add_subplot(lower_grid[row_index, col_index])
-                  if col_index == 0:  # unmasked
-                      x_rec = torch.clamp(x_mu_k[0][row_index], 0, 1).cpu()
-                      plt.imshow(transforms.ToPILImage()(x_rec))
-                      if row_index == 0:
-                          plt.title('Unmasked', fontsize=14)
-                      plt.axis('off')
-                  else:  # masked
-                      m_k_tilde, x_k_tilde = m_rec[0][row_index], x_mu_k[0][row_index]
-                      masked = (1 - m_k_tilde)*torch.ones_like(x_k_tilde) + m_k_tilde*x_k_tilde
-                      plt.imshow(transforms.ToPILImage()(masked.cpu()))
-                      if row_index == 0:
-                          plt.title('Masked', fontsize=14)
-                      plt.xticks([])
-                      plt.yticks([])
-                  ax.set_aspect('equal')
-                  if counter == 0 and col_index == 0:  # annotations
-                      ax.annotate(f'S{row_index+1}', xy=(-0.1, 0.5), xycoords='axes fraction',
-                      fontsize=14, va='center', ha='right', weight='bold',
-                      color=cmap[row_index])
-      return
-  ```
-
-* **Latent Traversals**
-
-
-  | ![Latent Traversals](/assets/img/04_MONet/latent_traversals.png "Latent Traversals") |
-  | :--         |
-  | **Figure 5 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): |
-
-
-
-### Results
 
 ## Drawbacks of Paper
 
@@ -1316,7 +1498,7 @@ There are a lot of implementations out there that helped me very much in
 understanding the paper:
 
 * [Darwin Bautista's implementation](https://github.com/baudm/MONet-pytorch)
-  includes derivation of the NLL.
+  includes derivation of the NLL (which in the end, I did not use for simplicity).
 * [Karl Stelzner's implementation](https://github.com/stelzner/monet/) is kept
   more simplisitic and is therefore easier to understand.
 * [Martin Engelcke, Claas Voelcker and Max
