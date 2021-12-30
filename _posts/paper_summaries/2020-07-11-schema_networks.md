@@ -32,7 +32,7 @@ representation comes from a handcrafted image parser with the handwavy
 argument that in practice a vision module could be responsible for
 this task. 
 
-| ![Exemplary State Representation](/assets/img/011_schema_networks/exemplary_state_representation.png "Exemplary State Representation") |
+| ![Exemplary State Representation](/assets/paper_summaries/03_schema_networks/img/exemplary_state_representation.png "Exemplary State Representation") |
 | :--  |
 |  **Exemplary State Representation in a Schema Network**. A handcrafted image parser converts an image (left) into the state representation (right), where filled green circles indicate that the binary variable is set to *True*.     |
 
@@ -86,7 +86,7 @@ remain active without a grounded schema[^3]. To circumvent this problem,
 active in the next time step when no schema predicts a change from
 that entity-attribute, see image below.
 
-| ![Transition Dynamics](/assets/img/011_schema_networks/transition_dynamics.png "Transition Dynamics") |
+| ![Transition Dynamics](/assets/paper_summaries/03_schema_networks/img/transition_dynamics.png "Transition Dynamics") |
 | :--  |
 | Transition dynamics in Schema Networks are governed by changes in entity-attributes due to activated grounded schemas. In this example all relevant gates are shown to illustrate the state transition dynamics via this mechanics. Note that there are two schemas that predict the same behavior, i.e., only one input in OR is necessary to activate $y=1$. |
 

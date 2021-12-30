@@ -67,7 +67,7 @@ is explained in more detail in the next section.
     we typically set the output to the variance in logarithmic units.
 
 
-| ![VAE/IWAE Architecture](/assets/img/02_AEVB/schematic_VAE.png "VAE/IWAE Architecture") |
+| ![VAE/IWAE Architecture](/assets/paper_summaries/07_IWAE/img/schematic_VAE.png "VAE/IWAE Architecture") |
 | :--:        |
 | **VAE/IWAE Architecture** |
 
@@ -538,7 +538,7 @@ class Binarized_MNIST(datasets.MNIST):
         return dists.Bernoulli(img).sample().type(torch.float32){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-| ![Binarized MNIST Dataset](/assets/img/IWAE/binarized_MNIST.png "Binarized MNIST Dataset") |
+| ![Binarized MNIST Dataset](/assets/paper_summaries/07_IWAE/img/binarized_MNIST.png "Binarized MNIST Dataset") |
 | :--:        |
 | **Binarized MNIST Dataset** |
 
@@ -910,9 +910,9 @@ for k in list_of_ks:
 {% include code.html code=code lang="python" %}
 
 $\textbf{k=1}$
-![Training k=1](/assets/img/IWAE/k_1.png "Training k=1")
+![Training k=1](/assets/paper_summaries/07_IWAE/img/k_1.png "Training k=1")
 $\textbf{k=10}$
-![Training k=10](/assets/img/IWAE/k_10.png "Training k=10")
+![Training k=10](/assets/paper_summaries/07_IWAE/img/k_10.png "Training k=10")
 
 Note that during training, we compared the **loss of the VAE (ELBO)** with the **loss
 of the IWAE (empirical estimate of marginal log-likelihood)**. Clearly, for $k=1$
@@ -956,7 +956,7 @@ for k in list_of_ks:
 print(out_table){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-![Results NLL](/assets/img/IWAE/table.png "Results NLL")
+![Results NLL](/assets/paper_summaries/07_IWAE/img/table.png "Results NLL")
 
 Similar to the paper, the IWAE benefits from an increased $k$ whereas the VAE
 performs nearly equal.
@@ -1023,7 +1023,7 @@ trained_iwae = torch.load(f'./results/trained_iwae_{k}.pth')
 plot_reconstructions(trained_vae, trained_iwae , test_ds){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-![Reconstructions k=10](/assets/img/IWAE/reconstructions.png "Reconstructions k=10")
+![Reconstructions k=10](/assets/paper_summaries/07_IWAE/img/reconstructions.png "Reconstructions k=10")
 
 * **Latent Traversals**
 
@@ -1088,6 +1088,6 @@ trained_iwae = torch.load(f'./results/trained_iwae_{k}.pth')
 plot_latent_traversal(trained_vae, trained_iwae , test_ds){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-![Latent Traversal k=10](/assets/img/IWAE/latent_traversal.png "Latent Traversal k=10")
+![Latent Traversal k=10](/assets/paper_summaries/07_IWAE/img/latent_traversal.png "Latent Traversal k=10")
 
 --------------------------------------------------------------------------

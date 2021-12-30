@@ -42,7 +42,7 @@ deconvolutional layers by tiling the latent code $\textbf{z}$ across the origina
 image space, appending fixed coordinate channels and applying an convolutional
 network with $1 \times 1$ stride, see the figure below.
 
-| ![Schematic of the Spatial Broadcast VAE](/assets/img/03_SBD/sbd.png "Schematic of the Spatial Broadcast VAE") |
+| ![Schematic of the Spatial Broadcast VAE](/assets/paper_summaries/05_SBD/img/sbd.png "Schematic of the Spatial Broadcast VAE") |
 | :--         |
 | Schematic of the Spatial Broadcast VAE. In the decoder, the latent code $\textbf{z}\in\mathbb{R}^{k}$ is broadcasted (*tiled*) to the image width $w$ and height $h$. Additionally, two "coordinate" channels are appended. The result is fed to an unstrided convolutional decoder. (right) Pseudo-code of the spatial operation. Taken from [Watters et al. (2019)](https://arxiv.org/abs/1901.07017).|
 
@@ -61,7 +61,7 @@ network with $1 \times 1$ stride, see the figure below.
   resulting effects may raise problems for learning a disentangled
   representation in the latent space.
 
-    | ![Checkerboard Artifacts](/assets/img/03_SBD/cherckerboard_artifacts.png "Checkerboard Artifacts") |
+    | ![Checkerboard Artifacts](/assets/paper_summaries/05_SBD/img/cherckerboard_artifacts.png "Checkerboard Artifacts") |
     | :--         |
     | A checkerboard pattern can often be identified in artifically generated images that use deconvolutional layers. <br>Taken from [Odena et al. (2016)](https://distill.pub/2016/deconv-checkerboard/) (very worth reading).|
 
@@ -93,7 +93,7 @@ network with $1 \times 1$ stride, see the figure below.
   producing bounding boxes in object detection) using CoordConv instead of
   standard convolutions might increase the performance of several other models.
 
-    | ![CoordConv Layer](/assets/img/03_SBD/CoordConv.png "CoordConv Layer") |
+    | ![CoordConv Layer](/assets/paper_summaries/05_SBD/img/CoordConv.png "CoordConv Layer") |
     | :--         |
     | Comparison of 2D convolutional and CoordConv layers. <br>Taken from [Liu et al. (2018)](https://arxiv.org/abs/1807.03247). |
 
@@ -167,7 +167,7 @@ and positions such that there are only 3
 factors of variation ($x$-position, $y$-position, discretized color).
 In this case $3.4 \cdot 10^2$ training steps suffice for approximate convergence.
 
-| ![Examples of Dataset](/assets/img/03_SBD/dataset.png "Examples of Dataset") |
+| ![Examples of Dataset](/assets/paper_summaries/05_SBD/img/dataset.png "Examples of Dataset") |
 | :---:       |
 | **Visualization of self-written Dataset** |
 
@@ -854,14 +854,14 @@ SBD_VAE = VAE(vae_type='SBD', latent_dim=latent_dims,
 trained_standard_VAE  = train(sprites_dataset, epochs, standard_VAE)
 ```
 
-![training_STD_VAE_results](/assets/img/03_SBD/log_loss_STD.png "training STD results")
+![training_STD_VAE_results](/assets/paper_summaries/05_SBD/img/log_loss_STD.png "training STD results")
 
 
 ```python
 trained_SBD_VAE = train(sprites_dataset, epochs, SBD_VAE)
 ```
 
-![training_SBD_VAE_results](/assets/img/03_SBD/log_loss_SBD.png "training SBD results")
+![training_SBD_VAE_results](/assets/paper_summaries/05_SBD/img/log_loss_SBD.png "training SBD results")
 
 At the log-losses plots, we can already see that using the Spatial
 Broadcast  decoder results in an improved reconstruction accuracy and
@@ -874,7 +874,7 @@ regularization term. Now let's compare both models visually by their
                                         trained_SBD_VAE, sprites_dataset)
   ```
 
-  ![reconstruction_and_latent_traversal](/assets/img/03_SBD/latent_traversal.png "Reconstruction and Latent Traversal")
+  ![reconstruction_and_latent_traversal](/assets/paper_summaries/05_SBD/img/latent_traversal.png "Reconstruction and Latent Traversal")
 
   While the reconstructions within both models look pretty good, the
   latent space traversal shows an entangled representation in the
@@ -887,7 +887,7 @@ regularization term. Now let's compare both models visually by their
   latent_space_geometry(trained_standard_VAE, trained_SBD_VAE)
   ```
 
-  ![latent_space_geometry](/assets/img/03_SBD/latent_space_geometry.png "Latent Space Geometry")
+  ![latent_space_geometry](/assets/paper_summaries/05_SBD/img/latent_space_geometry.png "Latent Space Geometry")
 
   The latent space geometry verifies our previous findings: The
   DeConv decoder has an entangled latent space (transformation

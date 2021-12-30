@@ -121,7 +121,7 @@ and shows how different variants such as the relation network ([Raposo
 et al., 2017](https://arxiv.org/abs/1702.05068)) can be identified
 within the GN framework.
 
-| ![GN block vs Relation Network](/assets/img/012_graph_networks/graph_networks_vs_RN.png "GN block vs Relation Network") |
+| ![GN block vs Relation Network](/assets/paper_summaries/02_graph_networks/img/graph_networks_vs_RN.png "GN block vs Relation Network") |
 | :--         |
 |(a) The internal GN block structure in its broadest formulation is shown including three update and three aggregation functions. (b) The relation network by [Raposo et al. (2017)](https://arxiv.org/abs/1702.05068) can be identified as a special case of the broader GN framework which only uses the edge predictions to predict global attributes. Taken from [Battaglia et al. (2018)](https://arxiv.org/abs/1806.01261)|
 

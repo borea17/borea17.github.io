@@ -36,7 +36,7 @@ of the (reparametrized) variational lower bound of each datapoint.
 Reparametrization is necessary to allow the explicit formulation of gradients
 with respect to the model parameters. 
 
-| ![Generative Process and Variational Approximation](/assets/img/02_AEVB/DAG.png "Generative Process and Variational Approximation") |
+| ![Generative Process and Variational Approximation](/assets/paper_summaries/04_AEVB/img/DAG.png "Generative Process and Variational Approximation") |
 | :--         |
 | The directed graphical models represent the assumed generative process (a) and the variational approximation of the intractable posterior (b) in the AEVB algorithm. |
 
@@ -199,7 +199,7 @@ figure below), i.e., this estimator can
 be optimized using standard stochastic gradient methods.
 
 
-| ![Computation Graph under Reparametrization](/assets/img/02_AEVB/reparameterization_trick.png "Computation Graph under Reparametrization") |
+| ![Computation Graph under Reparametrization](/assets/paper_summaries/04_AEVB/img/reparameterization_trick.png "Computation Graph under Reparametrization") |
 | :--         |
 | The computation graphs summarize the difference between the computation of the reconstruction accuracy in the original objective (a) and the reparametrized objective (b). Circles indicate a sampling operation through which backpropagation is not allowed. |
 
@@ -239,7 +239,7 @@ $q_{\boldsymbol{\phi}}$ and decoder $p_{\boldsymbol{\theta}}$. The
 optimal parameters $\boldsymbol{\phi}, \boldsymbol{\theta}$ are learned jointly
 by training the VAE using the AEVB algorithm. 
 
-| ![Schematic of a standard VAE](/assets/img/02_AEVB/schematic_VAE.png "Schematic of a standard VAE") |
+| ![Schematic of a standard VAE](/assets/paper_summaries/04_AEVB/img/schematic_VAE.png "Schematic of a standard VAE") |
 | :--:        |
 | Schematic of a standard VAE |
 
@@ -701,7 +701,7 @@ plot_results(Gaussian_VAE, dataset, n_samples)
 plot_results(I_Gaussian_VAE, dataset, n_samples)
 ```
   
-![plot results](/assets/img/02_AEVB/plot_results.png "plot results")
+![plot results](/assets/paper_summaries/04_AEVB/img/plot_results.png "plot results")
 
 ## Acknowledgement
 

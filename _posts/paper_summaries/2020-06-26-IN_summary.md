@@ -99,9 +99,9 @@ object model $\phi_O$ predicts for all objects their result $p_j\in P$, i.e., fu
 states $o_{j}^{(t+1)}$, by applying $f_O$ to each $c_j$. The figure
 below represents the described procedure of an (exemplary) IN.
 
-| ![Schematic of the IN's update procedure for an exemplary IN](/assets/img/01_interaction_network/IN.png "Schematic of the IN's update procedure") |
+| ![Schematic of the IN's update procedure for an exemplary IN](/assets/paper_summaries/01_interaction/img/IN.png "Schematic of the IN's update procedure") |
 | :--         |
-| Schematic of the IN's update procedure for an exemplary IN<sup>[2](#myfootnote2)</sup>:<br>Firstly, the marshalling function $m$ rearranges objects $o_i$ based on the relations $r_j$ into interaction terms $b_k = \langle o_i, o_j, r_k \rangle$. Secondly, the function $f_R$ is applied on each interaction term to compute the corresponding (directed) effects.<br>Thirdly, the aggregation function $a$ uses the graph structure to collect and merge the incoming effects, and to add the corresponding object state and external effects into a new object term $c_k = \langle o_k, x_k, \hat{e}_k \rangle$ ($\hat{e}_k$ denotes aggregated effect). Lastly, this representation is used to predict the results $p_k$, i.e., future object states, by applying $f_O$ to each $c_k$. |
+| **Schematic of the IN's update procedure for an exemplary IN**<sup>[2](#myfootnote2)</sup>:<br>Firstly, the marshalling function $m$ rearranges objects $o_i$ based on the relations $r_j$ into interaction terms $b_k = \langle o_i, o_j, r_k \rangle$. Secondly, the function $f_R$ is applied on each interaction term to compute the corresponding (directed) effects.<br>Thirdly, the aggregation function $a$ uses the graph structure to collect and merge the incoming effects, and to add the corresponding object state and external effects into a new object term $c_k = \langle o_k, x_k, \hat{e}_k \rangle$ ($\hat{e}_k$ denotes aggregated effect). Lastly, this representation is used to predict the results $p_k$, i.e., future object states, by applying $f_O$ to each $c_k$. |
 
 __*Intuition*__: Computing the trajectories of planets in a
 solar system may be a good example to motivate and understand the IN definition.
@@ -197,9 +197,9 @@ $$
 The result can be used to update the graph structured representation.
 The figure below summarizes the implementation of the IN.
 
-| ![One step roll out of the IN implementation](/assets/img/01_interaction_network/implementation.png "One step roll out of the IN implementation") |
+| ![One step roll out of the IN implementation](/assets/paper_summaries/01_interaction/img/implementation.png "One step roll out of the IN implementation") |
 | :--         |
-| One step roll out of the IN implementation. The physical scene is encoded (decoded) into (from) a graph structured representation using a handcrafted scene encoder (decoder). [Battaglia et al. (2016)](https://arxiv.org/abs/1612.00222) present a learnable implementation by using neural networks (blue boxes) as function approximators for the relational model ($\phi_R$) and the object model ($\phi_O$). |
+| **One step roll out of the IN implementation**.<br> The physical scene is encoded (decoded) into (from) a graph structured representation using a handcrafted scene encoder (decoder). [Battaglia et al. (2016)](https://arxiv.org/abs/1612.00222) present a learnable implementation by using neural networks (blue boxes) as function approximators for the relational model ($\phi_R$) and the object model ($\phi_O$). |
 
 ## Drawbacks of Paper
 

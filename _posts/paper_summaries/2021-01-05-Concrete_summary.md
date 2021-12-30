@@ -50,7 +50,7 @@ $$
 \end{align}
 $$
 
-| <img width="900" height="400" src='/assets/img/concrete/Gumble_Max.png'> |
+| <img width="900" height="400" src='/assets/paper_summaries/08_concrete/img/Gumble_Max.png'> |
 | :--:        |
 | **Computational Graph Gumbel-Max Trick**. Taken from [Maddison et al. (2016)](https://arxiv.org/abs/1611.00712). |
 
@@ -139,7 +139,7 @@ Note that the samples $z_k$ obtained by this reparameterization follow a new
 family of distributions, the **Concrete distribution**. Thus, $z_k$ are called
 **Concrete random variables**.
 
-| <img width="900" height="400" src='/assets/img/concrete/Gumble_Softmax.png'> |
+| <img width="900" height="400" src='/assets/paper_summaries/08_concrete/img/Gumble_Softmax.png'> |
 | :--:        |
 | **Computational Graph Gumbel-Softmax Trick**. Taken from [Maddison et al. (2016)](https://arxiv.org/abs/1611.00712). |
 
@@ -163,7 +163,7 @@ The image below shows how the distribution of concrete random variables changes
 for an exemplary discrete categorical distribution $(\alpha_1, \alpha_2,
 \alpha_3) = (2, 0.5, 1)$ and different temperatures $\lambda$.
 
-| <img width="900" height="400" src='/assets/img/concrete/simplex.png'> |
+| <img width="900" height="400" src='/assets/paper_summaries/08_concrete/img/simplex.png'> |
 | :---        |
 | **Relationship between Concrete and Discrete Variables**: A discrete distribution with unnormalized probabilities $(\alpha_1, \alpha_2, \alpha_3) = (2, 0.5, 1)$ and three corresponding **Concrete densities** at increasing temperatures $\lambda$.<br> Taken from [Maddison et al. (2016)](https://arxiv.org/abs/1611.00712). |
 
@@ -305,7 +305,7 @@ we evaluate the original objective including discrete sampling operations. The
 really neat thing here is that switching between the two modes works out of the box:
 we only need to switch between the $\text{softmax}$ and $\text{argmax}$ operations.
 
-| ![Discrete-Latent VAE Architecture](/assets/img/concrete/discrete_VAE.png "Discrete-Latent VAE Architecture") |
+| ![Discrete-Latent VAE Architecture](/assets/paper_summaries/08_concrete/img/discrete_VAE.png "Discrete-Latent VAE Architecture") |
 | :--:        |
 | **Discrete-Latent VAE Architecture** |
 
@@ -511,7 +511,7 @@ SIZES = [12, 14, 20]
 dataset = generate_dataset(N_SAMPLES_PER_CLASS,COLORS, SHAPES, SIZES, IMG_SIZE){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-| ![Dataset](/assets/img/concrete/dataset.png "Dataset") |
+| ![Dataset](/assets/paper_summaries/08_concrete/img/dataset.png "Dataset") |
 | :--:        |
 | **Dataset** |
 
@@ -794,7 +794,7 @@ discrete_vae = DiscreteVAE()
 trained_std_vae, trained_discrete_vae = train(dataset, std_vae, discrete_vae, num_epochs){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-![Training](/assets/img/concrete/training.png "Training")
+![Training](/assets/paper_summaries/08_concrete/img/training.png "Training")
 
 Both models seem to be able to create descent reconstructions (really low NLL).
 From here on out, we will only run the **discrete-latent VAE** in test-mode,
@@ -851,7 +851,7 @@ i.e., with a categorical latent distribution.
 plot_reconstructions(trained_std_vae, trained_discrete_vae, dataset){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-  ![Reconstructions](/assets/img/concrete/recons.png "Reconstructions")
+  ![Reconstructions](/assets/paper_summaries/08_concrete/img/recons.png "Reconstructions")
 
 
    Interestingly, the **standard VAE** does not always create valid
@@ -867,7 +867,7 @@ plot_reconstructions(trained_std_vae, trained_discrete_vae, dataset){% endraw %}
 
   For the **discrete-latent VAE**, there are only $K$ possible latent states.
 
-  ![Latent Traversal](/assets/img/concrete/latent_trav.png "Latent Traversal")
+  ![Latent Traversal](/assets/paper_summaries/08_concrete/img/latent_trav.png "Latent Traversal")
 
   Well, this looks nice for the **discrete VAE** and really confusing for the
   **Standard VAE**.

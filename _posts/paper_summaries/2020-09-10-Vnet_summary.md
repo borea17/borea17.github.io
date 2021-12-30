@@ -143,35 +143,39 @@ function](https://borea17.github.io/paper_summaries/u_net#model-implementation).
 (2016)](https://arxiv.org/abs/1606.04797) take a different path based
 on the dice coefficient.
 
-**Recap Dice Coefficient** $D$: It is a symmetric similiarity metric
-between two sets $A$ and $B$ and is defined as two times the area of
-overlap divided by the total sizes of both sets, i.e.,
+--------------------------------
 
-$$
-D = \frac {2 | A \cup B |} {|A| + |B|}.
-$$
-
-The image below summarizes the basic idea where each circle corresponds
-to one set, respectively. By defintion, $D\in [0, 1]$ where
-$D=0$ means no overlap or no similiarity and $D=1$ signifies complete
-overlap or complete similiarity. 
-
-| ![Dice Coefficient Illustration](/assets/img/08_Vnet/dice_illustration2.png "Dice Coefficient Illustration") |
-| :---: |
-| **Dice Coefficient Illustration**. Taken from [this post](https://towardsdatascience.com/metrics-to-evaluate-your-semantic-segmentation-model-6bcb99639aa2). |
-
-In the case where both sets are binary vectors,
-the dice coefficient can be written in terms of vector operations 
-
-$$
-D = \frac {2 \left(\textbf{p} \cdot \textbf{g}\right)}{|\textbf{p}|^2 + |\textbf{g}|^2} =\frac {2 \sum_{i=1}^N p_i g_i}{\sum_{i=1}^{N} p_i^2 + \sum_{i=1}^{N}g _i^2},
-$$
-
-where $\textbf{g} \in \\{0, 1\\}^{N}$ shall denote the ground truth vector,
-$\textbf{p} \in \\{0, 1\\}^{N}$ the prediction vector and $i$ enumerates
-the pixel/voxel space. Note that in this case the area of overlap is
-simply two times the sum of all true predicted values, i.e., $
-2 \sum\_{\\{i| p_i=1\\}} g_i$. 
+>**Recap Dice Coefficient** $D$ 
+>
+>The Dice coefficient $D$ is a symmetric similiarity metric
+>between two sets $A$ and $B$ and is defined as two times the area of
+>overlap divided by the total sizes of both sets, i.e.,
+>
+>$$
+>D = \frac {2 | A \cup B |} {|A| + |B|}.
+>$$
+>
+>The image below summarizes the basic idea where each circle corresponds
+>to one set, respectively. By defintion, $D\in [0, 1]$ where
+>$D=0$ means no overlap or no similiarity and $D=1$ signifies complete
+>overlap or complete similiarity. 
+>
+>| ![Dice Coefficient Illustration](/assets/img/08_Vnet/dice_illustration2.png "Dice Coefficient Illustration") |
+>| :---: |
+>| **Dice Coefficient Illustration**. Taken from [this post](https://towardsdatascience.com/metrics-to-evaluate-your-semantic-segmentation-model-6bcb99639aa2). |
+>
+>In the case where both sets are binary vectors,
+>the dice coefficient can be written in terms of vector operations 
+>
+>$$
+>D = \frac {2 \left(\textbf{p} \cdot \textbf{g}\right)}{|\textbf{p}|^2 + |\textbf{g}|^2} =\frac {2 \sum_{i=1}^N p_i g_i}{\sum_{i=1}^{N} p_i^2 + \sum_{i=1}^{N}g _i^2},
+>$$
+>
+>where $\textbf{g} \in \\{0, 1\\}^{N}$ shall denote the ground truth vector,
+>$\textbf{p} \in \\{0, 1\\}^{N}$ the prediction vector and $i$ enumerates
+>the pixel/voxel space. Note that in this case the area of overlap is
+>simply two times the sum of all true predicted values, i.e., $
+>2 \sum\_{\\{i| p_i=1\\}} g_i$. 
 
 **Dice loss layer**: [Milletari et al.
 (2016)](https://arxiv.org/abs/1606.04797) noticed that the dice
@@ -198,10 +202,7 @@ correctly classified (see this
 (2016)](https://arxiv.org/abs/1606.04797) observed much better results
 using the dice loss compared to weighted binary cross entropy.
 
-The dice loss has become a standard in image segmentation
-tasks. However, note that the gradients are more complicated than for
-cross entropy, thus training optimizing for the dice coefficient may
-result in less stable training.
+Nowadays, dice loss has become a standard in image segmentation tasks. 
 
 ## Implementation
 

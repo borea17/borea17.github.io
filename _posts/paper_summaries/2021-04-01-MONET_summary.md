@@ -148,7 +148,7 @@ The figure below summarizes the whole architecture of the model by
 showing the individual components (attention network, component VAE)
 and their interaction.
 
-| ![Schematic of MONet](/assets/img/04_MONet/MONet_schematic.png "Schematic of MONet") |
+| ![Schematic of MONet](/assets/paper_summaries/09_MONet/img/MONet_schematic.png "Schematic of MONet") |
 | :--         |
 | **Schematic of MONet**. A recurrent attention network is used to obtain the attention masks $\textbf{m}^{(i)}$. Afterwards, a group structured representation is retrieved by feeding each concatenation of $\textbf{m}^{(i)}, \textbf{x}$ through the same VAE with encoder parameters $\boldsymbol{\phi}$ and decoder parameters $\boldsymbol{\theta}$. The outputs of the VAE are the unmasked image reconstructions $\widetilde{\textbf{x}}^{(i)}$ and mask reconstructions $\widetilde{\textbf{m}}^{(i)}$. Lastly, the reconstructed image is assembled using the deterministic attention masks $\textbf{m}^{(i)}$ and the sampled unmasked image reconstructions $\widetilde{\textbf{x}}^{(i)}$. |
 
@@ -275,7 +275,7 @@ reconstructions could even recover occluded objects, see image below.
 this indicates how `MONet is learning from and constrained by the
 structure of the data`.
 
-| ![MONet Paper Results](/assets/img/04_MONet/paper_results.png "MONet Paper Results") |
+| ![MONet Paper Results](/assets/paper_summaries/09_MONet/img/paper_results.png "MONet Paper Results") |
 | :--         |
 | **MONet Paper Results**: Decomposition on *Multi-dSprties* and *CLEVR* images. First row shows the input image, second and third row the corresponding reconstructions and segmentations by MONet (trained for 1,000,000 iterations). The last three rows show the unmasked component reconstructions from some chosen slots (indicated by $S$). Red arrows highlight occluded regions of shapes that are completed as full shapes. Taken from [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390).  |
 
@@ -305,7 +305,7 @@ positions for the two objects, random object constellations and random
 colors from color space, see code below image.
 
 
-| ![Examples of Dataset](/assets/img/04_MONet/self_dataset.png "Examples of Dataset") |
+| ![Examples of Dataset](/assets/paper_summaries/09_MONet/img/self_dataset.png "Examples of Dataset") |
 | :--:        |
 | Visualization of self-written dataset. |
 
@@ -1422,7 +1422,7 @@ def train(n_samples, num_epochs, SEED=1):
 trained_monet = train(n_samples=50000, num_epochs=10){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-![Training](/assets/img/04_MONet/MONET_train.png "Training")
+![Training](/assets/paper_summaries/09_MONet/img/MONET_train.png "Training")
 
 
 ### Results
@@ -1445,7 +1445,7 @@ the representation quality of the trained model.
   umasked component VAE reconstructions (i.e., `S(k)`
   $\widetilde{\textbf{x}}_k$) are shown, see figure below.
 
-  | ![MONet Reconstruction and Decompositions](/assets/img/04_MONet/reconstruction_and_decompositions.png "MONet Reconstructions and Decompositions") |
+  | ![MONet Reconstruction and Decompositions](/assets/paper_summaries/09_MONet/img/reconstruction_and_decompositions.png "MONet Reconstructions and Decompositions") |
   | :--         |
   | **Figure 7 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): Each example shows the image fed as input data to the model, with corresponding outputs from the model. Reconstruction mixtures show sum of components from all slots, weighted by the learned masks from the attention network. Colour-coded segmentation maps summarize the attention masks $\\{\textbf{m}_k \\}$. Rows labeld S1-5 show the reconstruction components of each slot. |
 
@@ -1455,7 +1455,7 @@ random_batch = next(iter(dataloader))[0]
 fig = trained_monet.plot_reconstructions_and_decompositions(batch[0: 4], 3){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-![MONet Reconstructions and Decompositions after Train](/assets/img/04_MONet/MONET_rec.png "Reconstructions and Decompositions")
+![MONet Reconstructions and Decompositions after Train](/assets/paper_summaries/09_MONet/img/MONET_rec.png "Reconstructions and Decompositions")
 
 * **Component VAE Results**: In order to evaluate the perfomance of
   the component VAE, we are interested in the unmasked
@@ -1471,7 +1471,7 @@ fig = trained_monet.plot_reconstructions_and_decompositions(batch[0: 4], 3){% en
   difference between `gt masked` and `masked` indicates the
   reconstruction error of the attention masks.
 
-  | ![Component VAE Results](/assets/img/04_MONet/component_VAE_results.png "Component VAE Results") |
+  | ![Component VAE Results](/assets/paper_summaries/09_MONet/img/component_VAE_results.png "Component VAE Results") |
   | :--         |
   | **Figure 3 of** [Burgess et al. (2019)](https://arxiv.org/abs/1901.11390): Each example shows the image fet as input data to the model, with corresponding outputs from the model. Reconstruction mixtures show sum of components from all slots, weighted by the learned masks from the attention network. Color-coded segmentation maps summarise the attention masks $\\{\textbf{m}_k\\}$. Rows labeled S1-7 show the reconstruction components of each slot. Unmasked version are shown side-by-side with corresponding versions that are masked with the VAE's reconstructed masks $\widetilde{\textbf{m}}_k$. |
 
@@ -1480,7 +1480,7 @@ random_batch = next(iter(dataloader))[0]
 fig = trained_monet.plot_ComponentVAE_results(batch[0: 4], 3){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-![MONet Component VAE](/assets/img/04_MONet/MONET_CompVAE.png "MONet Component VAE")
+![MONet Component VAE](/assets/paper_summaries/09_MONet/img/MONET_CompVAE.png "MONet Component VAE")
 
 
 ## Drawbacks of Paper

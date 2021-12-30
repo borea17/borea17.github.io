@@ -38,7 +38,7 @@ decompose multi-object scenes in multiple datasets (multiple MNIST,
 Sprites, Omniglot, 3D scenes).
 
 
-| <img width="900" height="512" src='/assets/img/010_AIR/paper_results.gif'> |
+| <img width="900" height="512" src='/assets/paper_summaries/06_AIR/img/paper_results.gif'> |
 | :--  |
 |  **Paper Results**. Taken from [this presentation](https://www.youtube.com/watch?v=4tc84kKdpY4). Note that the aim of unsupervised representation learning is to obtain good representations rather than perfect reconstructions.  |
 
@@ -80,7 +80,7 @@ i.e., compositions of several (variable number) objects. Additionally,
 they assume that all of these objects live in the same domain, i.e.,
 each object is an instantiation from the same class.
 
-| ![Standard VAE Architecture](/assets/img/010_AIR/standard_VAE.png "Standard VAE Architecture") |
+| ![Standard VAE Architecture](/assets/paper_summaries/06_AIR/img/standard_VAE.png "Standard VAE Architecture") |
 | :---       |
 | **Standard VAE Architecture**. AIR can be understood as a modified VAE architecture. |
 
@@ -98,7 +98,7 @@ domain, the decoder is applied group-wise, i.e., each vector
 $\textbf{z}^{(i)}$ is fed through the same decoder network, see image
 below.
 
-| ![VAE with Recurrent Inference Network](/assets/img/010_AIR/VAE_inference.png "VAE with Recurrent Inference Network") |
+| ![VAE with Recurrent Inference Network](/assets/paper_summaries/06_AIR/img/VAE_inference.png "VAE with Recurrent Inference Network") |
 | :---       |
 | **VAE with Recurrent Inference Network**. A group-structured latent representation is obtained by replacing the encoder with a recurrent, variable-length inference network. This network should ideally attend to one object at a time and is conditioned on the image $\textbf{x}$ and its knowledge of previously epxlained objects $\textbf{h}$, $\textbf{z}$. |
 
@@ -144,7 +144,7 @@ The schematic below summarizes the whole AIR architecture.
     | :--  |
     |  This transformation is more constrained with only 3-DoF. Therefore it only allows cropping, translation and isotropic scaling to be applied to the input feature map.|
 
-| ![Schematic of AIR](/assets/img/010_AIR/AIR_model2.png "Schematic of AIR") |
+| ![Schematic of AIR](/assets/paper_summaries/06_AIR/img/AIR_model2.png "Schematic of AIR") |
 | :---:      |
 | **Schematic of AIR**                                          |
 
@@ -193,7 +193,7 @@ original image and placing the reconstructed version with the inverse
 scaling and shifting on an otherwise empty (black) canvas. The code and visualization can be
 found [here](https://github.com/borea17/InteractiveTransformations).
 
-| <img width="900" height="404" src='/assets/img/010_AIR/transformation.gif'> |
+| <img width="900" height="404" src='/assets/paper_summaries/06_AIR/img/transformation.gif'> |
 | :--: |
 |  **Interactive Transformation Visualization** |
 
@@ -247,7 +247,7 @@ $$
  p_{\boldsymbol{\theta}}^x \left( \textbf{x} | \textbf{z}\right) d \textbf{z}
 $$
 
-| ![Generative Model VAE vs AIR](/assets/img/010_AIR/VAE_vs_AIR.png "Generative Model VAE vs AIR") |
+| ![Generative Model VAE vs AIR](/assets/paper_summaries/06_AIR/img/VAE_vs_AIR.png "Generative Model VAE vs AIR") |
 | :--  |
 |  **Generative Model VAE vs AIR**. Note that for a given dataset $\textbf{X} = \\{ \textbf{x}^{(i)}\\}\_{i=1}^{L}$ the marginal likelihood of the whole dataset can be computed via $p\_{\boldsymbol{\theta}} ( \textbf{X} ) = \prod\_{i=1}^{L} p\_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} \right) $. |
 
@@ -530,7 +530,7 @@ images in the training dataset contained a maximum of two digits).
 <!-- This ensures that different regions are -->
 <!-- assigned as different objects. -->
 
-| ![Multi-MNIST Paper Results](/assets/img/010_AIR/paper_results.png "Multi-MNIST Paper Results") |
+| ![Multi-MNIST Paper Results](/assets/paper_summaries/06_AIR/img/paper_results.png "Multi-MNIST Paper Results") |
 | :--  |
 |  **Paper Results of Multi-MNIST Experiment**. Taken from [Eslami et al. (2016)](https://arxiv.org/abs/1603.08575). |
 
@@ -555,7 +555,7 @@ two MNIST digits do not overlap. Note that some small overlap may occur which we
 simply accept. At the same time, we record the number of digits in each
 generated image to measure the count accuracy during training.
 
-| ![Multi-MNIST Dataset Examples](/assets/img/010_AIR/multi-MNIST_dataset.png "Multi-MNIST Dataset Examples") |
+| ![Multi-MNIST Dataset Examples](/assets/paper_summaries/06_AIR/img/multi-MNIST_dataset.png "Multi-MNIST Dataset Examples") |
 | :---: |
 |  **Multi-MNIST Dataset Examples**. |
 
@@ -1214,7 +1214,7 @@ train_dataset = generate_dataset(num_images=10000, SEED=np.random.randint(1000))
 trained_air = train(air_model, train_dataset){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-![Training Results](/assets/img/010_AIR/training_results.png "Training Results")
+![Training Results](/assets/paper_summaries/06_AIR/img/training_results.png "Training Results")
 
 This looks pretty awesome! It seems that our model nearly perfectly learns to
 count the number of digits without even knowing what a digit is.
@@ -1282,7 +1282,7 @@ test_dataset = generate_dataset(num_images=300, SEED=2)
 plot_results(test_dataset){% endraw %}{% endcapture %}
 {% include code.html code=code lang="python" %}
 
-![Test Results](/assets/img/010_AIR/test_results.png "Test Results")
+![Test Results](/assets/paper_summaries/06_AIR/img/test_results.png "Test Results")
 
 Very neat results, indeed! Note that this looks very similar to Figure 3 in the
 [AIR paper](https://arxiv.org/abs/1603.08575). The accuracy on the left denotes
