@@ -2,7 +2,7 @@
 title: "Attention Is All You Need"
 permalink: "/paper_summaries/attention_is_all_you_need"
 author: "Markus Borea"
-tags: [attention]
+tags: [attention, transformer]
 toc: true
 toc_sticky: true
 toc_label: "Table of Contents"
@@ -22,25 +22,43 @@ RNN problems:
 
 ### Attention Mechanism
 
-The **attention mechanism** can be intuitively understood as a means to 
-assign importance to each entity in a collection of entities (e.g., words in a sentence or pixels in an image). 
+In essence, an **attention mechanism** can be intuitively understood as a means to assign individual
+importance (or rather *attention*) to each entity in a collection of entities (e.g., words in a
+sentence or pixels in an image) using some cues as input. Thus, it aims at answering the following
+question
 
-what part should we focus on?
-what is relevant?
+* What entities (e.g., pixels or words) should we attend to or focus on?
+* What entities (e.g., pixels or words) are relevant for the task at hand?
+
+[Vaswani et al. (2017)](https://arxiv.org/abs/1706.03762) call their particular attention mechanism
+**Scaled Dot-Product Attention**. Therein, the collection of entities is termed **values** and the
+attention cues are termed **queries** and **keys**. Attention to particular values (entities) is
+obtained by computing the weighted average over all values (entities) in which the **attention
+weights** are obtained by combining the attention cues.
+
+The attention cues (queries and keys) are vectors of length $d_k$ defined per value and can
+be seen as two different answers to the same question: *How much attention should we put to this
+entity?* The **alignment** between the attention cues is computed via the dot-product (hence the
+name), additionally the **alignment scores** are passed through a *Softmax*-layer to obtain
+normalized **attention weights**. Finally, these attention weights are used to compute the weighted
+average. 
+
+To speed things up, queries, keys and values are packed into matrices $\textbf{Q}, \textbf{K}
+\in \mathbb{R}^{N_v \times d_k}$ and $\textbf{V} \in \mathbb{R}^{N_v \times d_v}$,
+respectively. As a result, the concise formulation of Scaled Dot-Product Attention is given by 
 
 $$
-\text{Attention}(\textbf{Q}, \textbf{K}, \textbf{V}) = \text{softmax} \left( 
-\frac {\textbf{Q}, \textbf{K}^{\text{T}}} {\sqrt{d_k}} 
-\right) \textbf{V}
+\text{Attention}(\textbf{Q}, \textbf{K}, \textbf{V}) = 
+\underbrace{\text{softmax} 
+	\left(
+	%\overbrace{
+	\frac {\textbf{Q} \textbf{K}^{\text{T}}} {\sqrt{d_k}}
+	%}^{\text{attention alignment }  \textbf{L} \in }
+	\right)
+}_{\text{attention weight }\textbf{W} \in \mathbb{R}^{N_v \times N_v}} \textbf{V}
 $$
 
-output: query
-input: key
-releance: dot product
+> Example IMAGE
 
-compatibility score/ relevance score
-
-https://www.youtube.com/watch?v=TQQlZhbC5ps
-https://www.tensorflow.org/text/tutorials/transformer
 
 ## Implementation
