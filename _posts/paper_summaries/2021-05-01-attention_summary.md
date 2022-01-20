@@ -24,8 +24,11 @@ RNN problems:
 
 In essence, an **attention mechanism** can be intuitively understood as a means to assign individual
 importance (or rather *attention*) to each entity in a collection of entities (e.g., words in a
-sentence or pixels in an image) using some cues as input. Thus, it aims at answering the following
-question
+sentence or pixels in an image) using some cues as input. Mathmatically, this translates into
+**computing a weighted average over all entities in which the attention weights are obtained from
+the attention cues**. 
+
+More abstractly, the attention mechanism can be used to answer the following questions
 
 * What entities (e.g., pixels or words) should we attend to or focus on?
 * What entities (e.g., pixels or words) are relevant for the task at hand?
@@ -57,6 +60,12 @@ $$
 	\right)
 }_{\text{attention weight }\textbf{W} \in \mathbb{R}^{N_v \times N_v}} \textbf{V}
 $$
+
+Note that 
+
+| ![Matrix Packing for Scaled Dot-Product Attention](/assets/paper_summaries/010_attention/img/matrix_packing.png "Matrix Packing for Dot-Product Attention") |
+| :--         |
+| **Matrix Packing for Scaled Dot-Product Attention**:<br> Given an example sentence, the associated values $v_i$ may be obtained by some *word2vec* model. The attention cue vectors $k_i$ and $q_i$ |
 
 > Example IMAGE
 
