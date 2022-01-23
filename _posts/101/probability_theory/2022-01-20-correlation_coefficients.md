@@ -10,7 +10,7 @@ type: "101 probability"
 (rank) correleation coeffient** assesses the **mononotic relationship** between two
 variables. **Each coefficient has its legitmation** depending on the use-case.
 
-E.g., if there is a clear directional non-linear relationship, we would often prefer Spearman over Pearson. On the other hand, if the data at hand rather looks like a noisy two-dimensional line, Pearson's coefficient is more adequate. 
+<!-- E.g., if there is a clear directional non-linear relationship, we would often prefer Spearman over Pearson. On the other hand, if the data at hand rather looks like a noisy two-dimensional line, Pearson's coefficient is more adequate.  -->
 
 $$
 \fbox{
@@ -33,10 +33,8 @@ $$
 
 ### Pearson Correlation Coefficient
 
-**Covariance** is a **measure of the joint variability** within two variables. In other
-words, it tells us how strongly two variables vary together: E.g., does a greater than average value
-for one variable ($x_i > \mu_{\textbf{X}})$ is an average associated with a greater than average
-value for the other variable ($y_i > \mu_{\textbf{Y}})$. Mathmatically, it is defined as follows
+**Covariance** is a **measure of the joint variability** within two variables, i.e., it tells us how
+strongly two variables vary together. Mathmatically, it is defined as follows
 
 $$
 \begin{align}
@@ -52,8 +50,18 @@ $$
 \end{align}
 $$
 
-From the above description, it follows that the **covariance gives some estimate about the linear
-dependence between two random variables**.
+So *what does that mean in plain words*? Suppose that $\text{Cov}\left(\textbf{X},
+\textbf{Y}\right) > 0$: Then, it simply means that a greater than average value for one variable
+($x_i > \mu_{\textbf{X}})$ is expected to be associated with a greater than average 
+value for the other variable ($y_i > \mu_{\textbf{Y}})$. Thus, **covariance encodes information
+about the direction of the joint distribution**. 
+
+There is no upper or lower bound for the covariance (which we can directly see by scaling one
+variable). The magnitude of the covariance informs us about the (expected) shape of the
+distribution.
+
+Expectation is a linear operation, thus it follows that the **covariance gives some estimate about
+the linear dependence between two random variables**.
 
 **Correlation**, also known as **Pearson's correlation coeffecient**, is the **normalized version of
 the covariance**, therefore measures by its magnitude the strength of the linear correlation between
@@ -88,7 +96,5 @@ $\textbf{X}$ and $\textbf{Y}$.
 
 ### Spearman Correlation Coefficient
 
-As noted above, **Pearson's coefficient correlation is limited** by the fact that it merely
-captures linear correlation between
 
 
