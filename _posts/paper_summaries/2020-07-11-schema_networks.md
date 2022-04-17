@@ -79,12 +79,23 @@ $$
 \end{align}
 $$
 
-A problem of ambiguity arises, when entity-attributes are categorical and should
-remain active without a grounded schema[^3]. To circumvent this problem,
-[Kansky et al. (2017)](https://arxiv.org/abs/1706.04317) introduce a
-*self-transition* gate that allows an entity-attribute to remain
-active in the next time step when no schema predicts a change from
-that entity-attribute, see image below.
+
+[Kansky et al. (2017)](https://arxiv.org/abs/1706.04317) divide entity attributes into two classes:
+* *Positional Attributes*: These attributes correspond to discrete positions. 
+* *Non-Positional Attributes*: The semantic meaning of those attributes is unknown to the model such
+that they may encode completely different things, e.g., color and shape.
+
+A **self-transition** variable is introduced for *positional attributes* which represents the
+probability that a position attribute will remain active in the next time step when no schema
+predicts a change from that position. Note that through this mechanism, they include the bias that
+an object cannot be at multiple positions at the same time.
+
+<!-- A problem of ambiguity arises, when entity-attributes are categorical and should -->
+<!-- remain active without a grounded schema[^3]. To circumvent this problem, -->
+<!-- [Kansky et al. (2017)](https://arxiv.org/abs/1706.04317) introduce a -->
+<!-- *self-transition* gate that allows an entity-attribute to remain -->
+<!-- active in the next time step when no schema predicts a change from -->
+<!-- that entity-attribute, see image below. -->
 
 | ![Transition Dynamics](/assets/paper_summaries/03_schema_networks/img/transition_dynamics.png "Transition Dynamics") |
 | :--  |
@@ -103,17 +114,11 @@ that entity-attribute, see image below.
     condition (i.e., grounded schema) is only active iff all
     preconditions are active. 
     
-[^3]: By definition, an entity-attribute can only be activated if
-    there is an active grounded schema. However, if it is a
-    categorical variable which has to be assigend (e.g., position of
-    paddle), this attribute needs to remain active when no changes
-    happen. 
-
 Formally, a self transition is a NOR factor over the grounded schemas that
 predict a change from 
-an entity-attribute variable (i.e., the grounded schemas that predict towards a
-different category of that entity-attribute) combined with an AND factor over
-the NOR factor and the entity-attribute at the current time step. E.g., let $\alpha_{i,j}^{t}$
+a position attribute (i.e., the grounded schemas that predict towards a
+different position) combined with an AND factor over
+the NOR factor and the position attribute at the current time step. E.g., let $\alpha_{i,j}^{t}$
 denote the $j^{th}$ position attribute of the the $i^{th}$ entity at time $t$
 and assume that the set $\{\phi^1, \dots, \phi^{n} \}$
 includes all schemas predicting towards a different position of that
@@ -121,8 +126,8 @@ entity. Then, the self-transition is formalized as follows
 
 $$
 \begin{align}
-  \alpha_{i,j}^{t+1} = \text{AND} \big(\text{NOR} (\phi^{1},\dots, \phi^{n}), \alpha_{i,j}^{t}
-  \big)  = \text{AND} \big(\lnot \phi^{1}, \dots, \lnot \phi^{n}, \alpha_{i,j}^{t} \big).
+  \Lambda_{i,j}^{t+1} 
+  = \text{AND} \big(\lnot \phi^{1}, \dots, \lnot \phi^{n}, \alpha_{i,j}^{t} \big).
 \end{align}
 $$
 
@@ -160,11 +165,6 @@ describes a grounded schema where the included entity-attributes are
 assigned relative to the position of the entity-attribute that should
 be predicted.
 
-It is not explained in the paper how disappearing objects can be modeled by
-Schema Networks. It seems likely that they do not model them at all. In
-Breakout, their model might simply learn that whenever it hits a brick it receives a
-reward. Afterwards the brick might be erased from the list of entities.
-
 ## Learning the Model
 
 The Schema Network is essentially a factor graph that is aimed to be a
@@ -178,21 +178,31 @@ representation as the optimal solution and retrieve the schemas (and Schema
 Network) through solving the optimization problem approximately using linear
 programming (LP) relaxations. 
 
-**Notation**:
+### Notation
+
 Let $\alpha\_{i,j}^{(t)}$ denote the $j^{th}$ attribute of the $i^{th}$ entity at
-time $t$ and let $\textbf{e}\_i^{(t)} \in \\{0, 1\\}^{M}$ be $M$-dimensional binary
+time $t$ and let $\textbf{e}\_i^{(t)} \in \\{0, 1\\}^{M}$ be an  
+$M$-dimensional binary
 vector representing all entity-attributes values of the $i^{th}$
 entity at time $t$, i.e., $\textbf{e}\_i^{(t)} =
 \begin{bmatrix}\alpha\_{i,1}^{(t)} & \dots & \alpha\_{i,M}^{(t)}
 \end{bmatrix}^{\text{T}}$ where $M$ denotes the number of
-entity-attributes. Let $\boldsymbol{\beta}\_{i,j}^{(t)}$ be a row
-vector representing the attribute values of the $i^{th}$ entity and
-the entity-attributes of the $R-1$ (fixed radius) spatial neighbors,
-i.e., $\boldsymbol{\beta}_{i,j}^{(t)}$ has length $E=M(R-1) + M = MR$. 
+entity-attributes.  
 
-Suppose there are $N$ entities observed for $T$ timesteps. Then, let
+Let $\boldsymbol{\beta}\_{i}^{(t)}\in \\{0,1\\}^E$ be a row vector representing the attribute values of the
+$i^{th}$ entity and the entity-attributes of the $R-1$ (fixed radius) spatial neighbors, i.e.,
+$\boldsymbol{\beta}_{i}^{(t)} = \begin{bmatrix} \textbf{e}\_{i}^{(t)} & 
+\textbf{e}\_{i+1}^{(t)}
+&
+\dots
+&
+\textbf{e}\_{R-1}^{(t)}
+\end{bmatrix}$ has length
+$E=M(R-1) + M = MR$. 
+
+Suppose there are $N$ entities observed for $\tau$ timesteps. Then, let
 $\textbf{X}\in\\{0,1\\}^{D\times E}$ be a binary matrix where each row consists of a
-$\boldsymbol{\beta}\_{i,j}^{(t)}$ and there are $D=NT$ rows (all entities and time
+$\boldsymbol{\beta}\_{i}^{(t)}$ and there are $D=N\cdot \tau$ rows (all entities and time
 steps). Similarly, let $\textbf{y}\in\\{0, 1\\}^D$ be a binary vector where each
 entry refers to the future attribute value $\alpha\_{i,j}^{(t+1)}$ corresonding to
 the a row of $\textbf{X}$ with entity $i$ and time $t$, i.e., 
@@ -201,21 +211,22 @@ $$
 \begin{align*}
   \textbf{X} &=
   \begin{bmatrix}
-    \begin{bmatrix} \boldsymbol{\beta}_{1,j}^{(1)} & \dots & \boldsymbol{\beta}_{N, j}^{(1)} \end{bmatrix}^{\text{T}} \\
+    \begin{bmatrix} \boldsymbol{\beta}_{1}^{(1)} & \dots & \boldsymbol{\beta}_{N}^{(1)} \end{bmatrix}^{\text{T}} \\
     \vdots\\
-    \begin{bmatrix} \boldsymbol{\beta}_{1,j}^{(T)} & \dots & \boldsymbol{\beta}_{N, j}^{(T)} \end{bmatrix}^{\text{T}} 
+    \begin{bmatrix} \boldsymbol{\beta}_{1}^{(\tau)} & \dots & \boldsymbol{\beta}_{N}^{(\tau)} \end{bmatrix}^{\text{T}} 
   \end{bmatrix} , \quad \textbf{y} =
    \begin{bmatrix}
  \begin{bmatrix} \alpha_{1,j}^{(2)} & \dots & \alpha_{N,j}^{(2)} \end{bmatrix}^{\text{T}}
  \\ \vdots \\
- \begin{bmatrix} \alpha_{1,j}^{(T+1)} & \dots & \alpha_{N,j}^{(T+1)} \end{bmatrix}^{\text{T}}
+ \begin{bmatrix} \alpha_{1,j}^{(\tau+1)} & \dots & \alpha_{N,j}^{(\tau+1)} \end{bmatrix}^{\text{T}}
     \end{bmatrix}
 \end{align*}
 $$
 
-**Learning Problem**:
+### Learning Problem
+
 The goal is to predict $\alpha\_{i,j}^{(t+1)}$ based on the entity-attributes of
-itself and its spatial neighbors, using the introduced notation, the learning
+itself and its spatial neighbors. Using the introduced notation, the learning
 problem can be defined as follows 
 
 $$
@@ -234,23 +245,24 @@ schema. On the right-hand side of the equation above
 all variables and operations follow Boolean logic: addition
 corresponds to `OR`ing and overlining to negation. 
 
-E.g., let $\textbf{w}\_i = \begin{bmatrix} w\_{i_1} & \dots & w\_{i_
-    E}\end{bmatrix}^{\text{T}}$ denote the $i^{th}$ column of $\textbf{W}$ and
-$\textbf{x}_r = \begin{bmatrix} x\_{r_1} & \dots & x\_{r_E} \end{bmatrix}$ be the
-$r^{th}$ row of $\textbf{X}$. Then, the (dot) product of the two vectors leads to
+>E.g., let $\textbf{w}\_i = \begin{bmatrix} w\_{i_1} & \dots & w\_{i_ E}\end{bmatrix}^{\text{T}}$
+>denote the $i^{th}$ column of $\hspace{0.1cm}\textbf{W}$ and 
+>$\textbf{x}_r = \begin{bmatrix} x\_{r_1} & \dots & x\_{r_E} \end{bmatrix}$ be the
+>$r^{th}$ row of $\hspace{0.1cm}\textbf{X}$. Then, the (dot) product of the two vectors leads to
+>
+>$$
+>\begin{align}
+>\textbf{x}_r \textbf{w}_i = \sum_{k=1}^{E} x_{r_k} \cdot w_{i_k} = \text{OR} \left( x_{r_1} w_{i_1}, \dots, x_{r_E} w_{i_E} \right),
+>\end{align}
+>$$
+>
+>in this form the corresponding grounded schema would be activated as soon as one
+>*precondition* is satisfied, i.e., as soon as for one $w\_{i_j} = 1$ the
+>corresponding attribute variable is also $x\_{i_j}=1$.
 
-$$
-\begin{align}
-  \textbf{x}_r \textbf{w}_i = \sum_{k=1}^{E} x_{r_k} \cdot w_{i_k} = \text{OR} \left( x_{r_1} w_{i_1}, \dots, x_{r_E} w_{i_E} \right),
-\end{align}
-$$
-
-in this form the corresponding grounded schema would be activated as soon as one
-*precondition* is satisfied, i.e., as soon as for one $w\_{i_j} = 1$ the
-corresponding attribute variable is also $x\_{i_j}=1$.
-
-Actually a grounded schema $\phi$ is defined through a logical AND over the
-necessary attributes (i.e., all preconditions), thus the product needs to be rewritten as follows[^4]
+A **grounded schema** $\phi$ is defined through a logical AND over the
+necessary attributes (i.e., all preconditions)[^4]
+<!-- , thus the product needs to be rewritten as follows -->
 
 $$
 \begin{align}
@@ -262,14 +274,33 @@ $$
 
 This equation states how one individual schema ($\textbf{w}_{i}$) is applied to one
 attribute vector $\textbf{x}_R$. The first equation of this section summarizes
-this result into a matrix-matrix multiplication. At the end all outputs of each
-individual schema are `OR`ed to produce the final prediction for each
-attribute (corresponding to the provided attribute vector). This is done through multiplication with the identity tensor
-$\textbf{1} \in \\{1\\}^{L \times D}$.  
+this result into a matrix-matrix multiplication.  
+
+At the end all outputs of each individual schema are `OR`ed to produce the final prediction for each
+attribute (corresponding to the provided attribute vector). This is done through multiplication with
+the identity tensor $\textbf{1} \in \\{1\\}^{L \times D}$. Remind that this is in alignment with the
+entity-attribute transition probability definition for *non-positional* attributes
+
+$$
+\begin{align}
+  T_{i,j} \left( s_{i,j}^{(t+1)} | s^{(t)}, a^{(t)}\right) = \text{OR}\left( \phi^{k_1}, \dots, \phi^{k_Q}\right)
+\end{align}
+$$
+
+As stated above, for *positional attributes* a self-transition $\Lambda_{i,j}$ is added to allow
+these attributes to remain active when no change is predicted. Unfortunately, [Kansky et
+al. (2017)](https://arxiv.org/abs/1706.04317) did not elaborate on self-transitions in the learning
+problem. Thus, we can only guess how they are included. My idea would be to preprocess the data such
+that only positional attributes that changed (either from 0 to 1 or vice versa) are included in the
+learning problem. In the prediction phase, we then simply group all positional grounded schemas and
+apply the self-transition as a post-processing step.
+
 
 [^4]: In Boolean logic, De Morgan's law states that $\text{AND} \Big(A, B\Big) =\text{NOT} \Big( \text{OR} \big(\text{NOT } A, \text{NOT } B \big)\Big)$. 
 
-**Objective Function**: As there might be multiple Schemas that explain
+### Objective Function
+
+As there might be multiple Schemas that explain
 certain behaviors, the objective function is aimed to minimize the prediction
 error while keeping ungrounded schemas as simple as possible[^5]:
 
@@ -288,7 +319,9 @@ matrix. Furthermore, the search space is combinatorially large, i.e., there are
 $2^{E \cdot L}$ possible realizations of $\textbf{W}$. Hence, finding the optimal
 solution $\textbf{W}^{*}$ is infeasible (for larger environments such as Breakout).
 
-**Schema Learning**: [Kansky et al. (2017)](https://arxiv.org/abs/1706.04317) search for an
+### Schema Learning 
+
+[Kansky et al. (2017)](https://arxiv.org/abs/1706.04317) search for an
 approximate solution with the desired features (low prediction error and low
 model complexity) using a greedy algorithm of linear programming (LP)
 relaxations. This algorithm works as follows
