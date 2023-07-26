@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.340">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Markus Borea">
+<meta name="dcterms.date" content="2020-06-26">
+
+<title>Interaction Networks</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Markus Borea</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../paper_summaries.html" rel="" target="">
+ <span class="menu-text">Paper Summaries</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Interaction Networks for Learning about Objects, Relations and Physics</li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Interaction Networks for Learning about Objects, Relations and Physics</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">neural network</div>
+                <div class="quarto-category">graph networks</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Markus Borea </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 26, 2020</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#model-description" id="toc-model-description" class="nav-link active" data-scroll-target="#model-description">Model Description</a></li>
+  <li><a href="#learning-the-model" id="toc-learning-the-model" class="nav-link" data-scroll-target="#learning-the-model">Learning the Model</a></li>
+  <li><a href="#drawbacks-of-paper" id="toc-drawbacks-of-paper" class="nav-link" data-scroll-target="#drawbacks-of-paper">Drawbacks of Paper</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<p><a href="https://arxiv.org/abs/1612.00222">Battaglia et al.&nbsp;(2016)</a> introduce the <em>Interaction Network (IN)</em> as the first general-purpose learnable physics engine capable of zero-shot generalization in terms of varying configurations of objects and relations. The IN leverages object- and relation-based reasoning by defining a message passing scheme on a graph-structured representation of objects as nodes and relations as edges. As a proof of concept, they show that their model successfully learned to predict physical trajectories in gravitational systems, bouncing ball domains and mass string systems, and that it could also learn to estimate abstract properties such as the potential energy. Although its formulation is based on dynamical physical systems, it might also be applicable to other domains that can be abstracted into a graph-structured representation of objects and relations such as model-based reinforcment learning.</p>
+<section id="model-description" class="level2">
+<h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
+<p>In essence, the IN model can be understood as a graph-based simulator (i.e., state is represented as a graph) that predicts a future state (i.e., altered graph) using a message-passing scheme. <a href="https://arxiv.org/abs/1612.00222">Battaglia et al. (2016)</a> used a handcrafted scene encoder/decoder to convert the physical scene into the corresponding graph structure and vice versa.</p>
+<p><strong>Definition</strong>: Let <span class="math inline">\(G=\langle O, R \rangle\)</span> be an attributed, directed multigraph in which the set of nodes <span class="math inline">\(O=\\{o_j\\}_{j=1 \dots N_O}\)</span> represents objects and the set of edges <span class="math inline">\(R = \\{ \langle i, j , r_k \rangle_k \\}\_{1 \dots N_R}\)</span> represents the relations between the objects, i.e., the triplet <span class="math inline">\(\langle i,j, r_k \rangle_k\)</span> defines the <span class="math inline">\(k^{\text{th}}\)</span> relation from sender <span class="math inline">\(o_i\)</span> to receiver <span class="math inline">\(o_j\)</span> with relation attribute <span class="math inline">\(r_k\)</span>. Each object <span class="math inline">\(o_i\)</span> may have several attributes<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, an object state <span class="math inline">\(o_i^{(t)}\)</span> at time <span class="math inline">\(t\)</span> can be understood as a value assignment to all of its attributes. Additionally, let <span class="math inline">\(X=\\{ x_j \\}\_{1 \dots N_O}\)</span> denote external effects (e.g., active control or gravitation) which are applied to each object separately.</p>
+<p><strong><em>Intuition</em></strong>: The ultimate goal of the IN is to predict all future object states <span class="math inline">\(o_i^{(t+1)}\)</span> based on the graph <span class="math inline">\(G\)</span>, the current external effects per object <span class="math inline">\(x_i^{(t)}\)</span> and all current object states <span class="math inline">\(o_i^{(t)}\)</span>. A message passing scheme is defined to achieve this goal in which first effects resulting from interactions are computed (<em>relational reasoning</em>), then these effects (messages) together with the external effects are aggregated towards the objects, lastly the aggregated information is used to update the object states (<em>object reasoning</em>).</p>
+<p>Formally, the basic IN is defined as follows</p>
+<p><span class="math display">\[
+\begin{align}
+&amp;\text{IN}(G) = \phi_O \Bigg( a\Big( G, X, \phi_R \big( m (G)\big) \Big)\Bigg)
+\end{align}
+\]</span></p>
+<p><span class="math display">\[
+\begin{align}
+  \begin{aligned}
+    &amp; m(G) = B = \{ b_k\}_{k=1\dots N_R} \\
+    &amp; f_{R} (b_k) = e_k \\
+    &amp; \phi_{R} (B) = E = \{e_k\}_{k=1 \dots N_R}
+  \end{aligned}
+    &amp;&amp;
+       \begin{aligned}
+         &amp; a(G, X, E) = C = \{c_j\}_{j=1\dots N_O} \\
+         &amp; f_O (c_j) = p_j \\
+         &amp; \phi_O (C) = P = \{p_j\}_{j=1\dots N_o}
+       \end{aligned}
+\end{align}
+\]</span></p>
+<p>In this definition <span class="math inline">\(m\)</span> denotes the marshalling function which rearranges objects and relations into interaction terms <span class="math inline">\(b_k= \langle o_i, o_j, r_k \rangle \in B\)</span> on which the relational function <span class="math inline">\(\phi_R\)</span> can operate (element-wise by applying <span class="math inline">\(f_R\)</span> on each interaction term) to predict the effects of each interaction <span class="math inline">\(e_k\in E\)</span>. The aggregation function <span class="math inline">\(a\)</span> builds a a set of of object model inputs <span class="math inline">\(c_j \in C\)</span> (one per object) by collecting and merging all incoming effects per object and combining the result with the object state <span class="math inline">\(o_{j}^{(t)}\)</span> and the external effects for that object <span class="math inline">\(x_j^{(t)}\)</span>. Lastly, the object model <span class="math inline">\(\phi_O\)</span> predicts for all objects their result <span class="math inline">\(p_j\in P\)</span>, i.e., future object states <span class="math inline">\(o_{j}^{(t+1)}\)</span>, by applying <span class="math inline">\(f_O\)</span> to each <span class="math inline">\(c_j\)</span>. The figure below represents the described procedure of an (exemplary) IN.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/IN.png" title="Schematic of the IN's update procedure" class="img-fluid" alt="Schematic of the IN’s update procedure for an exemplary IN"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Schematic of the IN’s update procedure for an exemplary IN</strong><sup><a href="#myfootnote2">2</a></sup>:<br>Firstly, the marshalling function <span class="math inline">\(m\)</span> rearranges objects <span class="math inline">\(o_i\)</span> based on the relations <span class="math inline">\(r_j\)</span> into interaction terms <span class="math inline">\(b_k = \langle o_i, o_j, r_k \rangle\)</span>. Secondly, the function <span class="math inline">\(f_R\)</span> is applied on each interaction term to compute the corresponding (directed) effects.<br>Thirdly, the aggregation function <span class="math inline">\(a\)</span> uses the graph structure to collect and merge the incoming effects, and to add the corresponding object state and external effects into a new object term <span class="math inline">\(c_k = \langle o_k, x_k, \hat{e}_k \rangle\)</span> (<span class="math inline">\(\hat{e}_k\)</span> denotes aggregated effect). Lastly, this representation is used to predict the results <span class="math inline">\(p_k\)</span>, i.e., future object states, by applying <span class="math inline">\(f_O\)</span> to each <span class="math inline">\(c_k\)</span>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong><em>Intuition</em></strong>: Computing the trajectories of planets in a solar system may be a good example to motivate and understand the IN definition. Objects in the graph shall be the planets and relations the pairwise gravitational forces on each other, i.e., each object has an arrow pointing to all other objects. Object attributes could be the mass, acceleration, velocity and position. As external effects we could define the step size (necessary for approximate integration). Relational attributes are not needed then. The physics approach to compute the approximated trajacetories would be to first compute all gravitational forces per object which corresponds to computing the effects in the IN. Then, the net force would be computed as the sum of all forces per object, i.e., aggregation in the IN. Lastly, the object attributes would be updated (except mass) using the calculated net force, current object state and step size which corresponds to the object-centric update in the IN.</p>
+</section>
+<section id="learning-the-model" class="level2">
+<h2 class="anchored" data-anchor-id="learning-the-model">Learning the Model</h2>
+<p>In the IN defintion, there are no limitations whatsoever for the functions and how they operate over their inputs (e.g., objects itself could also be graphs). Thus, learning the underlying dynamics given the graph structured representation and the scene encoder/decoder (and assuming that there is some IN that can simulate the dynamics) without further assumptions remains an intractable quest. To overcome this problem, <a href="https://arxiv.org/abs/1612.00222">Battaglia et al. (2016)</a> present a learnable implementation of the IN which uses deep neural networks as function approximators and a specific object and relation representation using matrices. Then, learning the model comes down to training from data using the standard deep learning framework.</p>
+<p><strong>Implementation</strong>: Let each object <span class="math inline">\(o_i^{(t)}\in \mathbb{R}^{D_s}\)</span> be represented by a <span class="math inline">\(D_s\)</span>-dimensional vector where each entry corresponds to an attribute, i.e., attributes have a predefined order which is fix over all objects. Then, <span class="math inline">\(O\)</span> is defined as a <span class="math inline">\(D_S \times N_O\)</span> matrix where each column represents an object. Similarly, <span class="math inline">\(X\)</span> is defined as a <span class="math inline">\(D_X \times N_O\)</span> matrix where each <span class="math inline">\(D_x\)</span>-dimensional column represents the external effects that correspond to the object defined in the same column of <span class="math inline">\(O\)</span>. Let each relation be formalized into a triple of three vectors <span class="math inline">\(r_k = \langle r_r, r_s, r_a \rangle\)</span> where <span class="math inline">\(r_a \in \mathbb{R}^{D_R}\)</span> represents the (ordered) relational attributes and <span class="math inline">\(r_r, r_s \in \{0, 1\}^{N_O}\)</span> are one-hot encodings of the receiver and sender object, respectively. Then, all relations can be represented by the triplet <span class="math inline">\(R = \langle R_r, R_s, R_a \rangle\)</span> where the matrices <span class="math inline">\(R_r, R_s \in \{0,1\}^{N_O \times N_R}\)</span> and <span class="math inline">\(R_a \in \mathbb{R}^{D_R \times N_R}\)</span> are generated by stacking the relations column-wise.</p>
+<p>It follows that the interaction terms <span class="math inline">\(b_k\)</span> can be vectorized by concatenation of the receiver and sender object attributes and the relational attributes into a <span class="math inline">\((2 D_s + D_R)\)</span>-length vector. The marshalling function <span class="math inline">\(m\)</span> can be stated as follows</p>
+<p><span class="math display">\[
+\begin{align}
+  m(G)
+  = \begin{bmatrix}  O R_r \\ O R_s \\ R_a  \end{bmatrix} = \begin{bmatrix} b_1  &amp;
+    \dots &amp; b_{N_R} \end{bmatrix} = B.
+\end{align}
+\]</span></p>
+<p><span class="math inline">\(B\)</span> is the input to the relational model <span class="math inline">\(\phi_R\)</span> which is defined through the application of <span class="math inline">\(f_R\)</span> on each column of <span class="math inline">\(B\)</span> (each interaction term), i.e.,</p>
+<p><span class="math display">\[
+\begin{align}
+  \phi_R (B) = \begin{bmatrix} f_R \big(b_1\big) &amp; \dots &amp; f_R \big(b_{N_R}\big) \end{bmatrix}
+             = \begin{bmatrix} e_1 &amp; \dots e_{N_R}\end{bmatrix}  = E.
+\end{align}
+\]</span></p>
+<p><span class="math inline">\(f_R\)</span> shall be approximated by a neural network to estimate a <span class="math inline">\(D_E\)</span>-length vector <span class="math inline">\(e_k\)</span> that encodes the resulting effect. Similar to the marshalling function, the aggregation function <span class="math inline">\(a\)</span> constructs vectorized object terms <span class="math inline">\(c_k = \begin{bmatrix} o_k^{(t)} &amp; x_k^{(t)} &amp; \hat{e}_k^{(t)} \end{bmatrix}^{\text{T}}\)</span> by concatenation of the object attributes, the external effects and the aggregated effect (summation of all incoming effects per object):</p>
+<p><span class="math display">\[
+\begin{align}
+  a(O, R, X, E) = \begin{bmatrix} O &amp; X &amp; E R_r^{\text{T}}
+  \end{bmatrix}^{\text{T}} =
+  \begin{bmatrix} c_1 &amp; \dots &amp; c_{N_O} \end{bmatrix} = C.
+\end{align}
+\]</span></p>
+<p>Lastly, <span class="math inline">\(C\)</span> is used as the input to the object model <span class="math inline">\(\phi_O\)</span> which is defined through the application of <span class="math inline">\(f_O\)</span> on each column of <span class="math inline">\(C\)</span>, i.e.,</p>
+<p><span class="math display">\[
+  \phi_O (C) =
+  \begin{bmatrix} f_O \big( c_1 \big) &amp; \dots &amp; f_O \big( c_{N_O} \big) \end{bmatrix}=
+                                                \begin{bmatrix} o_1^{(t+1)} &amp; \dots &amp; o_{N_O}^{(t+1)} \end{bmatrix}.
+\]</span></p>
+<p>The result can be used to update the graph structured representation. The figure below summarizes the implementation of the IN.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/implementation.png" title="One step roll out of the IN implementation" class="img-fluid" alt="One step roll out of the IN implementation"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>One step roll out of the IN implementation</strong>.<br> The physical scene is encoded (decoded) into (from) a graph structured representation using a handcrafted scene encoder (decoder). <a href="https://arxiv.org/abs/1612.00222">Battaglia et al.&nbsp;(2016)</a> present a learnable implementation by using neural networks (blue boxes) as function approximators for the relational model (<span class="math inline">\(\phi_R\)</span>) and the object model (<span class="math inline">\(\phi_O\)</span>).</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="drawbacks-of-paper" class="level2">
+<h2 class="anchored" data-anchor-id="drawbacks-of-paper">Drawbacks of Paper</h2>
+<ul>
+<li>handcrafted scene encoder/decoder <span class="math inline">\(\Rightarrow\)</span> not end-to-end</li>
+<li>object states could blow up since all objects share the same attributes</li>
+</ul>
+<hr>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>In their implementation, <a href="https://arxiv.org/abs/1612.00222">Battaglia et al. (2016)</a> assume that all objects share the same attributes, i.e., are instances from the same class. <a name="myfootnote2">2</a>: Schematic is taken from the original paper of <a href="https://arxiv.org/abs/1612.00222">Battaglia et al. (2016)</a>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
