@@ -1,11 +1,21 @@
 ---
 title: "Auto-Encoding Variational Bayes"
-categories: ["variational autoencoder", "dimensionality reduction"]
+categories: ["reimplementation", "VAE"]
 date: "2020-07-25"
+execute:
+  eval: false # true
+engine: jupyter
+format:
+  html: 
+    code-fold: show 
+    highlight-style: github 
+    code-block-bg: true
+    code-tools: 
+      toggle: true
+      source: "https://github.com/borea17/Notebooks/blob/master/01_Auto_Encoding_Variational_Bayes.ipynb"
 ---
 
 <!-- nextjournal_link: "https://nextjournal.com/borea17/auto-encoding-variational-bayes" -->
-<!-- github_link: "https://github.com/borea17/Notebooks/blob/master/02_Spatial_Broadcast_Decoder.ipynb" -->
 
 [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114) introduced the
 Variational Auto-Encoder (VAE) to showcase how their Auto-Encoding
@@ -18,9 +28,9 @@ probabilisitc decoder $p_{\boldsymbol{\theta}}
 \boldsymbol{\theta}$ parametrize the corresponding distributions) by
 learning the optimal model parameters $\boldsymbol{\phi},
 \boldsymbol{\theta}$ through optimizing an objective function with 
-standard gradient ascent methods. In summary, a VAE is probabilistic
+standard gradient ascent methods. In summary, a **VAE is probabilistic
 autoencoder which uses variational inference to regularize the coding
-space. Furthermore, a VAE is a deep generative model as sampling from
+space**. Furthermore, a VAE is a deep generative model as sampling from
 the coding space is possible, i.e., new observations can be generated. 
 
 ## Model Description
@@ -37,7 +47,7 @@ with respect to the model parameters.
 | The directed graphical models represent the assumed generative process (a) and the variational approximation of the intractable posterior (b) in the AEVB algorithm. |
 
 
-**Objective Function Derivation**: Let $\textbf{X}=\\{\textbf{x}^{(i)}\\}_{i=1}^{N}$
+**Objective Function Derivation**: Let $\textbf{X}=\{\textbf{x}^{(i)}\}_{i=1}^{N}$
 denote the dataset consisting of $N$ i.i.d. samples and let
 $\textbf{z}$ denote the unobserved continuous random variable (i.e.,
 hidden or code variable). [Kingma and
@@ -248,8 +258,8 @@ centered isotropic Gaussian, i.e., $p_{\boldsymbol{\theta}} (\textbf{z}) \sim
 \mathcal{N} (\textbf{0}, \textbf{I})$. Note that this prior is needed
 to compute the regularization term in the objective function.
 Furthermore, it is commonly assumed that the true posterior
-$p\_{\boldsymbol{\theta}}\left(\textbf{z} | \textbf{x}^{(i)}\right)$
-may be approximated by $q\_{\boldsymbol{\phi}} \left(\textbf{z}  |
+$p_{\boldsymbol{\theta}}\left(\textbf{z} | \textbf{x}^{(i)}\right)$
+may be approximated by $q_{\boldsymbol{\phi}} \left(\textbf{z}  |
 \textbf{x}^{(i)} \right) \sim \mathcal{N}\left(\boldsymbol{\mu}_E^{(i)},
 \boldsymbol{\sigma}_E^{2 (i)} \textbf{I}  \right)$ (subscripts denote
 that these parameters come from the *encoder network*). As a result, the
@@ -305,7 +315,7 @@ Below is a simple Python class that can be used to
 instantiate the encoder or decoder network as described in appendix C
 of [Kingma and Welling (2013)](https://arxiv.org/abs/1312.6114).
 
-```python
+```{python}
 import torch.nn as nn
 from collections import OrderedDict
 
@@ -395,11 +405,7 @@ reparameterization trick. Depending on the chosen decoder
 distribution, the log-likelihood can be stated in terms of the
 estimated distribution parameters:
 
-- *Gaussian distribution with diagonal covariance structure* 
-  $
-    p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime |
-  \boldsymbol{\mu}_D^{(i)} , \text{diag} \left( \boldsymbol{\sigma}_D^{2(i)} \right) \right)
-  $
+- *Gaussian distribution with diagonal covariance structure* $p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime | \boldsymbol{\mu}_D^{(i)} , \text{diag} \left( \boldsymbol{\sigma}_D^{2(i)} \right) \right)$
   
   $$
    \log_e p_{\boldsymbol{\theta}}\left(
@@ -412,9 +418,9 @@ estimated distribution parameters:
   In this form, the objective function is ill-posed since there are no
   limitations on the form of the normal distribution. As a result the 
   objective function is unbounded, i.e., the VAE
-  could learn the true mean $\boldsymbol{\mu}\_D^{(i)} =
+  could learn the true mean $\boldsymbol{\mu}_D^{(i)} =
   \textbf{x}^{(i)}$ with arbitrary variance
-  $\boldsymbol{\sigma}\_D^{2(i)}$ or huge variances with arbitrary
+  $\boldsymbol{\sigma}_D^{2(i)}$ or huge variances with arbitrary
   means to maximize the log-likelihood (see 
   [this
   post](https://stats.stackexchange.com/questions/373858/is-the-optimization-of-the-gaussian-vae-well-posed)).
@@ -422,11 +428,7 @@ estimated distribution parameters:
   $p_{\boldsymbol{\theta}}(\textbf{z})$ is used to constrain the
   encoder distribution (i.e., the mean and variance).
 
-- *Gaussian distribution with identity as covariance variance* 
-  $
-    p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime |
-  \boldsymbol{\mu}_D^{(i)} , \textbf{I} \right)
-  $
+- *Gaussian distribution with identity as covariance variance* $p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime | \boldsymbol{\mu}_D^{(i)} , \textbf{I} \right)$
   
   $$
    \log_e p_{\boldsymbol{\theta}}\left(
@@ -444,13 +446,7 @@ estimated distribution parameters:
   <!-- https://stats.stackexchange.com/questions/373858/is-the-optimization-of-the-gaussian-vae-well-posed  -->
   
 
-- *Bernoulli distribution*
-  $
-     p_{\boldsymbol{\theta}} \sim\text{Bern} \left(\textbf{x}^\prime |
-\boldsymbol{\mu}_D^{(i)} \right) =  \prod\_{k=1}^{D} \left(
-\mu\_{D_k}^{(i)}\right)^{x_k^\prime} \left( 1 - \mu\_{D_k}^{(i)}\right)^{1 -
-     x_k^\prime}
-  $  
+- *Bernoulli distribution* $p_{\boldsymbol{\theta}} \sim\text{Bern} \left(\textbf{x}^\prime | \boldsymbol{\mu}_D^{(i)} \right) =  \prod_{k=1}^{D} \left( \mu_{D_k}^{(i)}\right)^{x_k^\prime} \left( 1 - \mu_{D_k}^{(i)}\right)^{1 - x_k^\prime}$  
   
   $$
      \log_e p_{\boldsymbol{\theta}}\left(
@@ -459,7 +455,7 @@ estimated distribution parameters:
      \right) \ln \left( 1 - \mu_{D_k}^{(i)} \right) \right)
   $$
 
-  with the original observation $\textbf{x}^{(i)} \in \\{0, 1\\}^{D}$.
+  with the original observation $\textbf{x}^{(i)} \in \{0, 1\}^{D}$.
   In this case the reconstruction accuracy equals the
   negative binary cross entropy loss. Note that there are plenty of
   VAE implementations that use the binary cross entropy loss
@@ -470,7 +466,7 @@ estimated distribution parameters:
 To put this into practice, below is a simple VAE Python class which
 will be used to compare the different decoder distributions.
 
-```python
+```{python}
 import torch
 from torch.distributions.multivariate_normal import MultivariateNormal
 
@@ -560,7 +556,7 @@ class VAE(nn.Module):
 
 Let's train the three different VAEs on the MNIST digits dataset
 
-```python
+```{python}
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
@@ -616,47 +612,6 @@ I_Gaussian_VAE = train('I-Gaussian', dataset, x_dim, hid_dim, z_dim,
                        batch_size, L, epochs)
 ```
 
-```output
-Start training with Bernoulli decoder distribution
-
-Epoch 1/3
-[469/469] batch loss: 129.51
-Average loss: 148.437
-Epoch 2/3
-[469/469] batch loss: 112.28
-Average loss: 122.225
-Epoch 3/3
-[469/469] batch loss: 116.99
-Average loss: 119.317
-Done!
-
-Start training with Gaussian decoder distribution
-
-Epoch 1/3
-[469/469] batch loss: -1403.16
-Average loss: -1227.643
-Epoch 2/3
-[469/469] batch loss: -1289.26
-Average loss: -1281.867
-Epoch 3/3
-[469/469] batch loss: -1582.44
-Average loss: -1342.641
-Done!
-
-Start training with I-Gaussian decoder distribution
-
-Epoch 1/3
-[469/469] batch loss: 22.13
-Average loss: 27.051
-Epoch 2/3
-[469/469] batch loss: 21.58
-Average loss: 21.879
-Epoch 3/3
-[469/469] batch loss: 21.88
-Average loss: 21.301
-Done!
-```
-
 <!-- Note how the Gaussian distribution with diagonal covariance structure -->
 <!-- (i.e., `Gaussian`) as decoder distribution approaches huge negative -->
 <!-- losses. These would further increase towards negative infinity when -->
@@ -665,7 +620,7 @@ Done!
 
 Let's look at the differences in the reconstructions:
 
-```python
+```{python}
 import matplotlib.pyplot as plt
 %matplotlib inline
 
@@ -701,8 +656,6 @@ plot_results(Gaussian_VAE, dataset, n_samples)
 plot_results(I_Gaussian_VAE, dataset, n_samples)
 ```
   
-![plot results](/assets/paper_summaries/04_AEVB/img/plot_results.png "plot results")
-
 ## Acknowledgement
 
 [Daniel Daza's](https://dfdazac.github.io/) blog was really helpful

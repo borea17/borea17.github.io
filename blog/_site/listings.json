@@ -2,6 +2,8 @@
   {
     "listing": "/paper_summaries.html",
     "items": [
+      "/paper_summaries/u_net/index.html",
+      "/paper_summaries/spatial_broadcast_decoder/index.html",
       "/paper_summaries/auto-encoding_variational_bayes/index.html",
       "/paper_summaries/schema_networks/index.html",
       "/paper_summaries/graph_networks/index.html",

@@ -123,10 +123,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html" rel="" target="">
- <span class="menu-text">About</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../../paper_summaries.html" rel="" target="">
  <span class="menu-text">Paper Summaries</span></a>
   </li>  
@@ -151,10 +147,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Auto-Encoding Variational Bayes</h1>
+      <div class="quarto-title-block"><div><h1 class="title">Auto-Encoding Variational Bayes</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/01_Auto_Encoding_Variational_Bayes.ipynb">View Source</a></li></ul></div></div>
                                 <div class="quarto-categories">
-                <div class="quarto-category">variational autoencoder</div>
-                <div class="quarto-category">dimensionality reduction</div>
+                <div class="quarto-category">reimplementation</div>
+                <div class="quarto-category">VAE</div>
               </div>
                   </div>
   </div>
@@ -205,8 +201,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <!-- nextjournal_link: "https://nextjournal.com/borea17/auto-encoding-variational-bayes" -->
-<!-- github_link: "https://github.com/borea17/Notebooks/blob/master/02_Spatial_Broadcast_Decoder.ipynb" -->
-<p><a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a> introduced the Variational Auto-Encoder (VAE) to showcase how their Auto-Encoding Variational Bayes (AEVB) algorithm can be used in practice. Assuming i.i.d. datasets and continuous latent variables, the AEVB algorithm learns an approximate probabilistic encoder <span class="math inline">\(q_{\boldsymbol{\phi}}(\textbf{z}|\textbf{x})\)</span> jointly with the probabilisitc decoder <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{x}|\textbf{z})\)</span> (where <span class="math inline">\(\boldsymbol{\phi}, \boldsymbol{\theta}\)</span> parametrize the corresponding distributions) by learning the optimal model parameters <span class="math inline">\(\boldsymbol{\phi}, \boldsymbol{\theta}\)</span> through optimizing an objective function with standard gradient ascent methods. In summary, a VAE is probabilistic autoencoder which uses variational inference to regularize the coding space. Furthermore, a VAE is a deep generative model as sampling from the coding space is possible, i.e., new observations can be generated.</p>
+<p><a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a> introduced the Variational Auto-Encoder (VAE) to showcase how their Auto-Encoding Variational Bayes (AEVB) algorithm can be used in practice. Assuming i.i.d. datasets and continuous latent variables, the AEVB algorithm learns an approximate probabilistic encoder <span class="math inline">\(q_{\boldsymbol{\phi}}(\textbf{z}|\textbf{x})\)</span> jointly with the probabilisitc decoder <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{x}|\textbf{z})\)</span> (where <span class="math inline">\(\boldsymbol{\phi}, \boldsymbol{\theta}\)</span> parametrize the corresponding distributions) by learning the optimal model parameters <span class="math inline">\(\boldsymbol{\phi}, \boldsymbol{\theta}\)</span> through optimizing an objective function with standard gradient ascent methods. In summary, a <strong>VAE is probabilistic autoencoder which uses variational inference to regularize the coding space</strong>. Furthermore, a VAE is a deep generative model as sampling from the coding space is possible, i.e., new observations can be generated.</p>
 <section id="model-description" class="level2">
 <h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
 <p>The AEVB algorithm basically assumes a generative process, introduces a variational approximation (see figure below) and optimizes the model parameters by maximizing an objective function. The objective function consists of the (reparametrized) variational lower bound of each datapoint. Reparametrization is necessary to allow the explicit formulation of gradients with respect to the model parameters.</p>
@@ -225,7 +220,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p><strong>Objective Function Derivation</strong>: Let <span class="math inline">\(\textbf{X}=\\{\textbf{x}^{(i)}\\}_{i=1}^{N}\)</span> denote the dataset consisting of <span class="math inline">\(N\)</span> i.i.d. samples and let <span class="math inline">\(\textbf{z}\)</span> denote the unobserved continuous random variable (i.e., hidden or code variable). <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a> assume that each observed sample <span class="math inline">\(\textbf{x}^{(i)}\)</span> comes from a generative process in which: Firstly, a hidden variable <span class="math inline">\(\textbf{z}^{(i)}\)</span> is generated from a prior distribution <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z})\)</span>. Secondly, <span class="math inline">\(\textbf{x}^{(i)}\)</span> is generated from the conditional distribution <span class="math inline">\(p_{\boldsymbol{\theta}}(\textbf{x}|\textbf{z}^{(i)})\)</span>. Note that we do not know <span class="math inline">\(\boldsymbol{\theta}\)</span> nor do we have information about <span class="math inline">\(\textbf{z}^{(i)}\)</span>. In order to recover this generative process, they introduce <span class="math inline">\(q_{\boldsymbol{\phi}}(\textbf{z}|\textbf{x})\)</span> as an approximation to the intractable true posterior<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z}|\textbf{x})\)</span>. The marginal log likelihood of each individual datapoint <span class="math inline">\(\textbf{x}^{(i)}\)</span> can then be stated as follows (see <a href="https://blog.evjang.com/2016/08/variational-bayes.html">Eric Jang’s amazing blog post</a> for detailed derivation)</p>
+<p><strong>Objective Function Derivation</strong>: Let <span class="math inline">\(\textbf{X}=\{\textbf{x}^{(i)}\}_{i=1}^{N}\)</span> denote the dataset consisting of <span class="math inline">\(N\)</span> i.i.d. samples and let <span class="math inline">\(\textbf{z}\)</span> denote the unobserved continuous random variable (i.e., hidden or code variable). <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a> assume that each observed sample <span class="math inline">\(\textbf{x}^{(i)}\)</span> comes from a generative process in which: Firstly, a hidden variable <span class="math inline">\(\textbf{z}^{(i)}\)</span> is generated from a prior distribution <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z})\)</span>. Secondly, <span class="math inline">\(\textbf{x}^{(i)}\)</span> is generated from the conditional distribution <span class="math inline">\(p_{\boldsymbol{\theta}}(\textbf{x}|\textbf{z}^{(i)})\)</span>. Note that we do not know <span class="math inline">\(\boldsymbol{\theta}\)</span> nor do we have information about <span class="math inline">\(\textbf{z}^{(i)}\)</span>. In order to recover this generative process, they introduce <span class="math inline">\(q_{\boldsymbol{\phi}}(\textbf{z}|\textbf{x})\)</span> as an approximation to the intractable true posterior<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z}|\textbf{x})\)</span>. The marginal log likelihood of each individual datapoint <span class="math inline">\(\textbf{x}^{(i)}\)</span> can then be stated as follows (see <a href="https://blog.evjang.com/2016/08/variational-bayes.html">Eric Jang’s amazing blog post</a> for detailed derivation)</p>
 <p><span class="math display">\[
   \log p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)}\right) =
   \underbrace{D_{KL} \left(q_{\boldsymbol{\phi}}\left(\textbf{z} | \textbf{x}^{(i)}\right)
@@ -351,7 +346,7 @@ Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\
 </tr>
 </tbody>
 </table>
-<p><strong>Regularization Term</strong>: Typically, the prior over the latent variables is set to be the centered isotropic Gaussian, i.e., <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z}) \sim \mathcal{N} (\textbf{0}, \textbf{I})\)</span>. Note that this prior is needed to compute the regularization term in the objective function. Furthermore, it is commonly assumed that the true posterior <span class="math inline">\(p\_{\boldsymbol{\theta}}\left(\textbf{z} | \textbf{x}^{(i)}\right)\)</span> may be approximated by <span class="math inline">\(q\_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}^{(i)} \right) \sim \mathcal{N}\left(\boldsymbol{\mu}_E^{(i)}, \boldsymbol{\sigma}_E^{2 (i)} \textbf{I} \right)\)</span> (subscripts denote that these parameters come from the <em>encoder network</em>). As a result, the regularization term can be integrated analytically leading to a term that only depends on <span class="math inline">\(\boldsymbol{\mu}_E^{(i)}, \boldsymbol{\sigma}_E^{2 (i)}\)</span> (see Appendix B of <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling</a>)</p>
+<p><strong>Regularization Term</strong>: Typically, the prior over the latent variables is set to be the centered isotropic Gaussian, i.e., <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z}) \sim \mathcal{N} (\textbf{0}, \textbf{I})\)</span>. Note that this prior is needed to compute the regularization term in the objective function. Furthermore, it is commonly assumed that the true posterior <span class="math inline">\(p_{\boldsymbol{\theta}}\left(\textbf{z} | \textbf{x}^{(i)}\right)\)</span> may be approximated by <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}^{(i)} \right) \sim \mathcal{N}\left(\boldsymbol{\mu}_E^{(i)}, \boldsymbol{\sigma}_E^{2 (i)} \textbf{I} \right)\)</span> (subscripts denote that these parameters come from the <em>encoder network</em>). As a result, the regularization term can be integrated analytically leading to a term that only depends on <span class="math inline">\(\boldsymbol{\mu}_E^{(i)}, \boldsymbol{\sigma}_E^{2 (i)}\)</span> (see Appendix B of <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling</a>)</p>
 <p><span class="math display">\[
 -D_{KL} \left(  q_{\boldsymbol{\phi}} \left(
   \textbf{z} | \textbf{x}^{(i)} \right), p_{\boldsymbol{\theta}}
@@ -369,7 +364,10 @@ Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\
 <p>Note that using the logarithmized version of the variance increases stability and simplifies the training<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
 <p>In principle, the encoder and decoder network are very similar only that the dimension of the input and output are reversed. While the encoder network is fixed to approximate a multivariate Gaussian with diagonal covariance structure, the decoder network can approximate a multivariate Gaussian (real-valued data) or Bernoulli (binary data) distribution.</p>
 <p>Below is a simple Python class that can be used to instantiate the encoder or decoder network as described in appendix C of <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<div class="cell" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> OrderedDict</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -420,6 +418,8 @@ Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\
 <span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> <span class="va">self</span>.coder_type <span class="op">==</span> <span class="st">'Bernoulli'</span>:</span>
 <span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">self</span>.sigmoid_mu(mu)</span>
 <span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <p><strong>Reconstruction Accuracy</strong>: Sampling from the encoder distribution is avoided by using the reparameterization trick, i.e., the latent variable <span class="math inline">\(\textbf{z}^{(i)}\)</span> is expressed as a deterministic variable</p>
 <p><span class="math display">\[
   \textbf{z}^{(i, l)}=g_{\boldsymbol{\phi}} (\textbf{x}^{(i)},
@@ -440,15 +440,15 @@ Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\
 \]</span></p>
 <p>where <span class="math inline">\(L\)</span> denotes the number of samples used during the reparameterization trick. Depending on the chosen decoder distribution, the log-likelihood can be stated in terms of the estimated distribution parameters:</p>
 <ul>
-<li><p><em>Gaussian distribution with diagonal covariance structure</em> $ p_{} ( ^| _D^{(i)} , ( _D^{2(i)} ) ) $</p>
+<li><p><em>Gaussian distribution with diagonal covariance structure</em> <span class="math inline">\(p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime | \boldsymbol{\mu}_D^{(i)} , \text{diag} \left( \boldsymbol{\sigma}_D^{2(i)} \right) \right)\)</span></p>
 <p><span class="math display">\[
 \log_e p_{\boldsymbol{\theta}}\left(
 \textbf{x}^{(i)}| \textbf{z}^{(i,l)}\right) = \underbrace{- \frac {D}{2} \ln
 2\pi}_{\text{const}} - \frac {1}{2} \ln \left( \prod_{k=1}^{D} \sigma_{D_k}^{2(i)} \right)
 - \frac {1}{2}\sum_{k=1}^{D} \frac {1}{\sigma_{D_k}^{2(i)}}\left( x_k^{(i)}  - \mu_{D_k}^{(i)}\right)^2
 \]</span></p>
-<p>with the original observation <span class="math inline">\(\textbf{x}^{(i)} \in \mathbb{R}^{D}\)</span>. In this form, the objective function is ill-posed since there are no limitations on the form of the normal distribution. As a result the objective function is unbounded, i.e., the VAE could learn the true mean <span class="math inline">\(\boldsymbol{\mu}\_D^{(i)} = \textbf{x}^{(i)}\)</span> with arbitrary variance <span class="math inline">\(\boldsymbol{\sigma}\_D^{2(i)}\)</span> or huge variances with arbitrary means to maximize the log-likelihood (see <a href="https://stats.stackexchange.com/questions/373858/is-the-optimization-of-the-gaussian-vae-well-posed">this post</a>). Note that in the encoder network, the prior <span class="math inline">\(p_{\boldsymbol{\theta}}(\textbf{z})\)</span> is used to constrain the encoder distribution (i.e., the mean and variance).</p></li>
-<li><p><em>Gaussian distribution with identity as covariance variance</em> $ p_{} ( ^| _D^{(i)} , ) $</p>
+<p>with the original observation <span class="math inline">\(\textbf{x}^{(i)} \in \mathbb{R}^{D}\)</span>. In this form, the objective function is ill-posed since there are no limitations on the form of the normal distribution. As a result the objective function is unbounded, i.e., the VAE could learn the true mean <span class="math inline">\(\boldsymbol{\mu}_D^{(i)} = \textbf{x}^{(i)}\)</span> with arbitrary variance <span class="math inline">\(\boldsymbol{\sigma}_D^{2(i)}\)</span> or huge variances with arbitrary means to maximize the log-likelihood (see <a href="https://stats.stackexchange.com/questions/373858/is-the-optimization-of-the-gaussian-vae-well-posed">this post</a>). Note that in the encoder network, the prior <span class="math inline">\(p_{\boldsymbol{\theta}}(\textbf{z})\)</span> is used to constrain the encoder distribution (i.e., the mean and variance).</p></li>
+<li><p><em>Gaussian distribution with identity as covariance variance</em> <span class="math inline">\(p_{\boldsymbol{\theta}} \sim \mathcal{N} \left( \textbf{x}^\prime | \boldsymbol{\mu}_D^{(i)} , \textbf{I} \right)\)</span></p>
 <p><span class="math display">\[
 \log_e p_{\boldsymbol{\theta}}\left(
 \textbf{x}^{(i)}| \textbf{z}^{(i,l)}\right) =
@@ -457,17 +457,20 @@ Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\
 \]</span></p>
 <p>with the original observation <span class="math inline">\(\textbf{x}^{(i)} \in \mathbb{R}^{D}\)</span>. In this case the reconstruction accuracy is proportional to the negative mean squarred error which is typically used as the loss function in standard autoencoders.</p>
 <!-- https://stats.stackexchange.com/questions/373858/is-the-optimization-of-the-gaussian-vae-well-posed  --></li>
-<li><p><em>Bernoulli distribution</em> $ p_{} (^| _D^{(i)} ) = _{k=1}^{D} ( _{D_k}<sup>{(i)})</sup>{x_k^} ( 1 - _{D_k}<sup>{(i)})</sup>{1 - x_k^} $</p>
+<li><p><em>Bernoulli distribution</em> <span class="math inline">\(p_{\boldsymbol{\theta}} \sim\text{Bern} \left(\textbf{x}^\prime | \boldsymbol{\mu}_D^{(i)} \right) = \prod_{k=1}^{D} \left( \mu_{D_k}^{(i)}\right)^{x_k^\prime} \left( 1 - \mu_{D_k}^{(i)}\right)^{1 - x_k^\prime}\)</span></p>
 <p><span class="math display">\[
    \log_e p_{\boldsymbol{\theta}}\left(
 \textbf{x}^{(i)}| \textbf{z}^{(i,l)}\right) = \sum_{k=1}^{D} \left(
    x_k^{(i)} \ln \left( \mu_{D_k}^{(i)} \right) + \left(1 - x_k^{(i)}
    \right) \ln \left( 1 - \mu_{D_k}^{(i)} \right) \right)
 \]</span></p>
-<p>with the original observation <span class="math inline">\(\textbf{x}^{(i)} \in \\{0, 1\\}^{D}\)</span>. In this case the reconstruction accuracy equals the negative binary cross entropy loss. Note that there are plenty of VAE implementations that use the binary cross entropy loss on non-binary observations, see discussions in <a href="https://stats.stackexchange.com/questions/394582/why-is-binary-cross-entropy-or-log-loss-used-in-autoencoders-for-non-binary-da">this thread</a>.</p></li>
+<p>with the original observation <span class="math inline">\(\textbf{x}^{(i)} \in \{0, 1\}^{D}\)</span>. In this case the reconstruction accuracy equals the negative binary cross entropy loss. Note that there are plenty of VAE implementations that use the binary cross entropy loss on non-binary observations, see discussions in <a href="https://stats.stackexchange.com/questions/394582/why-is-binary-cross-entropy-or-log-loss-used-in-autoencoders-for-non-binary-da">this thread</a>.</p></li>
 </ul>
 <p>To put this into practice, below is a simple VAE Python class which will be used to compare the different decoder distributions.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="cell" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributions.multivariate_normal <span class="im">import</span> MultivariateNormal</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -552,8 +555,13 @@ Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\
 <span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>            mu_D <span class="op">=</span> <span class="va">self</span>.decoder(z)</span>
 <span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> mu_D</span>
 <span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <p>Let’s train the three different VAEs on the MNIST digits dataset</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision <span class="im">import</span> datasets, transforms</span>
+<div class="cell" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision <span class="im">import</span> datasets, transforms</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -606,88 +614,51 @@ Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\
 <span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>                     batch_size, L, epochs)</span>
 <span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>I_Gaussian_VAE <span class="op">=</span> train(<span class="st">'I-Gaussian'</span>, dataset, x_dim, hid_dim, z_dim, </span>
 <span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>                       batch_size, L, epochs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<pre class="output"><code>Start training with Bernoulli decoder distribution
-
-Epoch 1/3
-[469/469] batch loss: 129.51
-Average loss: 148.437
-Epoch 2/3
-[469/469] batch loss: 112.28
-Average loss: 122.225
-Epoch 3/3
-[469/469] batch loss: 116.99
-Average loss: 119.317
-Done!
-
-Start training with Gaussian decoder distribution
-
-Epoch 1/3
-[469/469] batch loss: -1403.16
-Average loss: -1227.643
-Epoch 2/3
-[469/469] batch loss: -1289.26
-Average loss: -1281.867
-Epoch 3/3
-[469/469] batch loss: -1582.44
-Average loss: -1342.641
-Done!
-
-Start training with I-Gaussian decoder distribution
-
-Epoch 1/3
-[469/469] batch loss: 22.13
-Average loss: 27.051
-Epoch 2/3
-[469/469] batch loss: 21.58
-Average loss: 21.879
-Epoch 3/3
-[469/469] batch loss: 21.88
-Average loss: 21.301
-Done!</code></pre>
+</details>
+</div>
 <!-- Note how the Gaussian distribution with diagonal covariance structure -->
 <!-- (i.e., `Gaussian`) as decoder distribution approaches huge negative -->
 <!-- losses. These would further increase towards negative infinity when -->
 <!-- training for more epochs. In contrast, the `Bernoulli` and `I-Gaussian` -->
 <!-- distribution losses clearly saturate. -->
 <p>Let’s look at the differences in the reconstructions:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_results(trained_model, dataset, n_samples):</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    decoder_type <span class="op">=</span> trained_model.decoder.coder_type</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">3</span>))</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(decoder_type <span class="op">+</span> <span class="st">' Distribution: Observations (top row) and '</span> <span class="op">+</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'their reconstructions (bottom row)'</span>)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i_sample <span class="kw">in</span> <span class="bu">range</span>(n_samples):</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        x_sample <span class="op">=</span> dataset[i_sample][<span class="dv">0</span>].view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">28</span><span class="op">*</span><span class="dv">28</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        z, mu_E, log_var_E <span class="op">=</span> trained_model.encode(x_sample, L<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> decoder_type <span class="kw">in</span> [<span class="st">'Bernoulli'</span>, <span class="st">'I-Gaussian'</span>]:</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            x_prime <span class="op">=</span> trained_model.decode(z)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>            x_prime <span class="op">=</span> trained_model.decode(z)[<span class="dv">0</span>]</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        plt.subplot(<span class="dv">2</span>, n_samples, i_sample <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        plt.imshow(x_sample.view(<span class="dv">28</span>, <span class="dv">28</span>).data.numpy())</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        plt.subplot(<span class="dv">2</span>, n_samples, i_sample <span class="op">+</span> <span class="dv">1</span> <span class="op">+</span> n_samples)</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        plt.imshow(x_prime.view(<span class="dv">28</span>, <span class="dv">28</span>).data.numpy())</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>n_samples <span class="op">=</span> <span class="dv">10</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>plot_results(Bernoulli_VAE, dataset, n_samples)</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>plot_results(Gaussian_VAE, dataset, n_samples)</span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>plot_results(I_Gaussian_VAE, dataset, n_samples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="../../assets/paper_summaries/04_AEVB/img/plot_results.png" title="plot results" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">plot results</figcaption>
-</figure>
+<div class="cell" data-execution_count="5">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_results(trained_model, dataset, n_samples):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    decoder_type <span class="op">=</span> trained_model.decoder.coder_type</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">3</span>))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(decoder_type <span class="op">+</span> <span class="st">' Distribution: Observations (top row) and '</span> <span class="op">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'their reconstructions (bottom row)'</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i_sample <span class="kw">in</span> <span class="bu">range</span>(n_samples):</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        x_sample <span class="op">=</span> dataset[i_sample][<span class="dv">0</span>].view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">28</span><span class="op">*</span><span class="dv">28</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        z, mu_E, log_var_E <span class="op">=</span> trained_model.encode(x_sample, L<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> decoder_type <span class="kw">in</span> [<span class="st">'Bernoulli'</span>, <span class="st">'I-Gaussian'</span>]:</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>            x_prime <span class="op">=</span> trained_model.decode(z)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>            x_prime <span class="op">=</span> trained_model.decode(z)[<span class="dv">0</span>]</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        plt.subplot(<span class="dv">2</span>, n_samples, i_sample <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        plt.imshow(x_sample.view(<span class="dv">28</span>, <span class="dv">28</span>).data.numpy())</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        plt.subplot(<span class="dv">2</span>, n_samples, i_sample <span class="op">+</span> <span class="dv">1</span> <span class="op">+</span> n_samples)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        plt.imshow(x_prime.view(<span class="dv">28</span>, <span class="dv">28</span>).data.numpy())</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>n_samples <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>plot_results(Bernoulli_VAE, dataset, n_samples)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>plot_results(Gaussian_VAE, dataset, n_samples)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>plot_results(I_Gaussian_VAE, dataset, n_samples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 <section id="acknowledgement" class="level2">
@@ -785,6 +756,57 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
   function tippyHover(el, contentFn) {
     const config = {
       allowHTML: true,

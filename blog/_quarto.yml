@@ -1,5 +1,7 @@
 project:
   type: website
+  preview:
+    port: 8080
 
 website:
   title: "borea17"
@@ -14,12 +16,11 @@ website:
     collapse-level: 2
 
   navbar:
-    background: primary
+    background: "#607d8b"
     search: true
     right:
       - href: index.qmd
         text: Home
-      - about.qmd
       - paper_summaries.qmd
     # left:
     #   - text: "Home"
@@ -33,7 +34,7 @@ website:
 
 format:
   html:
-    theme: cosmo
+    theme: default
     css: styles.css
     toc: true
 

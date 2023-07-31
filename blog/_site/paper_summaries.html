@@ -70,9 +70,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-title','listing-author','listing-date','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-image','listing-date','listing-title','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description","listing-categories"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -118,10 +118,6 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html" rel="" target="">
- <span class="menu-text">About</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link active" href="./paper_summaries.html" rel="" target="" aria-current="page">
  <span class="menu-text">Paper Summaries</span></a>
   </li>  
@@ -151,7 +147,7 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="dimensionality reduction">dimensionality reduction <span class="quarto-category-count">(1)</span></div><div class="category" data-category="generalization">generalization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="graph networks">graph networks <span class="quarto-category-count">(2)</span></div><div class="category" data-category="interaction network">interaction network <span class="quarto-category-count">(1)</span></div><div class="category" data-category="neural network">neural network <span class="quarto-category-count">(1)</span></div><div class="category" data-category="reinforcement learning">reinforcement learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="variational autoencoder">variational autoencoder <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(6)</span></div><div class="category" data-category="VAE">VAE <span class="quarto-category-count">(2)</span></div><div class="category" data-category="disentanglement">disentanglement <span class="quarto-category-count">(1)</span></div><div class="category" data-category="generalization">generalization <span class="quarto-category-count">(1)</span></div><div class="category" data-category="graph networks">graph networks <span class="quarto-category-count">(2)</span></div><div class="category" data-category="interaction network">interaction network <span class="quarto-category-count">(1)</span></div><div class="category" data-category="neural network">neural network <span class="quarto-category-count">(1)</span></div><div class="category" data-category="reimplementation">reimplementation <span class="quarto-category-count">(2)</span></div><div class="category" data-category="reinforcement learning">reinforcement learning <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -176,77 +172,132 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
-<div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="variational autoencoder,dimensionality reduction" data-listing-date-sort="1595628000000" data-listing-file-modified-sort="1690393889851" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="26">
-<a href="./paper_summaries/auto-encoding_variational_bayes/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top"><img src="paper_summaries/auto-encoding_variational_bayes/img/DAG.png" alt="Generative Process and Variational Approximation" style="height: 150px;" title="Generative Process and Variational Approximation" class="thumbnail-image card-img"/></p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-Auto-Encoding Variational Bayes
-</h5>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('variational autoencoder'); return false;">
-variational autoencoder
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-listing-file-modified-sort="1690845489551" data-listing-reading-time-sort="52">
+<div class="thumbnail">
+<p><a href="./paper_summaries/u_net/index.html"> <p class="card-img-top"><img src="paper_summaries/u_net/img/semantic_segmentation.png" alt="Semantic Segmentation Example" title="Semantic Segmentation Example" class="thumbnail-image card-img"/></p> </a></p>
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('dimensionality reduction'); return false;">
-dimensionality reduction
-</div>
-</div>
-<div class="card-text listing-description">
-Kingma and Welling (2013) introduced the Variational Auto-Encoder (VAE) to showcase how their Auto-Encoding Variational Bayes (AEVB)…<span class="math inline"></span><span class="math inline"></span><span class="math inline"></span><span class="math inline"></span>
-</div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-borea17
-</div>
-<div class="listing-date">
-Jul 25, 2020
-</div>
-</div>
-</div>
+<div class="body">
+<a href="./paper_summaries/u_net/index.html">
+<h3 class="no-anchor listing-title">
+U-Net: Convolutional Networks for Biomedical Image Segmentation
+</h3>
+<div class="listing-subtitle">
+
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="reinforcement learning" data-listing-date-sort="1594764000000" data-listing-file-modified-sort="1690392039714" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13">
-<a href="./paper_summaries/schema_networks/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./paper_summaries/schema_networks/img/transition_dynamics.png" class="thumbnail-image card-img" style="height: 150px;">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
+<div class="metadata">
+<a href="./paper_summaries/u_net/index.html"> </a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="reimplementation,VAE,disentanglement" data-listing-date-sort="1596751200000" data-listing-file-modified-sort="1690763249842" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="45">
+<div class="thumbnail">
+<p><a href="./paper_summaries/spatial_broadcast_decoder/index.html"> <p class="card-img-top"><img src="paper_summaries/spatial_broadcast_decoder/img/sbd.png" alt="Schematic of the Spatial Broadcast VAE" title="Schematic of the Spatial Broadcast VAE" class="thumbnail-image card-img"/></p> </a></p>
+</div>
+<div class="body">
+<a href="./paper_summaries/spatial_broadcast_decoder/index.html">
+<h3 class="no-anchor listing-title">
+Spatial Broadcast Decoder: A Simple Architecture for Learning Disentangled Representations in VAEs
+</h3>
+<div class="listing-subtitle">
+
+</div>
+</a>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('reimplementation'); return false;">
+reimplementation
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('VAE'); return false;">
+VAE
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('disentanglement'); return false;">
+disentanglement
+</div>
+</div>
+<a href="./paper_summaries/spatial_broadcast_decoder/index.html"> </a>
+</div>
+<div class="metadata">
+<a href="./paper_summaries/spatial_broadcast_decoder/index.html">
+<div class="listing-date">
+Aug 7, 2020
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="2" data-categories="reimplementation,VAE" data-listing-date-sort="1595628000000" data-listing-file-modified-sort="1690763536800" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="25">
+<div class="thumbnail">
+<p><a href="./paper_summaries/auto-encoding_variational_bayes/index.html"> <p class="card-img-top"><img src="paper_summaries/auto-encoding_variational_bayes/img/DAG.png" alt="Generative Process and Variational Approximation" title="Generative Process and Variational Approximation" class="thumbnail-image card-img"/></p> </a></p>
+</div>
+<div class="body">
+<a href="./paper_summaries/auto-encoding_variational_bayes/index.html">
+<h3 class="no-anchor listing-title">
+Auto-Encoding Variational Bayes
+</h3>
+<div class="listing-subtitle">
+
+</div>
+</a>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('reimplementation'); return false;">
+reimplementation
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('VAE'); return false;">
+VAE
+</div>
+</div>
+<a href="./paper_summaries/auto-encoding_variational_bayes/index.html"> </a>
+</div>
+<div class="metadata">
+<a href="./paper_summaries/auto-encoding_variational_bayes/index.html">
+<div class="listing-date">
+Jul 25, 2020
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="3" data-categories="reinforcement learning" data-listing-date-sort="1594764000000" data-listing-file-modified-sort="1690392039714" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13">
+<div class="thumbnail">
+<p><a href="./paper_summaries/schema_networks/index.html"> <img src="./paper_summaries/schema_networks/img/transition_dynamics.png" class="thumbnail-image"> </a></p>
+</div>
+<div class="body">
+<a href="./paper_summaries/schema_networks/index.html">
+<h3 class="no-anchor listing-title">
 Schema Networks: Zero-shot Transfer with a Generative Causal Model of Intuitive Physics
-</h5>
+</h3>
+<div class="listing-subtitle">
+
+</div>
+</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('reinforcement learning'); return false;">
 reinforcement learning
 </div>
 </div>
-<div class="card-text listing-description">
-Kansky et al.&nbsp;(2017) showed remarkable results of zero-shot transfer in several variations…<em></em>
+<a href="./paper_summaries/schema_networks/index.html"> </a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-borea17
-</div>
+<div class="metadata">
+<a href="./paper_summaries/schema_networks/index.html">
 <div class="listing-date">
 Jul 15, 2020
 </div>
-</div>
-</div>
-</div>
 </a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="interaction network,graph networks,generalization" data-listing-date-sort="1594332000000" data-listing-file-modified-sort="1690329637633" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5">
-<a href="./paper_summaries/graph_networks/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top"><img src="paper_summaries/graph_networks/img/graph_networks_vs_RN.png" alt="GN block vs Relation Network" style="height: 150px;" title="GN block vs Relation Network" class="thumbnail-image card-img"/></p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
+</div>
+<div class="quarto-post image-right" data-index="4" data-categories="interaction network,graph networks,generalization" data-listing-date-sort="1594332000000" data-listing-file-modified-sort="1690413020135" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5">
+<div class="thumbnail">
+<p><a href="./paper_summaries/graph_networks/index.html"> <p class="card-img-top"><img src="paper_summaries/graph_networks/img/graph_networks_vs_RN.png" alt="GN block vs Relation Network" title="GN block vs Relation Network" class="thumbnail-image card-img"/></p> </a></p>
+</div>
+<div class="body">
+<a href="./paper_summaries/graph_networks/index.html">
+<h3 class="no-anchor listing-title">
 Relational Inductive Biases, Deep Learning, and Graph Networks
-</h5>
+</h3>
+<div class="listing-subtitle">
+
+</div>
+</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('interaction network'); return false;">
 interaction network
@@ -258,31 +309,29 @@ graph networks
 generalization
 </div>
 </div>
-<div class="card-text listing-description">
-Few years after the IN paper, Battaglia et al. (2018) showed that the IN can be cast into a special case of a broader framework, termed <em>Graph Networks (GNs)</em>. They hypothesize that despite the recent successes in deep learning with minimal representational biases, key ingredients of human-like…<em></em><sup></sup><sup></sup><sup></sup>
+<a href="./paper_summaries/graph_networks/index.html"> </a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-borea17
-</div>
+<div class="metadata">
+<a href="./paper_summaries/graph_networks/index.html">
 <div class="listing-date">
 Jul 10, 2020
 </div>
-</div>
-</div>
-</div>
 </a>
 </div>
-<div class="g-col-1" data-index="3" data-categories="neural network,graph networks" data-listing-date-sort="1593122400000" data-listing-file-modified-sort="1690329335177" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
-<a href="./paper_summaries/interaction_network/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./paper_summaries/interaction_network/img/implementation.png" class="thumbnail-image card-img" style="height: 150px;">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
+</div>
+<div class="quarto-post image-right" data-index="5" data-categories="neural network,graph networks" data-listing-date-sort="1593122400000" data-listing-file-modified-sort="1690329335177" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
+<div class="thumbnail">
+<p><a href="./paper_summaries/interaction_network/index.html"> <img src="./paper_summaries/interaction_network/img/implementation.png" class="thumbnail-image"> </a></p>
+</div>
+<div class="body">
+<a href="./paper_summaries/interaction_network/index.html">
+<h3 class="no-anchor listing-title">
 Interaction Networks for Learning about Objects, Relations and Physics
-</h5>
+</h3>
+<div class="listing-subtitle">
+
+</div>
+</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('neural network'); return false;">
 neural network
@@ -291,20 +340,15 @@ neural network
 graph networks
 </div>
 </div>
-<div class="card-text listing-description">
-Battaglia et al.&nbsp;(2016) introduce the <em>Interaction Network (IN)</em> as the first general-purpose learnable physics engine capable of zero-shot generalization in terms of varying configurations of objects and relations. The IN leverages…
+<a href="./paper_summaries/interaction_network/index.html"> </a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-borea17
-</div>
+<div class="metadata">
+<a href="./paper_summaries/interaction_network/index.html">
 <div class="listing-date">
 Jun 26, 2020
 </div>
-</div>
-</div>
-</div>
 </a>
+</div>
 </div>
 </div>
 <div class="listing-no-matching d-none">
