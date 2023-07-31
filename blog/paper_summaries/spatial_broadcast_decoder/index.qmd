@@ -14,6 +14,17 @@ format:
       toggle: true
       source: "https://github.com/borea17/Notebooks/blob/master/02_Spatial_Broadcast_Decoder.ipynb"
 ---
+<style>
+
+th {
+  border: 10px solid #bfbfbf;
+  text-align: center;
+}
+
+table th {
+  background-color: blue;
+}
+</style>
 
 
 [Watters et al. (2019)](https://arxiv.org/abs/1901.07017) introduce

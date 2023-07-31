@@ -4,7 +4,7 @@ date: "2020-06-26"
 pagetitle: "Interaction Networks"
 image: "./img/implementation.png"
 image-width: 1800px 
-categories: [neural network, graph networks]
+categories: [graph networks]
 draft: false
 ---
 

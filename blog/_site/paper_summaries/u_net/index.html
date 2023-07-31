@@ -7,6 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="borea17">
+<meta name="dcterms.date" content="2020-08-21">
 
 <title>borea17 - U-Net: Convolutional Networks for Biomedical Image Segmentation</title>
 <style>
@@ -147,7 +148,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <div class="quarto-title-block"><div><h1 class="title">U-Net: Convolutional Networks for Biomedical Image Segmentation</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/03_U-Net.ipynb">View Source</a></li></ul></div></div>
-                      </div>
+                                <div class="quarto-categories">
+                <div class="quarto-category">reimplementation</div>
+                <div class="quarto-category">CNN</div>
+                <div class="quarto-category">image segmentation</div>
+              </div>
+                  </div>
   </div>
     
   
@@ -160,6 +166,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             </div>
     </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">August 21, 2020</p>
+      </div>
+    </div>
     
       
     </div>
@@ -203,7 +215,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Example of a biomedical image segmentation task in which dental x-ray images should be segmented: <br> (<strong>a</strong>) Raw dental image. (<strong>b</strong>) Ground truth segmentation, each color represents some class (e.g., red=pulp, blue=caries). <br>Taken from <a href="http://www-o.ntust.edu.tw/~cweiwang/ISBI2015/challenge2/index.html">ISBI 2015 Challenge on Computer-Automated Detection of Caries in Bitewing Radiography</a></td>
+<td style="text-align: left;">Example of a biomedical image segmentation task in which dental x-ray images should be segmented: <br> (<strong>Left</strong>) Raw dental image. <br> (<strong>Right</strong>) Ground truth segmentation, each color represents some class (e.g., red=pulp, blue=caries). <br>Taken from <a href="http://www-o.ntust.edu.tw/~cweiwang/ISBI2015/challenge2/index.html">ISBI 2015 Challenge on Computer-Automated Detection of Caries in Bitewing Radiography</a></td>
 </tr>
 </tbody>
 </table>

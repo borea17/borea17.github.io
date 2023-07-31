@@ -1,6 +1,7 @@
 ---
 title: "U-Net: Convolutional Networks for Biomedical Image Segmentation"
-tags: ["reimplementation", "CNN", "image segmentation"]
+categories: ["reimplementation", "CNN", "image segmentation"]
+date: "2020-08-21"
 execute:
   eval: false # true
 engine: jupyter
@@ -38,7 +39,7 @@ Network](https://arxiv.org/abs/1901.11390)).
 
 | ![Semantic Segmentation Example](./img/semantic_segmentation.png "Semantic Segmentation Example") |
 | :--  |
-| Example of a biomedical image segmentation task in which dental x-ray images should be segmented: <br> (**a**) Raw dental image. (**b**) Ground truth segmentation, each color represents some class (e.g., red=pulp, blue=caries). <br>Taken from [ISBI 2015 Challenge on Computer-Automated Detection of Caries in Bitewing Radiography](http://www-o.ntust.edu.tw/~cweiwang/ISBI2015/challenge2/index.html) |
+| Example of a biomedical image segmentation task in which dental x-ray images should be segmented: <br> (**Left**) Raw dental image. <br> (**Right**) Ground truth segmentation, each color represents some class (e.g., red=pulp, blue=caries). <br>Taken from [ISBI 2015 Challenge on Computer-Automated Detection of Caries in Bitewing Radiography](http://www-o.ntust.edu.tw/~cweiwang/ISBI2015/challenge2/index.html) |
 
 ## Model Description
 

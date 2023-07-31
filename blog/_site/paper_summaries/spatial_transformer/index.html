@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.340">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="borea17">
+<meta name="dcterms.date" content="2020-08-30">
+
+<title>borea17 - Spatial Transformer Networks</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">borea17</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../paper_summaries.html" rel="" target="">
+ <span class="menu-text">Paper Summaries</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Spatial Transformer Networks</li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Spatial Transformer Networks</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/04_Spatial_Transformer_Networks.ipynb"><i class="bi"></i> Code</button></div></div>
+                                <div class="quarto-categories">
+                <div class="quarto-category">reimplementation</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>borea17 </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">August 30, 2020</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#model-description" id="toc-model-description" class="nav-link active" data-scroll-target="#model-description">Model Description</a></li>
+  <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a>
+  <ul class="collapse">
+  <li><a href="#rts-distorted-mnist" id="toc-rts-distorted-mnist" class="nav-link" data-scroll-target="#rts-distorted-mnist">RTS Distorted MNIST</a></li>
+  <li><a href="#model-implementation" id="toc-model-implementation" class="nav-link" data-scroll-target="#model-implementation">Model Implementation</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<!-- nextjournal_link: "https://nextjournal.com/borea17/spatial_transformer_networks/" -->
+<p><a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a> introduced the learnable <strong>Spatial Transformer (ST)</strong> module that can be used to empower standard neural networks to actively spatially transform feature maps or input data. In essence, the ST can be understood as a black box that applies some spatial transformation (e.g., crop, scale, rotate) to a given input (or part of it) conditioned on the particular input during a single forward path. In general, STs can also be seen as a learnable attention mechanism (including spatial transformation on the region of interest). Notably, STs can be easily integrated in existing neural network architectures without any supervision or modification to the optimization, i.e., STs are differentiable plug-in modules. The authors could show that STs help the models to learn invariances to translation, scale, rotation and more generic warping which resulted in state-of-the-art performance on several benchmarks, see image below.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/ST_inpractice.gif" title="Spatial Transformer in Practice" class="img-fluid" alt="Spatial Transformer in Practice"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>ST Example</strong>: Results (after training) of using a ST as the first layer of a fully-connected network (<code>ST-FCN Affine</code>, left) or a convolutional neural network (<code>ST-CNN Affine</code>, right) trained for cluttered MNIST digit recognition are shown. Clearly, the output of the ST exhibits much less translation variance and attends to the digit. Taken from <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a> linked <a href="https://goo.gl/qdEhUu">video</a>.</td>
+</tr>
+</tbody>
+</table>
+<section id="model-description" class="level2">
+<h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
+<p>The aim of STs is to provide neural networks with spatial transformation and attention capabilities in a reasonable and efficient way. Note that standard neural network architectures (e.g., CNNs) are limited in this regard<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Therefore, the ST constitutes parametrized transformations <span class="math inline">\(\mathcal{T}_{\boldsymbol{\theta}}\)</span> that transform the regular input grid to a new sampling grid, see image below. Then, some form of interpolation is used to compute the pixel values in the new sampling grid (i.e., interpolation between values of the old grid).</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/parametrised_sampling_grid.png" title="Parametrized Sampling Grids" class="img-fluid" alt="Parametrized Sampling Grids"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Two examples of applying the parametrised sampling grid to an image <span class="math inline">\(\textbf{U}\)</span> producing the output <span class="math inline">\(\textbf{V}\)</span>. The green dots represent the new sampling grid which is obtained by transforming the regular grid <span class="math inline">\(\textbf{G}\)</span> (defined on <span class="math inline">\(\textbf{V}\)</span>) using the transformation <span class="math inline">\(\mathcal{T}\)</span>. <br> (a) The sampling grid is the regular grid <span class="math inline">\(\textbf{G} = \mathcal{T}_{\textbf{I}} (\textbf{G})\)</span>, where <span class="math inline">\(\textbf{I}\)</span> is the identity transformation matrix. <br> (b) The sampling grid is the result of warping the regular grid with an affine transformation <span class="math inline">\(\mathcal{T}_{\boldsymbol{\theta}} (\textbf{G})\)</span>. <br> Taken from <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>To this end, the ST is divided into three consecutive parts:</p>
+<ul>
+<li><p><strong>Localisation Network</strong>: Its purpose is to retrieve the parameters <span class="math inline">\(\boldsymbol{\theta}\)</span> of the spatial transformation <span class="math inline">\(\mathcal{T}_{\boldsymbol{\theta}}\)</span> taking the current feature map <span class="math inline">\(\textbf{U}\)</span> as input, i.e., <span class="math inline">\(\boldsymbol{\theta} = f_{\text{loc}} \left(\textbf{U} \right)\)</span>. Thereby, the spatial transformation is conditioned on the input. Note that dimensionality of <span class="math inline">\(\boldsymbol{\theta}\)</span> depends on the transformation type which needs to be defined beforehand, see some examples below. Furthermore, the localisation network can take any differentiable form, e.g., a CNN or FCN.</p>
+<ins>
+<p><em>Examples of Spatial Transformations</em></p>
+</ins>
+<p>The following examples highlight how a regular grid</p>
+<p><span class="math display">\[
+\textbf{G} = \left\{ \begin{bmatrix} x_i^t \\ y_i^t \end{bmatrix}
+\right\}_{i=1}^{H^t \cdot W^t}
+\]</span></p>
+<p>defined on the output/target map <span class="math inline">\(\textbf{V}\)</span> (i.e., <span class="math inline">\(H^t\)</span> and <span class="math inline">\(W^t\)</span> denote height and width of <span class="math inline">\(\textbf{V}\)</span>) can be transformed into a new sampling grid</p>
+<p><span class="math display">\[
+\widetilde{\textbf{G}} = \left\{ \begin{bmatrix} x_i^s \\ y_i^s \end{bmatrix}
+\right\}_{i=1}^{H^s \cdot W^s}
+\]</span></p>
+<p>defined on the input/source feature map <span class="math inline">\(\textbf{U}\)</span> using a parametrized transformation <span class="math inline">\(\mathcal{T}_{\boldsymbol{\theta}}\)</span>, i.e., <span class="math inline">\(\widetilde{G} = T_{\boldsymbol{\theta}} (G)\)</span>. Visualizations have bee created by me, interactive versions can be found <a href="https://github.com/borea17/InteractiveTransformations">here</a>.</p>
+<!-- * <ins>Affine Transformations</ins> -->
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/affine_transform.gif" class="img-fluid" alt="Affine Transform"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">This transformation allows cropping, translation, rotation, scale and skew to be applied to the input feature map. It has 6 degrees of freedom (DoF).</td>
+</tr>
+</tbody>
+</table>
+<!-- * <ins>(Standard) Attention</ins> -->
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/attention_transform.gif" class="img-fluid" alt="Attention Transform"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">This transformation is more constrained with only 3-DoF. Therefore it only allows cropping, translation and isotropic scaling to be applied to the input feature map.</td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/projective_transform.gif" class="img-fluid" alt="Projective Transform"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">This transformation has 8-DoF and can be seen as an extension to the affine transformation. The main difference is that affine transformations are constrained to preserve parallelism.</td>
+</tr>
+</tbody>
+</table>
+<!-- * <ins>Thin Plate Spline (TPS) Transformations</ins> --></li>
+<li><p><strong>Grid Generator</strong>: Its purpose to create the new sampling grid <span class="math inline">\(\widetilde{\textbf{G}}\)</span> on the input feature map <span class="math inline">\(\textbf{U}\)</span> by applying the predefined parametrized transformation using the parameters <span class="math inline">\(\boldsymbol{\theta}\)</span> obtained from the localisation network, see examples above. <!-- Note that [Jaderberg et al. --> <!-- (2015)](https://arxiv.org/abs/1506.02025) define normalized --> <!-- coordinates for the target feature map, i.e., $-1 \le x_i^t, y_i^t \le 1$.  --></p></li>
+<li><p><strong>Sampler</strong>: Its purpose is to compute the warped version of the input feature map <span class="math inline">\(\textbf{U}\)</span> by computing the pixel values in the new sampling grid <span class="math inline">\(\widetilde{\textbf{G}}\)</span> obtained from the grid generator. Note that the new sampling grid does not necessarily align with the input feature map grid, therefore some kind of interpolation is needed. <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al. (2015)</a> formulate this interpolation as the application of a sampling kernel centered at a particular location in the input feature map, i.e.,</p>
+<p><span class="math display">\[
+  V_i^c = \sum_{n=1}^{H^s} \sum_{m=1}^{W^s} U_{n,m}^c \cdot \underbrace{k(x_i^s - x_m^t;
+  \boldsymbol{\Phi}_x)}_{k_{\boldsymbol{\Phi}_x}} \cdot \underbrace{k(y_i^s - y_n^t; \boldsymbol{\Phi}_y)}_{k_{\boldsymbol{\Phi}_y}},
+\]</span></p>
+<p>where <span class="math inline">\(V_i^c \in \mathbb{R}^{W^t \times H^t}\)</span> denotes the new pixel value of the <span class="math inline">\(c\)</span>-th channel at the <span class="math inline">\(i\)</span>-th position of the new sampling grid coordinates<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> <span class="math inline">\(\begin{bmatrix} x_i^s &amp; y_i^s\end{bmatrix}^{T}\)</span> and <span class="math inline">\(\boldsymbol{\Phi}_x, \boldsymbol{\Phi}_y\)</span> are the parameters of a generic sampling kernel <span class="math inline">\(k()\)</span> which defines the image interpolation. As the sampling grid coordinates are not channel-dependent, each channel is transformed in the same way resulting in spatial consistency between channels. Note that although in theory we need to sum over all input locations, in practice we can ignore this sum by just looking at the kernel support region for each <span class="math inline">\(V_i^c\)</span> (similar to CNNs).</p>
+<p>The sampling kernel can be chosen freely as long as (sub-)gradients can be defined with respect to <span class="math inline">\(x_i^s\)</span> and <span class="math inline">\(y_i^s\)</span>. Some possible choices are shown below.</p>
+<p><span class="math display">\[
+  \begin{array}{lcc}
+  \hline
+    \textbf{Interpolation Method} &amp; k_{\boldsymbol{\Phi}_x} &amp;
+  k_{\boldsymbol{\Phi}_x} \\ \hline
+    \text{Nearest Neightbor} &amp;  \delta( \lfloor x_i^s + 0.5\rfloor -
+  x_m^t) &amp;  \delta( \lfloor y_i^s + 0.5\rfloor - y_n^t) \\
+    \text{Bilinear} &amp;  \max \left(0, 1 -  \mid x_i^s - x_m^t \mid
+  \right) &amp;  \max (0, 1 - \mid y_i^s - y_m^t\mid ) \\ \hline
+  \end{array}
+\]</span></p></li>
+</ul>
+<p>The figure below summarizes the ST architecture and shows how the individual parts interact with each other.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="../../assets/img/09_spatial_transformer/spatial_transformer.png" title="Architecture of Spatial Transformer" class="img-fluid" alt="Architecture of Spatial Transformer"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Architecture of ST Module</strong>. Taken from <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Motivation</strong>: With the introduction of GPUs, convolutional layers enabled computationally efficient training of feature detectors on patches due to their weight sharing and local connectivity concepts. Since then, CNNs have proven to be the most powerful framework when it comes to computer vision tasks such as image classification or segmentation.</p>
+<p>Despite their success, <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al. (2015)</a> note that CNNs are still lacking mechanisms to be spatially invariant to the input data in a computationally and parameter efficient manner. While convolutional layers are translation-equivariant to the input data and the use of max-pooling layers has helped to allow the network to be somewhat spatially invariant to the position of features, this invariance is limited to the (typically) small spatial support of max-pooling (e.g., <span class="math inline">\(2\times 2\)</span>). As a result, CNNs are typically not invariant to larger transformations, thus need to learn complicated functions to approximate these invariances.</p>
+<!-- Data augmentation is a standard trick -->
+<!-- to increase the performance of CNNs by  -->
+<p>What if we could enable the network to learn transformations of the input data? This is the main idea of STs! Learning spatial invariances is much easier when you have spatial transformation capabilities. The second aim of STs is to be computationally and parameter efficient. This is done by using structured, parameterized transformations which can be seen as a weight sharing scheme.</p>
+</section>
+<section id="implementation" class="level2">
+<h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
+<p><a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a> performed several supervised learning tasks (distorted MNIST, Street View House Numbers, fine-grained bird classification) to test the performance of a standard architecture (FCN or CNN) against an architecture that includes one or several ST modules. They could emperically validate that including STs results in performance gains, i.e., higher accuracies across multiple tasks.</p>
+<p>The following reimplementation aims to reproduce a subset of the distored MNIST experiment (RTS distorted MNIST) comparing a standard CNN with a ST-CNN architecture. A starting point for the implementation was <a href="https://pytorch.org/tutorials/intermediate/spatial_transformer_tutorial.html">this pytorch tutorial by Ghassen Hamrouni</a>.</p>
+<section id="rts-distorted-mnist" class="level3">
+<h3 class="anchored" data-anchor-id="rts-distorted-mnist">RTS Distorted MNIST</h3>
+<p>While <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a> explored multiple distortions on the MNIST handwriting dataset, this reimplementation focuses on the rotation-translation-scale (RTS) distorted MNIST, see image below. As described in appendix A.4 of <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a> this dataset can easily be generated by augmenting the standard MNIST dataset as follows: * randomly rotate by sampling the angle uniformly in <span class="math inline">\([+45^{\circ}, 45^{\circ}]\)</span>, * randomly scale by sampling the factor uniformly in <span class="math inline">\([0.7, 1.2]\)</span>, * translate by picking a random location on a <span class="math inline">\(42\times 42\)</span> image (MNIST digits are <span class="math inline">\(28 \times 28\)</span>).</p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img src="../../assets/img/09_spatial_transformer/distortedMNIST.png" title="RTS Distorted MNIST Examples" class="img-fluid" alt="RTS Distorted MNIST Examples"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>RTS Distorted MNIST Examples</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Note that this transformation could also be used as a data augmentation technique, as the resulting images remain (mostly) valid digit representations (humans could still assign correct labels).</p>
+<p>The code below can be used to create this dataset:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision <span class="im">import</span> datasets, transforms</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_data():</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""loads MNIST datasets with 'RTS' (rotation, translation, scale)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    transformation</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">        train_dataset (torch dataset): training dataset</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">        test_dataset (torch dataset): test dataset</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> place_digit_randomly(img):</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        new_img <span class="op">=</span> torch.zeros([<span class="dv">42</span>, <span class="dv">42</span>])</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        x_pos, y_pos <span class="op">=</span> torch.randint(<span class="dv">0</span>, <span class="dv">42</span><span class="op">-</span><span class="dv">28</span>, (<span class="dv">2</span>,))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        new_img[y_pos:y_pos<span class="op">+</span><span class="dv">28</span>, x_pos:x_pos<span class="op">+</span><span class="dv">28</span>] <span class="op">=</span> img</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> new_img</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    transform <span class="op">=</span> transforms.Compose([</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        transforms.RandomAffine(degrees<span class="op">=</span>(<span class="op">-</span><span class="dv">45</span>, <span class="dv">45</span>),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                                scale<span class="op">=</span>(<span class="fl">0.7</span>, <span class="fl">1.2</span>)),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        transforms.ToTensor(),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        transforms.Lambda(<span class="kw">lambda</span> img: place_digit_randomly(img)),</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        transforms.Lambda(<span class="kw">lambda</span> img: img.unsqueeze(<span class="dv">0</span>))</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    train_dataset <span class="op">=</span> datasets.MNIST(<span class="st">'./data'</span>, transform<span class="op">=</span>transform,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                                   train<span class="op">=</span><span class="va">True</span>, download<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    test_dataset <span class="op">=</span> datasets.MNIST(<span class="st">'./data'</span>, transform<span class="op">=</span>transform,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>                                   train<span class="op">=</span><span class="va">True</span>, download<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> train_dataset, test_dataset</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>train_dataset, test_dataset <span class="op">=</span> load_data()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="model-implementation" class="level3">
+<h3 class="anchored" data-anchor-id="model-implementation">Model Implementation</h3>
+<p>The model implementation can be divided into three tasks:</p>
+<ul>
+<li><p><strong>Network Architectures</strong>: The network architectures are based upon the description in appendix A.4 of <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al. (2015)</a>. Note that there is only one ST at the beginning of the network such that the resulting transformation is only applied over one channel (input channel). For the sake of simplicity, we only implement an affine transformation matrix. Clearly, including an ST increases the networks capacity due to the number of added trainable parameters. To allow for a fair comparison, we therefore increase the capacity of the convolutional and linear layers in the standard CNN.</p>
+<p>The code below creates both architectures and counts their trainable parameters.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_number_of_trainable_parameters(model):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">"""taken from</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">  discuss.pytorch.org/t/how-do-i-check-the-number-of-parameters-of-a-model/4325</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">  """</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  model_parameters <span class="op">=</span> <span class="bu">filter</span>(<span class="kw">lambda</span> p: p.requires_grad, model.parameters())</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  params <span class="op">=</span> <span class="bu">sum</span>([np.prod(p.size()) <span class="cf">for</span> p <span class="kw">in</span> model_parameters])</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> params</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CNN(nn.Module):</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, img_size<span class="op">=</span><span class="dv">42</span>, include_ST<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>      <span class="bu">super</span>(CNN, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      <span class="va">self</span>.ST <span class="op">=</span> include_ST</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>      <span class="va">self</span>.name <span class="op">=</span> <span class="st">'ST-CNN Affine'</span> <span class="cf">if</span> include_ST <span class="cf">else</span> <span class="st">'CNN'</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      c_dim <span class="op">=</span> <span class="dv">32</span> <span class="cf">if</span> include_ST <span class="cf">else</span> <span class="dv">36</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      <span class="va">self</span>.convs <span class="op">=</span> nn.Sequential(</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>          nn.Conv2d(<span class="dv">1</span>, c_dim, kernel_size<span class="op">=</span><span class="dv">9</span>, stride<span class="op">=</span><span class="dv">1</span>, padding<span class="op">=</span><span class="dv">0</span>),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>          nn.MaxPool2d(kernel_size<span class="op">=</span>(<span class="dv">2</span>,<span class="dv">2</span>), stride<span class="op">=</span><span class="dv">2</span>),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>          nn.ReLU(<span class="va">True</span>),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>          nn.Conv2d(c_dim, c_dim, kernel_size<span class="op">=</span><span class="dv">7</span>, stride<span class="op">=</span><span class="dv">1</span>, padding<span class="op">=</span><span class="dv">0</span>),</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>          nn.MaxPool2d(kernel_size<span class="op">=</span>(<span class="dv">2</span>,<span class="dv">2</span>), stride<span class="op">=</span><span class="dv">2</span>),</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>          nn.ReLU(<span class="va">True</span>),</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>      out_conv <span class="op">=</span> <span class="bu">int</span>((<span class="bu">int</span>((img_size <span class="op">-</span> <span class="dv">8</span>)<span class="op">/</span><span class="dv">2</span>) <span class="op">-</span> <span class="dv">6</span>)<span class="op">/</span><span class="dv">2</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      <span class="va">self</span>.classification <span class="op">=</span> nn.Sequential(</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>          nn.Linear(out_conv<span class="op">**</span><span class="dv">2</span><span class="op">*</span>c_dim, <span class="dv">50</span>),</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>          nn.ReLU(<span class="va">True</span>),</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>          nn.Linear(<span class="dv">50</span>, <span class="dv">10</span>),</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>          nn.LogSoftmax(dim<span class="op">=</span><span class="dv">1</span>),</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> include_ST:</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>          loc_conv_out_dim <span class="op">=</span> <span class="bu">int</span>((<span class="bu">int</span>(img_size<span class="op">/</span><span class="dv">2</span>) <span class="op">-</span> <span class="dv">4</span>)<span class="op">/</span><span class="dv">2</span>) <span class="op">-</span> <span class="dv">4</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>          loc_regression_layer <span class="op">=</span> nn.Linear(<span class="dv">20</span>, <span class="dv">6</span>)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>          <span class="co"># initalize final regression layer to identity transform</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>          loc_regression_layer.weight.data.fill_(<span class="dv">0</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>          loc_regression_layer.bias <span class="op">=</span> nn.Parameter(</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>              torch.tensor([<span class="fl">1.</span>, <span class="fl">0.</span>, <span class="fl">0.</span>, <span class="fl">0.</span>, <span class="fl">1.</span>, <span class="fl">0.</span>]))</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>          <span class="va">self</span>.localisation_net <span class="op">=</span> nn.Sequential(</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>              nn.Conv2d(<span class="dv">1</span>, <span class="dv">20</span>, kernel_size<span class="op">=</span><span class="dv">5</span>, stride<span class="op">=</span><span class="dv">1</span>, padding<span class="op">=</span><span class="dv">0</span>),</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>              nn.MaxPool2d(kernel_size<span class="op">=</span>(<span class="dv">2</span>,<span class="dv">2</span>), stride<span class="op">=</span><span class="dv">2</span>),</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>              nn.ReLU(<span class="va">True</span>),</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>              nn.Conv2d(<span class="dv">20</span>, <span class="dv">20</span>, kernel_size<span class="op">=</span><span class="dv">5</span>, stride<span class="op">=</span><span class="dv">1</span>, padding<span class="op">=</span><span class="dv">0</span>),</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>              nn.ReLU(<span class="va">True</span>),</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>              nn.Flatten(),</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>              nn.Linear(loc_conv_out_dim<span class="op">**</span><span class="dv">2</span><span class="op">*</span><span class="dv">20</span>, <span class="dv">20</span>),</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>              nn.ReLU(<span class="va">True</span>),</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>              loc_regression_layer</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> forward(<span class="va">self</span>, img):</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>      batch_size <span class="op">=</span> img.shape[<span class="dv">0</span>]</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="va">self</span>.ST:</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>          out_ST <span class="op">=</span> <span class="va">self</span>.ST_module(img)</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>          img <span class="op">=</span> out_ST</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>      out_conv <span class="op">=</span> <span class="va">self</span>.convs(img)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>      out_classification <span class="op">=</span> <span class="va">self</span>.classification(out_conv.view(batch_size, <span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> out_classification</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> ST_module(<span class="va">self</span>, inp):</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>      <span class="co"># act on twice downsampled inp</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>      down_inp <span class="op">=</span> F.interpolate(inp, scale_factor<span class="op">=</span><span class="fl">0.5</span>, mode<span class="op">=</span><span class="st">'bilinear'</span>,</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>                                recompute_scale_factor<span class="op">=</span><span class="va">False</span>, align_corners<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>      theta_vector <span class="op">=</span> <span class="va">self</span>.localisation_net(down_inp)</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>      <span class="co"># affine transformation</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>      theta_matrix <span class="op">=</span> theta_vector.view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>      <span class="co"># grid generator</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>      grid <span class="op">=</span> F.affine_grid(theta_matrix, inp.size(), align_corners<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>      <span class="co"># sampler</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>      out <span class="op">=</span> F.grid_sample(inp, grid, align_corners<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> out</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> get_attention_rectangle(<span class="va">self</span>, inp):</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>      <span class="cf">assert</span> inp.shape[<span class="dv">0</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">'batch size has to be one'</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>      <span class="co"># act on twice downsampled inp</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>      down_inp <span class="op">=</span> F.interpolate(inp, scale_factor<span class="op">=</span><span class="fl">0.5</span>, mode<span class="op">=</span><span class="st">'bilinear'</span>,</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>                               recompute_scale_factor<span class="op">=</span><span class="va">False</span>, align_corners<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>      theta_vector <span class="op">=</span> <span class="va">self</span>.localisation_net(down_inp)</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>      <span class="co"># affine transformation matrix</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>      theta_matrix <span class="op">=</span> theta_vector.view(<span class="dv">2</span>, <span class="dv">3</span>).detach()</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>      <span class="co"># create normalized target rectangle input image</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>      target_rectangle <span class="op">=</span> torch.tensor([</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>          [<span class="op">-</span><span class="fl">1.</span>, <span class="op">-</span><span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>, <span class="op">-</span><span class="fl">1.</span>],</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>          [<span class="op">-</span><span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>, <span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="fl">1.</span>],</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>          [<span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>]]</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>      ).to(inp.device)</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>      <span class="co"># get source rectangle by transformation</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>      source_rectangle <span class="op">=</span> torch.matmul(theta_matrix, target_rectangle)</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> source_rectangle</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a><span class="co"># instantiate models</span></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>cnn <span class="op">=</span> CNN(img_size<span class="op">=</span><span class="dv">42</span>, include_ST<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>st_cnn <span class="op">=</span> CNN(img_size<span class="op">=</span><span class="dv">42</span>, include_ST<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a><span class="co"># print trainable parameters</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> [cnn, st_cnn]:</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>  num_trainable_params <span class="op">=</span> get_number_of_trainable_parameters(model)</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>model<span class="sc">.</span>name<span class="sc">}</span><span class="ss"> has </span><span class="sc">{</span>num_trainable_params<span class="sc">}</span><span class="ss"> trainable parameters'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<img src="../../assets/img/09_spatial_transformer/trainable_params.png" title="Trainable Paramas" class="img-fluid" alt="Trainable Parameters"></li>
+<li><p><strong>Training Procedure</strong>: As described in appendix A.4 of <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al. (2015)</a>, the networks are trained with standard SGD, batch size of <span class="math inline">\(256\)</span> and base learning rate of <span class="math inline">\(0.01\)</span>. To reduce computation time, the number of epochs is limited to <span class="math inline">\(50\)</span>.</p>
+<p>The loss function is the multinomial cross entropy loss, i.e.,</p>
+<p><span class="math display">\[
+  \text{Loss} = - \sum_{i=1}^N \sum_{k=1}^C p_i^{(k)} \cdot \log
+  \left( \widehat{p}_i^{(k)} \right),
+\]</span></p>
+<p>where <span class="math inline">\(k\)</span> enumerates the number of classes, <span class="math inline">\(i\)</span> enumerates the number of images, <span class="math inline">\(p_i^{k} \in \{0, 1\}\)</span> denotes the true probability of image <span class="math inline">\(i\)</span> and class <span class="math inline">\(k\)</span> and <span class="math inline">\(\widehat{p}_i^{k} \in [0, 1]\)</span> is the probability predicted by the network. Note that the true probability distribution is categorical (hard labels), i.e.,</p>
+<p><span class="math display">\[
+  p_i^{(k)} = 1_{k = y_i} = \begin{cases}1 &amp; \text{if } k = y_i \\ 0
+  &amp; \text{else}\end{cases}
+\]</span></p>
+<p>where <span class="math inline">\(y_i \in \{0, 1, \cdots, 9 \}\)</span> is the label assigned to the <span class="math inline">\(i\)</span>-th image <span class="math inline">\(\textbf{x}_i\)</span>. Thus, we can rewrite the loss as follows</p>
+<p><span class="math display">\[
+  \text{Loss} = - \sum_{i=1}^N \log \left( \widehat{p}_{i, y_i}
+  \right),
+\]</span></p>
+<p>which is the definition of the negative log likelihood loss (<a href="https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html">NLLLoss</a>) in Pytorch, when the logarithmized predictions <span class="math inline">\(\log \left( \widehat{p}_{i, y_i} \right)\)</span> (matrix of size <span class="math inline">\(N\times C\)</span>) and class labels <span class="math inline">\(y_i\)</span> (vector of size <span class="math inline">\(N\)</span>) are given as input.</p>
+<p>The code below summarizes the whole training procedure.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> livelossplot <span class="im">import</span> PlotLosses</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(model, dataset):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># fix hyperparameters</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    epochs <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    learning_rate <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    batch_size <span class="op">=</span> <span class="dv">256</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    step_size_scheduler <span class="op">=</span> <span class="dv">50000</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    gamma_scheduler <span class="op">=</span> <span class="fl">0.1</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># set device</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Device: </span><span class="sc">{</span>device<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    data_loader <span class="op">=</span> DataLoader(dataset, batch_size<span class="op">=</span>batch_size, shuffle<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>                            num_workers<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    model.to(device)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    optimizer <span class="op">=</span> torch.optim.SGD(model.parameters(), lr<span class="op">=</span>learning_rate)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    scheduler <span class="op">=</span> torch.optim.lr_scheduler.StepLR(optimizer, gamma<span class="op">=</span>gamma_scheduler,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>                                                step_size<span class="op">=</span>step_size_scheduler)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    losses_plot <span class="op">=</span> PlotLosses()</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Start training with </span><span class="sc">{</span>model<span class="sc">.</span>name<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, epochs<span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        avg_loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> data, label <span class="kw">in</span> data_loader:</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>            model.zero_grad()</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            log_prop_pred <span class="op">=</span> model(data.to(device))</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>            <span class="co"># multinomial cross entropy loss</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> F.nll_loss(log_prop_pred, label.to(device))</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>            optimizer.step()</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>            scheduler.step()</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>            avg_loss <span class="op">+=</span> loss.item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        losses_plot.update({<span class="st">'log loss'</span>: np.log(avg_loss)})</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        losses_plot.send()</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    trained_model <span class="op">=</span> model</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> trained_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Test Procedure</strong>: A very simple test procedure to evaluate both models is shown below. It is basically the same as in <a href="https://pytorch.org/tutorials/intermediate/spatial_transformer_tutorial.html">the pytorch tutorial</a>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test(trained_model, test_dataset):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    test_loader <span class="op">=</span> DataLoader(test_dataset, batch_size<span class="op">=</span><span class="dv">256</span>, shuffle<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                            num_workers<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        trained_model.<span class="bu">eval</span>()</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        test_loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        correct <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> data, label <span class="kw">in</span> test_loader:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            data, label <span class="op">=</span> data.to(device), label.to(device)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>            log_prop_pred <span class="op">=</span> trained_model(data)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            class_pred <span class="op">=</span> log_prop_pred.<span class="bu">max</span>(<span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)[<span class="dv">1</span>]</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            test_loss <span class="op">+=</span> F.nll_loss(log_prop_pred, label).item()<span class="op">/</span><span class="bu">len</span>(test_loader)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>            correct <span class="op">+=</span> class_pred.eq(label.view_as(class_pred)).<span class="bu">sum</span>().item()</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>trained_model<span class="sc">.</span>name<span class="sc">}</span><span class="ss">: avg loss: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(test_loss, <span class="dv">2</span>)<span class="sc">}</span><span class="ss">,  '</span> <span class="op">+</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f'avg acc </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(<span class="dv">100</span><span class="op">*</span>correct<span class="op">/</span><span class="bu">len</span>(test_dataset), <span class="dv">2</span>)<span class="sc">}</span><span class="ss">%'</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ul>
+</section>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">Results</h3>
+<p>Lastly, the results can also divided into three sections:</p>
+<ul>
+<li><p><strong>Training Results</strong>: Firstly, we train our models on the training dataset and compare the logarithmized losses:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>trained_cnn <span class="op">=</span> train(cnn, train_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<img src="../../assets/img/09_spatial_transformer/train_cnn_results.png" title="Training Results CNN" class="img-fluid" alt="Training Results CNN">
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>trained_st_cnn <span class="op">=</span> train(st_cnn, train_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<img src="../../assets/img/09_spatial_transformer/train_st_cnn_results.png" title="Training Results ST-CNN" class="img-fluid" alt="Training Results ST-CNN">
+<p>The logarithmized losses already indicate that the ST-CNN performs better than the standard CNN (at least, it decreases the loss faster). However, it can also be noted that training the ST-CNN seems less stable.</p></li>
+<li><p><strong>Test Performance</strong>: While the performance on the training dataset may be a good indicator, test set performance is much more meaningful. Let’s compare the losses and accuracies between both trained models:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> trained_model <span class="kw">in</span> [trained_cnn, trained_st_cnn]:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    test(trained_model, test_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<img src="../../assets/img/09_spatial_transformer/test_results.png" title="Test Results" class="img-fluid" alt="Test Results">
+<p>Clearly, the ST-CNN performs much better than the standard CNN. Note that training for more epochs would probably result in even better accuracies in both models.</p></li>
+<li><p><strong>Visualization of Learned Transformations</strong>: Lastly, it might be interesting to see what the ST module actually does after training:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> ConnectionPatch</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> visualize_learned_transformations(trained_st_cnn, test_dataset, digit_class<span class="op">=</span><span class="dv">8</span>):</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    trained_st_cnn.to(device)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    n_samples <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    data_loader <span class="op">=</span> DataLoader(test_dataset, batch_size<span class="op">=</span><span class="dv">256</span>, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    batch_img, batch_label <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(data_loader))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    i_samples <span class="op">=</span> np.where(batch_label.numpy() <span class="op">==</span> digit_class)[<span class="dv">0</span>][<span class="dv">0</span>:n_samples]</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(n_samples<span class="op">*</span><span class="fl">2.5</span>, <span class="fl">2.5</span><span class="op">*</span><span class="dv">4</span>))</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> counter, i_sample <span class="kw">in</span> <span class="bu">enumerate</span>(i_samples):</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        img <span class="op">=</span> batch_img[i_sample]</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        label <span class="op">=</span> batch_label[i_sample]</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># input image</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        ax1 <span class="op">=</span> plt.subplot(<span class="dv">4</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        plt.imshow(transforms.ToPILImage()(img), cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>            ax1.annotate(<span class="st">'Input'</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">'axes fraction'</span>,</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>                        fontsize<span class="op">=</span><span class="dv">14</span>, va<span class="op">=</span><span class="st">'center'</span>, ha<span class="op">=</span><span class="st">'right'</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># image including border of affine transformation</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        img_inp <span class="op">=</span> img.unsqueeze(<span class="dv">0</span>).to(device)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        source_normalized <span class="op">=</span> trained_st_cnn.get_attention_rectangle(img_inp)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># remap into absolute values</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        source_absolute <span class="op">=</span> <span class="dv">0</span> <span class="op">+</span> <span class="fl">20.5</span><span class="op">*</span>(source_normalized.cpu() <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>        ax2 <span class="op">=</span> plt.subplot(<span class="dv">4</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter <span class="op">+</span> n_samples)</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> np.arange(<span class="dv">42</span>)</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> np.arange(<span class="dv">42</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>        X, Y <span class="op">=</span> np.meshgrid(x, y)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>        plt.pcolor(X, Y, img.squeeze(<span class="dv">0</span>), cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>        plt.plot(source_absolute[<span class="dv">0</span>], source_absolute[<span class="dv">1</span>], color<span class="op">=</span><span class="st">'red'</span>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>        ax2.axes.set_aspect(<span class="st">'equal'</span>)</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>        ax2.set_ylim(<span class="dv">41</span>, <span class="dv">0</span>)</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>        ax2.set_xlim(<span class="dv">0</span>, <span class="dv">41</span>)</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>            ax2.annotate(<span class="st">'ST'</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">'axes fraction'</span>,</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>                        fontsize<span class="op">=</span><span class="dv">14</span>, va<span class="op">=</span><span class="st">'center'</span>, ha<span class="op">=</span><span class="st">'right'</span>)</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>        <span class="co"># add arrow between</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>        con <span class="op">=</span> ConnectionPatch(xyA<span class="op">=</span>(<span class="dv">21</span>, <span class="dv">41</span>), xyB<span class="op">=</span>(<span class="dv">21</span>, <span class="dv">0</span>), coordsA<span class="op">=</span><span class="st">'data'</span>,</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>                              coordsB<span class="op">=</span><span class="st">'data'</span>, axesA<span class="op">=</span>ax1, axesB<span class="op">=</span>ax2,</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>                              arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>, shrinkB<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>        ax2.add_artist(con)</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ST module output</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>        st_img <span class="op">=</span> trained_st_cnn.ST_module(img.unsqueeze(<span class="dv">0</span>).to(device))</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>        ax3 <span class="op">=</span> plt.subplot(<span class="dv">4</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>n_samples)</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>        plt.imshow(transforms.ToPILImage()(st_img.squeeze(<span class="dv">0</span>).cpu()), cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>            ax3.annotate(<span class="st">'ST Output'</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">'axes fraction'</span>,</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>                        fontsize<span class="op">=</span><span class="dv">14</span>, va<span class="op">=</span><span class="st">'center'</span>, ha<span class="op">=</span><span class="st">'right'</span>)</span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>        <span class="co"># add arrow between</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>        con <span class="op">=</span> ConnectionPatch(xyA<span class="op">=</span>(<span class="dv">21</span>, <span class="dv">41</span>), xyB<span class="op">=</span>(<span class="dv">21</span>, <span class="dv">0</span>), coordsA<span class="op">=</span><span class="st">'data'</span>,</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>                              coordsB<span class="op">=</span><span class="st">'data'</span>, axesA<span class="op">=</span>ax2, axesB<span class="op">=</span>ax3,</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>                              arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>, shrinkB<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>        ax3.add_artist(con)</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>        <span class="co"># predicted label</span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>        log_pred <span class="op">=</span> trained_st_cnn(img.unsqueeze(<span class="dv">0</span>).to(device))</span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>        pred_label <span class="op">=</span> log_pred.<span class="bu">max</span>(<span class="dv">1</span>)[<span class="dv">1</span>].item()</span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>        ax4 <span class="op">=</span> plt.subplot(<span class="dv">4</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter <span class="op">+</span> <span class="dv">3</span><span class="op">*</span>n_samples)</span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>        plt.text(<span class="fl">0.45</span>, <span class="fl">0.43</span>, <span class="bu">str</span>(pred_label), fontsize<span class="op">=</span><span class="dv">22</span>)</span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>        <span class="co">#plt.title(f'Ground Truth {label.item()}', y=-0.1, fontsize=14)</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>            ax4.annotate(<span class="st">'Prediction'</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">'axes fraction'</span>,</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>                        fontsize<span class="op">=</span><span class="dv">14</span>, va<span class="op">=</span><span class="st">'center'</span>, ha<span class="op">=</span><span class="st">'right'</span>)</span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>        <span class="co"># add arrow between</span></span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>        con <span class="op">=</span> ConnectionPatch(xyA<span class="op">=</span>(<span class="dv">21</span>, <span class="dv">41</span>), xyB<span class="op">=</span>(<span class="fl">0.5</span>, <span class="fl">0.65</span>), coordsA<span class="op">=</span><span class="st">'data'</span>,</span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>                              coordsB<span class="op">=</span><span class="st">'data'</span>, axesA<span class="op">=</span>ax3, axesB<span class="op">=</span>ax4,</span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>                              arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>, shrinkB<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a>        ax4.add_artist(con)</span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>visualize_learned_transformations(st_cnn, test_dataset, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<img src="../../assets/img/09_spatial_transformer/transformation_visualization.png" title="Transformation Visualization" class="img-fluid" alt="Transformation Visualization">
+<p>Clearly, the ST module attends to the digits such that the ST output has much less variation in terms of rotation, translation and scale making the classification task for the follow up CNN easier.</p>
+<p>Pretty cool, hugh?</p></li>
+</ul>
+<hr>
+
+
+</section>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Clearly, convolutional layers are not rotation or scale invariant. Even the translation-equivariance property does not necessarily make CNNs translation-invariant as typically some fully connected layers are added at the end. Max-pooling layers can introduce some translation invariance, however are limited by their size such that often large translation are not captured.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p><a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a> define the transformation with normalized coordinates, i.e., <span class="math inline">\(-1 \le x_i^s, y_i^s \le 1\)</span>. However, in the sampling kernel equations it seems more likely that they assume unnormalized/absolute coordinates, e.g., in equation 4 of the paper normalized coordinates would be nonsensical.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,1 +1,7 @@
 /* css styles */
+
+th:first-child {
+  border: 10px solid #bfbfbf;
+  text-align: center;
+  border-bottom: 10px solid #bfbfbf;
+}

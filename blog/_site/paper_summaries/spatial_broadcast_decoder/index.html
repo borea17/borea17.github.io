@@ -207,6 +207,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
+
+<style>
+
+th {
+  border: 10px solid #bfbfbf;
+  text-align: center;
+}
+
+table th {
+  background-color: blue;
+}
+</style>
 <p><a href="https://arxiv.org/abs/1901.07017">Watters et al.&nbsp;(2019)</a> introduce the <em>Spatial Broadcast Decoder (SBD)</em> as an architecture for the decoder in Variational Auto-Encoders <a href="https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes">(VAEs)</a> to improve disentanglement in the latent space<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, reconstruction accuracy and generalization in limited datasets (i.e., held-out regions in data space). Motivated by the limitations of deconvolutional layers in traditional decoders, these upsampling layers are replaced by a tiling operation in the Spatial Broadcast decoder. Furthermore, explicit spatial information (inductive bias) is appended in the form of coordinate channels leading to a simplified optimization problem and improved positional generalization. As a proof of concept, they tested the model on the colored sprites dataset (known factors of variation such as position, size, shape), Chairs and 3D Object-in-Room datasets (no positional variation), a dataset with small objects and a dataset with dependent factors. They could show that the Spatial Broadcast decoder can be used complementary or as an improvement to state-of-the-art disentangling techniques.</p>
 <section id="model-description" class="level2">
 <h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
