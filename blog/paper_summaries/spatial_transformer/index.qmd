@@ -162,7 +162,7 @@ To this end, the ST is divided into three consecutive parts:
 The figure below summarizes the ST architecture and shows how the
 individual parts interact with each other.
 
-| ![Architecture of Spatial Transformer](/assets/img/09_spatial_transformer/spatial_transformer.png "Architecture of Spatial Transformer") |
+| ![Architecture of Spatial Transformer](./img/spatial_transformer.png "Architecture of Spatial Transformer") |
 | :--  |
 |  **Architecture of ST Module**. Taken from [Jaderberg et al. (2015)](https://arxiv.org/abs/1506.02025).  |
 
@@ -242,7 +242,7 @@ dataset as follows:
 * translate by picking a random location on a $42\times 42$ image
   (MNIST digits are $28 \times 28$).
 
-| ![RTS Distorted MNIST Examples](/assets/img/09_spatial_transformer/distortedMNIST.png "RTS Distorted MNIST Examples") |
+| ![RTS Distorted MNIST Examples](./img/distortedMNIST.png "RTS Distorted MNIST Examples") |
 | :---: |
 | **RTS Distorted MNIST Examples** |
 
@@ -252,7 +252,7 @@ digit representations (humans could still assign correct labels).
 
 The code below can be used to create this dataset:
 
-```python
+```{python}
 import torch
 from torchvision import datasets, transforms
 
@@ -306,7 +306,7 @@ The model implementation can be divided into three tasks:
   The code below creates both architectures and counts their trainable
   parameters.
 
-  ```python
+  ```{python}
   import torch.nn as nn
   import numpy as np
   import torch.nn.functional as F
@@ -413,7 +413,7 @@ The model implementation can be divided into three tasks:
     print(f'{model.name} has {num_trainable_params} trainable parameters')
   ```
 
-  ![Trainable Parameters](/assets/img/09_spatial_transformer/trainable_params.png "Trainable Paramas")
+  ![Trainable Parameters](./img/trainable_params.png "Trainable Paramas")
 
 * **Training Procedure**: As described in appendix A.4 of [Jaderberg et al.
   (2015)](https://arxiv.org/abs/1506.02025), the networks are trained
@@ -429,8 +429,8 @@ The model implementation can be divided into three tasks:
   $$
 
   where $k$ enumerates the number of classes, $i$ enumerates the
-  number of images, $p_i^{k} \in \{0, 1\}$ denotes the true probability of image
-  $i$ and class $k$ and $\widehat{p}_i^{k} \in [0, 1]$ is the
+  number of images, $p_i^{(k)} \in \{0, 1\}$ denotes the true probability of image
+  $i$ and class $k$ and $\widehat{p}_i^{(k)} \in [0, 1]$ is the
   probability predicted by the network. Note that the true probability
   distribution is categorical (hard labels), i.e.,
 
@@ -455,7 +455,7 @@ The model implementation can be divided into three tasks:
 
   The code below summarizes the whole training procedure.
 
-  ```python
+  ```{python}
   from livelossplot import PlotLosses
   from torch.utils.data import DataLoader
 
@@ -506,7 +506,7 @@ The model implementation can be divided into three tasks:
   models is shown below. It is basically the same as in [the pytorch
   tutorial](https://pytorch.org/tutorials/intermediate/spatial_transformer_tutorial.html).
 
-  ```python
+  ```{python}
   def test(trained_model, test_dataset):
       device = 'cuda' if torch.cuda.is_available() else 'cpu'
       test_loader = DataLoader(test_dataset, batch_size=256, shuffle=True,
@@ -527,7 +527,7 @@ The model implementation can be divided into three tasks:
           print(f'{trained_model.name}: avg loss: {np.round(test_loss, 2)},  ' +
                 f'avg acc {np.round(100*correct/len(test_dataset), 2)}%')
       return
-   ```
+  ```
 
 ### Results
 
@@ -535,17 +535,17 @@ Lastly, the results can also divided into three sections:
 
 * **Training Results**: Firstly, we train our models on the training dataset and compare the logarithmized losses:
 
-  ```python
+  ```{python}
   trained_cnn = train(cnn, train_dataset)
   ```
 
-  ![Training Results CNN](/assets/img/09_spatial_transformer/train_cnn_results.png "Training Results CNN")
+  ![Training Results CNN](./img/train_cnn_results.png "Training Results CNN")
 
-  ```python
+  ```{python}
   trained_st_cnn = train(st_cnn, train_dataset)
   ```
 
-  ![Training Results ST-CNN](/assets/img/09_spatial_transformer/train_st_cnn_results.png "Training Results ST-CNN")
+  ![Training Results ST-CNN](./img/train_st_cnn_results.png "Training Results ST-CNN")
 
   The logarithmized losses already indicate that the ST-CNN performs
   better than the standard CNN (at least, it decreases the loss
@@ -557,12 +557,12 @@ Lastly, the results can also divided into three sections:
   meaningful. Let's compare the losses and accuracies between both
   trained models:
 
-  ```python
+  ```{python}
   for trained_model in [trained_cnn, trained_st_cnn]:
       test(trained_model, test_dataset)
   ```
 
-  ![Test Results](/assets/img/09_spatial_transformer/test_results.png "Test Results")
+  ![Test Results](./img/test_results.png "Test Results")
 
   Clearly, the ST-CNN performs much better than the standard CNN. Note
   that training for more epochs would probably result in even better
@@ -571,7 +571,7 @@ Lastly, the results can also divided into three sections:
 * **Visualization of Learned Transformations**: Lastly, it might be
   interesting to see what the ST module actually does after training:
 
-  ```python
+  ```{python}
   import matplotlib.pyplot as plt
   from matplotlib.patches import ConnectionPatch
 
@@ -657,9 +657,9 @@ Lastly, the results can also divided into three sections:
 
 
   visualize_learned_transformations(st_cnn, test_dataset, 2)
-   ```
+  ```
 
-  ![Transformation Visualization](/assets/img/09_spatial_transformer/transformation_visualization.png "Transformation Visualization")
+  ![Transformation Visualization](./img/transformation_visualization.png "Transformation Visualization")
 
   Clearly, the ST module attends to the digits such that the
   ST output has much less variation in terms of rotation, translation

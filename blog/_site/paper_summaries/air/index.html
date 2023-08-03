@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.340">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="borea17">
+<meta name="dcterms.date" content="2020-09-20">
+
+<title>borea17 - Attend, Infer, Repeat: Fast Scene Understanding with Generative Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">borea17</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../paper_summaries.html" rel="" target="">
+ <span class="menu-text">Paper Summaries</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Attend, Infer, Repeat: Fast Scene Understanding with Generative Models</li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Attend, Infer, Repeat: Fast Scene Understanding with Generative Models</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/05_Attend-Infer-Repeat.ipynb"><i class="bi"></i> Code</button></div></div>
+                                <div class="quarto-categories">
+                <div class="quarto-category">reimplementation</div>
+                <div class="quarto-category">unsupervised</div>
+                <div class="quarto-category">generative</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>borea17 </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">September 20, 2020</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#model-description" id="toc-model-description" class="nav-link active" data-scroll-target="#model-description">Model Description</a>
+  <ul class="collapse">
+  <li><a href="#high-level-overview" id="toc-high-level-overview" class="nav-link" data-scroll-target="#high-level-overview">High-Level Overview</a></li>
+  <li><a href="#mathematical-model" id="toc-mathematical-model" class="nav-link" data-scroll-target="#mathematical-model">Mathematical Model</a></li>
+  <li><a href="#difficulties" id="toc-difficulties" class="nav-link" data-scroll-target="#difficulties">Difficulties</a></li>
+  </ul></li>
+  <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a>
+  <ul class="collapse">
+  <li><a href="#multi-mnist-dataset" id="toc-multi-mnist-dataset" class="nav-link" data-scroll-target="#multi-mnist-dataset">Multi-MNIST Dataset</a></li>
+  <li><a href="#model-implementation" id="toc-model-implementation" class="nav-link" data-scroll-target="#model-implementation">Model Implementation</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#closing-notes" id="toc-closing-notes" class="nav-link" data-scroll-target="#closing-notes">Closing Notes</a></li>
+  </ul></li>
+  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<!-- nextjournal_link: "https://nextjournal.com/borea17/attend-infer-repeat/" -->
+<p><a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> introduce the <strong>Attend-Infer-Repeat (AIR)</strong> framework as an end-to-end trainable generative model capable of decomposing multi-object scenes into its constituent objects in an unsupervised learning setting. AIR builds upon the inductive bias that real-world scenes can be understood as a composition of (locally) self-contained objects. Therefore, AIR uses a structured probabilistic model whose parameters are obtained by inference/optimization. As the name suggests, the image decomposition process can be abstracted into three steps:</p>
+<ul>
+<li><strong>Attend</strong>: Firstly, the model uses a <a href="https://borea17.github.io/paper_summaries/spatial_transformer">Spatial Transformer (ST)</a> to focus on a specific region of the image, i.e., crop the image.</li>
+<li><strong>Infer</strong>: Secondly, the cropped image is encoded by a <a href="https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes">Variational Auto-Encoder (VAE)</a>. Note the same VAE is used for every cropped image.</li>
+<li><strong>Repeat</strong>: Lastly, these steps are repreated until the full image is described or the maximum number of repetitions is reached.</li>
+</ul>
+<p>Notably, the model can handle a variable number of objects (upper-bounded) by treating inference as an iterative process. As a proof of concept, they show that AIR could successfully learn to decompose multi-object scenes in multiple datasets (multiple MNIST, Sprites, Omniglot, 3D scenes).</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/paper_results.gif" title="Paper Results" class="img-fluid" alt="Paper Results"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Paper Results</strong>. Taken from <a href="https://www.youtube.com/watch?v=4tc84kKdpY4">this presentation</a>. Note that the aim of unsupervised representation learning is to obtain good representations rather than perfect reconstructions.</td>
+</tr>
+</tbody>
+</table>
+<!-- - aim: good representations for downstream tasks -->
+<!-- - scheme for efficient variational inference in latent spaces of -->
+<!--   variable dimensionality -->
+<!-- Motivated by human perception -->
+<!-- - produce representations that are more useful for downstream tasks  -->
+<!-- - structured models for image understanding -->
+<!-- - standard VAEs lack interpretations of latent space (unstructured** -->
+<!-- - AIR imposes structure on its representation through the generative -->
+<!--   model/process rather than supervision from labels -->
+<!-- - aiming to obtain good representations rather than good reconstructions -->
+<section id="model-description" class="level2">
+<h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
+<p>AIR is a rather sophisticated framework with some non-trivial subtleties. For the sake of clarity, the following description is organized as follows: Firstly, a high-level overview of the main ideas is given. Secondly, the transition from these ideas into a mathematical formulation (ignoring difficulties) is described. Lastly, the main difficulties are highlighted and how <a href="https://arxiv.org/abs/1603.08575">Eslami et al. (2016)</a> proposed to tackle them.</p>
+<section id="high-level-overview" class="level3">
+<h3 class="anchored" data-anchor-id="high-level-overview">High-Level Overview</h3>
+<p>In essence, the model can be understood as a special VAE architecture in which an image <span class="math inline">\(\textbf{x}\)</span> is encoded to some kind of latent distribution from which we sample the latent representation <span class="math inline">\(\textbf{z}\)</span> which then can be decoded into an reconstructed image <span class="math inline">\(\widetilde{\textbf{x}}\)</span>, see image below. The main idea by <a href="https://arxiv.org/abs/1603.08575">Eslami et al. (2016)</a> consists of imposing additional structure in the model using the inductive bias that real-world scenes can often be approximated as multi-object scenes, i.e., compositions of several (variable number) objects. Additionally, they assume that all of these objects live in the same domain, i.e., each object is an instantiation from the same class.</p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/standard_VAE.png" title="Standard VAE Architecture" class="img-fluid" alt="Standard VAE Architecture"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Standard VAE Architecture</strong>. AIR can be understood as a modified VAE architecture.</td>
+</tr>
+</tbody>
+</table>
+<p>To this end, <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> replace the encoder with an recurrent, variable-length inference network to obtain a group-structured latent representation. Each group <span class="math inline">\(\textbf{z}^{(i)}\)</span> should ideally correspond to one object where the entries can be understood as the compressed attributes of that object (e.g., type, appearance, pose). The main purpose of the inference network is to explain the whole scene by iteratively updating what remains to be explained, i.e., each step is conditioned on the image and on its knowledge of previously explained objects, see image below. Since they assume that each object lives in the same domain, the decoder is applied group-wise, i.e., each vector <span class="math inline">\(\textbf{z}^{(i)}\)</span> is fed through the same decoder network, see image below.</p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/VAE_inference.png" title="VAE with Recurrent Inference Network" class="img-fluid" alt="VAE with Recurrent Inference Network"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>VAE with Recurrent Inference Network</strong>. A group-structured latent representation is obtained by replacing the encoder with a recurrent, variable-length inference network. This network should ideally attend to one object at a time and is conditioned on the image <span class="math inline">\(\textbf{x}\)</span> and its knowledge of previously epxlained objects <span class="math inline">\(\textbf{h}\)</span>, <span class="math inline">\(\textbf{z}\)</span>.</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> put additional structure to the model by dividing the latent space of each object into <code>what</code>, <code>where</code> and <code>pres</code>. As the names suggest, <span class="math inline">\(\textbf{z}^{(i)}_{\text{what}}\)</span> corresponds to the objects appearance, while <span class="math inline">\(\textbf{z}^{(i)}_{\text{where}}\)</span> gives information about the position and scale. <span class="math inline">\(\text{z}_{\text{pres}}^{(i)}\)</span> is a binary variable describing whether an object is present, it is rather a helper variable to allow for a variable number of objects to be detected (going to be explained in the <a href="https://borea17.github.io/paper_summaries/AIR#difficulties">Difficulties section</a>).</p>
+<p>To disentangle <code>what</code>from <code>where</code>, the inference network extracts attentions crops <span class="math inline">\(\textbf{x}^{(i)}_{\text{att}}\)</span> of the image <span class="math inline">\(\textbf{x}\)</span> based on a three-dimensional vector <span class="math inline">\(\textbf{z}^{(i)}_{\text{where}} \left( \textbf{h}^{(i)} \right)\)</span> which specifies the affine parameters <span class="math inline">\((s^{(i)}, t_x^{(i)}, t_y^{(i)})\)</span> of the attention transformation<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. These attention crops are then put through a standard VAE to encode the latent <code>what</code>-vector <span class="math inline">\(\textbf{z}^{(i)}_{\text{what}}\)</span>. Note that each attention crop is put through the same VAE, thereby consistency between compressed object attributes is achieved (i.e., each object is an instantiation of the same class).</p>
+<p>On the decoder side, the reconstructed attention crop <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}_{\text{att}}\)</span> is transformed to <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}\)</span> using the information from <span class="math inline">\(\textbf{z}^{(i)}_{\text{where}}\)</span>. <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}\)</span> can be understood as a reconstructed image of the <span class="math inline">\(i\)</span>-th object in the original image <span class="math inline">\(\textbf{x}\)</span>. Note that <span class="math inline">\(\text{z}^{(i)}_{\text{pres}}\)</span> is used to decide whether the contribution of <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}_{\text{att}}\)</span> is added to the otherwise empty canvas <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}\)</span>.</p>
+<p>The schematic below summarizes the whole AIR architecture.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img src="./img/AIR_model2.png" title="Schematic of AIR" class="img-fluid" alt="Schematic of AIR"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Schematic of AIR</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Creation of Attention Crops and Inverse Transformation</strong>: As stated before, a <a href="https://borea17.github.io/paper_summaries/spatial_transformer">Spatial Transformer (ST)</a> module is used to produce the attention crops using a standard attention transformation. Remind that this means that the regular grid <span class="math inline">\(\textbf{G} = \{\begin{bmatrix} x_k^t &amp; y_k^t \end{bmatrix}^{\text{T}} \}\)</span> defined on the output is transformed into a new sampling grid <span class="math inline">\(\widetilde{\textbf{G}} = \{\begin{bmatrix} x_k^s &amp; y_k^s \end{bmatrix}^{\text{T}} \}\)</span> defined on the input. The latent vector <span class="math inline">\(\textbf{z}^{(i)}_{\text{where}}\)</span> can be used to build the attention transformation matrix, i.e.,</p>
+<p><span class="math display">\[
+  \textbf{A}^{(i)} = \begin{bmatrix} s^{(i)} &amp; 0 &amp; t_x^{(i)} \\
+   0 &amp; s^{(i)} &amp; t_y^{(i)} \\ 0 &amp; 0 &amp; 1\end{bmatrix}, \quad \quad \quad
+  \begin{bmatrix} x_k^s \\ y_k^s \\ 1 \end{bmatrix} = \textbf{A}^{(i)}
+  \begin{bmatrix} x_k^t \\ y_k^t \\ 1\end{bmatrix}
+\]</span></p>
+<p>This is nothing new, but how do we map the reconstructed attention crop <span class="math inline">\(\tilde{\textbf{x}}^{(i)}_{\text{att}}\)</span> back to the original image space, i.e., how can we produce <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}\)</span> from <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}_{\text{att}}\)</span> and <span class="math inline">\(\textbf{z}^{(i)}_{\text{where}}\)</span>? The answer is pretty simple, we use the (pseudo)inverse<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> of the formerly defined attention transformation matrix, i.e.,</p>
+<p><span class="math display">\[
+\begin{bmatrix} x_k^s \\ y_k^s \\ 1 \end{bmatrix} = \left(\textbf{A}^{(i)}\right)^{+}
+  \begin{bmatrix} x_k^t \\ y_k^t \\ 1\end{bmatrix} \stackrel{s\neq
+  0}{=} \begin{bmatrix} \frac {1}{s^{(i)}} &amp; 0 &amp; - \frac{t_x^{(i)}}{s} \\
+   0 &amp; \frac {1}{s^{(i)}} &amp; -\frac {t_y^{(i)}}{s} \\ 0 &amp; 0 &amp;
+   1\end{bmatrix}\begin{bmatrix} x_k^t \\ y_k^t \\ 1\end{bmatrix},
+\]</span></p>
+<p>where <span class="math inline">\(\left(\textbf{A}^{(i)}\right)^{+}\)</span> denotes the Moore-Penrose inverse of <span class="math inline">\(\textbf{A}^{(i)}\)</span>, and the regular grid <span class="math inline">\(\textbf{G} = \{\begin{bmatrix} x_k^t &amp; y_k^t \end{bmatrix}^{\text{T}} \}\)</span> is now defined on the original image space<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. Below is a self-written interactive visualization where <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}_{\text{att}} = \textbf{x}^{(i)}_{\text{att}}\)</span>. It shows nicely that the whole process can abstractly be understood as cutting of a crop from the original image and placing the reconstructed version with the inverse scaling and shifting on an otherwise empty (black) canvas. The code and visualization can be found <a href="https://github.com/borea17/InteractiveTransformations">here</a>.</p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img width="900" height="404" src="../../assets/paper_summaries/06_AIR/img/transformation.gif"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Interactive Transformation Visualization</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mathematical-model" class="level3">
+<h3 class="anchored" data-anchor-id="mathematical-model">Mathematical Model</h3>
+<p>While the former model description gave an overview about the inner workings and ideas of AIR, the following section introduces the probabilistic model over which AIR operates. Similar to the <a href="https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes">VAE paper</a> by <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>, <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> introduce a modeling assumption for the generative process and use a variational approximation for the true posterior of that process to allow for joint optimization of the inference (encoder) and generator (decoder) parameters.</p>
+<p>In contrast to standard VAEs, the modeling assumption for the generative process is more structured in AIR, see image below. It assumes that:</p>
+<ol type="1">
+<li>The number of objects <span class="math inline">\(n\)</span> is sampled from some discrete prior distribution <span class="math inline">\(p_N\)</span> (e.g., geometric distribution) with maximum value <span class="math inline">\(N\)</span>.</li>
+<li>The latent scene descriptor <span class="math inline">\(\textbf{z} = \left(\textbf{z}^{(1)}, \textbf{z}^{(2)}, \dots, \textbf{z}^{(n)} \right)\)</span> (length depends on sampled <span class="math inline">\(n\)</span>) is sampled from a scene model <span class="math inline">\(\textbf{z} \sim p_{\boldsymbol{\theta}}^{z} \left( \cdot | n \right)\)</span>, where each vector <span class="math inline">\(\textbf{z}^{(i)}\)</span> describes the attributes of one object in the scene. Furthermore, <a href="https://arxiv.org/abs/1603.08575">Eslami et al. (2016)</a> assume that <span class="math inline">\(\textbf{z}^{(i)}\)</span> are independent for each possible <span class="math inline">\(n\)</span>, i.e., <span class="math inline">\(p_{\boldsymbol{\theta}}^{z} \left( \textbf{z} | n \right) = \prod_{i=1}^n p_{\boldsymbol{\theta}}^z \left( \textbf{z}^{(i)}\right)\)</span>.</li>
+<li><span class="math inline">\(\textbf{x}\)</span> is generated by sampling from the conditional distribution <span class="math inline">\(p_{\boldsymbol{\theta}}^{x} \left( \textbf{x} | \textbf{z} \right)\)</span>.</li>
+</ol>
+<p>As a result, the marginal likelihood of an image given the generative model parameters can be stated as follows</p>
+<p><span class="math display">\[
+p_{\boldsymbol{\theta}} (\textbf{x}) = \sum_{n=1}^N p_N (n) \int
+p_{\boldsymbol{\theta}}^z \left( \textbf{z} | n \right)
+p_{\boldsymbol{\theta}}^x \left( \textbf{x} | \textbf{z}\right) d \textbf{z}
+\]</span></p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="../../assets/paper_summaries/06_AIR/img/VAE_vs_AIR.png" title="Generative Model VAE vs AIR" class="img-fluid" alt="Generative Model VAE vs AIR"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Generative Model VAE vs AIR</strong>. Note that for a given dataset <span class="math inline">\(\textbf{X} = \{ \textbf{x}^{(i)}\}_{i=1}^{L}\)</span> the marginal likelihood of the whole dataset can be computed via $p_{} ( ) = <em>{i=1}^{L} p</em>{} ( ^{(i)} ) $.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Learning by optimizing the ELBO</strong>: Since the integral is intractable for most models, <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> introduce an amortized<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> variational approximation <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x}\right)\)</span> for the true posterior <span class="math inline">\(p_{\boldsymbol{\theta}}\left(\textbf{z}, n |\textbf{x}\right)\)</span>. From here on, the steps are very similar to the <a href="https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes">VAE paper</a> by <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>: The objective of minimizing the KL divergence between the parameterized variational approximation (using a neural network) and the true (but unknown) posterior <span class="math inline">\(p_{\boldsymbol{\theta}}\left(\textbf{z}, n |\textbf{x}\right)\)</span> is approximated by maximizing the evidence lower bound (<a href="https://borea17.github.io/ML_101/probability_theory/evidence_lower_bound">ELBO</a>):</p>
+<p><span class="math display">\[
+\mathcal{L} \left( \boldsymbol{\theta}, \boldsymbol{\phi};
+\textbf{x}^{(i)} \right) = \underbrace{- D_{KL} \left( q_{\boldsymbol{\phi}}
+\left( \textbf{z}, n | \textbf{x}^{(i)}\right) || p_{\boldsymbol{\theta}}
+(\textbf{z}, n)\right)}_{\text{Regularization Term}} + \underbrace{\mathbb{E}_{q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right)} \left[ \log
+p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n
+\right) \right]}_{\text{Reconstruction Accuracy}},
+\]</span></p>
+<p>where <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z},  n \right)\)</span> is a parameterized probabilistic decoder<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> (using a neural network) and <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z}, n) =  p_{\boldsymbol{\theta}} \left(\textbf{z} | n \right)  p \left( n \right)\)</span> is prior on the joint probability of <span class="math inline">\(\textbf{z}\)</span> and <span class="math inline">\(n\)</span> that we need to define a priori. As a result, the optimal parameters <span class="math inline">\(\boldsymbol{\theta}\)</span>, <span class="math inline">\(\boldsymbol{\phi}\)</span> can be learnt jointly by optimizing (maximizing) the ELBO.</p>
+</section>
+<section id="difficulties" class="level3">
+<h3 class="anchored" data-anchor-id="difficulties">Difficulties</h3>
+<p>In the former explanation, it was assummed that we could easily define some parameterized probabilistic encoder <span class="math inline">\(q_{\boldsymbol{\phi}} \left( \textbf{z}, n | \textbf{x}^{(i)} \right)\)</span> and decoder <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n \right)\)</span> using neural networks. However, there are some obstacles in our way:</p>
+<ul>
+<li><p>How can we infer a variable number of objects <span class="math inline">\(n\)</span>? Actually, we would need to evaluate <span class="math inline">\(p_N \left(n | \textbf{x}\right) = \int q_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x} \right) d \textbf{z}\)</span> for all <span class="math inline">\(n=1,\dots, N\)</span> and then sample from the resulting distribution. <!-- Depending on the maximum number of objects --> <!-- $N$, this would quickly become computationally inefficient. --></p></li>
+<li><p>The number of objects <span class="math inline">\(n\)</span> is clearly a discrete variable. How can we backprograte if we sample from a discrete distribution?</p></li>
+<li><p>What priors should we choose? Especially, the prior for the number of objects in a scene <span class="math inline">\(n \sim p_N\)</span> is unclear.</p></li>
+<li><p>What the <code>first</code> or <code>second</code> object in a scene constitutes is somewhat arbitrary. As a result, object assigments <span class="math inline">\(\begin{bmatrix} \textbf{z}^{(1)} &amp; \dots &amp; \textbf{z}^{(n)} \end{bmatrix} =\textbf{z} \sim q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}^{(i)}, n \right)\)</span> should be exchangeable and the decoder <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n \right)\)</span> should be permutation invariant in terms of <span class="math inline">\(\textbf{z}^{(i)}\)</span>. Thus, the latent representation needs to preserve some strong symmetries.</p></li>
+</ul>
+<p><a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> tackle these challenges by defining inference as an iterative process using a recurrent neural network (RNN) that is run for <span class="math inline">\(N\)</span> steps (maximum number of objects). As a result, the number of objects <span class="math inline">\(n\)</span> can be encoded in the latent distribution by defining the approximated posterior as follows</p>
+<p><span class="math display">\[
+  q_{\boldsymbol{\phi}} \left( \textbf{z}, \textbf{z}_{\text{pres}} |
+  \textbf{x} \right) = q_{\boldsymbol{\phi}} \left(
+  z_{\text{pres}}^{(n+1)} = 0 | \textbf{z}^{(1:n)} , \textbf{x}\right)
+  \prod_{i=1}^n q_{\boldsymbol{\phi}} \left( \textbf{z}^{(i)} ,
+  z_{\text{pres}}^{(i)}=1 | \textbf{x}, \textbf{z}^{(1:i-1)}\right),
+\]</span></p>
+<p>where <span class="math inline">\(z_{\text{pres}}^{(i)}\)</span> is an introduced binary variable sampled from a Bernoulli distribution <span class="math inline">\(z_{\text{pres}}^{(i)} \sim \text{Bern} \left( p_{\text{pres}}^{(i)} \right)\)</span> whose probability <span class="math inline">\(p_{\text{pres}}^{(i)}\)</span> is predicted at each iteration step. Whenever <span class="math inline">\(z_{\text{pres}}^{(i)}=0\)</span> the inference process stops and no more objects can be described, i.e., we enforce <span class="math inline">\(z_{\text{pres}}^{(i+1)}=0\)</span> for all subsequent steps such that the vector <span class="math inline">\(\textbf{z}_{\text{pres}}\)</span> looks as follows</p>
+<p><span class="math display">\[
+\textbf{z}_{\text{pres}} = \begin{bmatrix} \smash[t]{\overbrace{\begin{matrix}1 &amp; 1 &amp; \dots &amp;
+1\end{matrix}}^{n \text{ times}}}   &amp; 0 &amp;\dots &amp; 0 \end{bmatrix}
+\]</span></p>
+<p>Thus, <span class="math inline">\(z_{\text{pres}}^{(i)}\)</span> may be understood as an <em>interruption variable</em>. Recurrence is required to avoid explaining the same object twice.</p>
+<p><strong>Backpropagation for Discrete Variables</strong>: While we can easily draw samples from a Bernoulli distribution <span class="math inline">\(z_{\text{pres}}^{(i)} \sim \text{Bern} \left( p_{\text{pres}}^{(i)} \right)\)</span>, backpropagation turns out to be problematic. Remind that for continuous variables such as Gaussian distributions parameterized by mean and variance (e.g., <span class="math inline">\(\textbf{z}^{(i)}_{\text{what}}\)</span>, <span class="math inline">\(\textbf{z}^{(i)}_{\text{where}}\)</span>) there is the reparameterization trick to circumvent this problem. However, any reparameterization of discrete variables includes discontinuous operations through which we cannot backprograte. Thus, <a href="https://arxiv.org/abs/1603.08575">Eslami et al. (2016)</a> use a variant of the <a href="https://borea17.github.io/ML_101/probability_theory/score_function_estimator">score-function estimator</a> as a gradient estimator. More precisely, the reconstruction accuracy gradient w.r.t. <span class="math inline">\(\textbf{z}_{\text{pres}}\)</span> is approximated by the score-function estimator, i.e.,</p>
+<p><span class="math display">\[
+\begin{align}
+\nabla_{\boldsymbol{\phi}}\mathbb{E}_{q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right)} \left[ \log
+p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n
+\right) \right] &amp;= \mathbb{E}_{q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right)} \left[ \log
+p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n
+\right) \nabla_{\boldsymbol{\phi}} q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right) \right] \\
+&amp;\approx \frac {1}{N} \sum_{k=1}^N \log p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \left(\textbf{z}, n\right)^{(k)}
+\right) \nabla_{\boldsymbol{\phi}} q_{\boldsymbol{\phi}} \left(
+\left(\textbf{z}, n\right)^{(k)} | \textbf{x}^{(i)} \right)\\
+&amp;\quad \text{with} \quad \left(\textbf{z}, n\right)^{(k)} \sim q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right)
+\end{align}
+\]</span></p>
+<p><a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> note that in this raw form the gradient estimate <code>is likely to have high variance</code>. To reduce variance, they use <code>appropriately structured neural baselines</code> citing a paper from <a href="https://arxiv.org/abs/1402.0030">Minh and Gregor, 2014</a>. Without going into too much detail, appropriately structured neural baselines build upon the idea of <a href="https://borea17.github.io/ML_101/probability_theory/better_score_function_estimator">variance reduction in score function estimators</a> by introducing a scalar baseline <span class="math inline">\(\lambda\)</span> as follows</p>
+<p><span class="math display">\[
+\begin{align}
+&amp;\nabla_{\boldsymbol{\phi}} \mathbb{E}_{q_{\boldsymbol{\phi}} \left(
+\textbf{z}_{\text{pres}} | \textbf{x}^{(i)} \right)} \left[ \log
+p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n
+\right) \right] = \mathbb{E}_{q_{\boldsymbol{\phi}} \left(
+\textbf{z}, n | \textbf{x}^{(i)} \right)} \left[ \Big(
+f_{\boldsymbol{\theta}} \left( \textbf{x}, \textbf{z} \right) - \lambda  \Big)
+\nabla_{\boldsymbol{\phi}} q_{\boldsymbol{\phi}} \left(\textbf{z}, n |
+\textbf{x}^{(i)} \right) \right]\\
+&amp;\text{with} \quad f_{\boldsymbol{\theta}} \left( \textbf{x}, \textbf{z} \right)
+= \log p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n \right), \quad
+\text{since} \quad\mathbb{E}_{q_{\boldsymbol{\phi}} \left(
+\textbf{z}_{\text{pres}} | \textbf{x}^{(i)} \right)} \left[ \nabla_{\boldsymbol{\phi}} q_{\boldsymbol{\phi}} \left(\textbf{z}, n |
+\textbf{x}^{(i)} \right) \right] = \textbf{0}.
+\end{align}
+\]</span></p>
+<p><a href="https://arxiv.org/abs/1402.0030">Minh and Gregor, 2014</a> propose to use a data-dependent neural baseline <span class="math inline">\(\lambda_{\boldsymbol{\psi}} (\textbf{x})\)</span> that is trained to match its target <span class="math inline">\(f_{\boldsymbol{\theta}}\)</span>. For further reading, <a href="https://pyro.ai/examples/svi_part_iii.html#Reducing-Variance-with-Data-Dependent-Baselines">pyro’s SVI part III</a> is a good starting point.</p>
+<p><strong>Prior Distributions</strong>: Before we take a closer look on the prior distribution, it will be helpful to rewrite the regularization term</p>
+<p><span class="math display">\[
+\begin{align}
+D_{KL} &amp; \left(q_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x}^{(i)}
+\right) || p_{\boldsymbol{\theta}} \left( \textbf{z}, n\right) \right) = D_{KL}
+\left( \prod_{i=1}^n q_{\boldsymbol{\phi}} \left(\textbf{z}^{(i)}| \textbf{x},
+\textbf{z}^{(1:i-1)} \right) || \prod_{i=1}^n p_{\boldsymbol{\theta}} \left(
+\textbf{z}^{(i)} \right) \right)\\
+&amp;\stackrel{\text{independent dists.}}{=} \sum_{i=1}^n D_{KL} \left[
+\prod_{k=1}^{3} q_{\boldsymbol{\phi}} \left(\textbf{z}^{(i)}_k |  \textbf{x},
+\textbf{z}^{(1:i-1)} \right) || \prod_{k=1}^3 p_{\boldsymbol{\theta}} \left(
+\textbf{z}^{(i)}_k \right)  \right]\\
+&amp;\stackrel{\text{independent dists.}}{=} \sum_{i=1}^n \sum_{k\in \{\text{pres},
+\text{where}, \text{what}\}} D_{KL} \left[ q_{\boldsymbol{\phi}} \left(\textbf{z}^{(i)}_k| \textbf{x},
+\textbf{z}^{(1:i-1)} \right) || p_{\boldsymbol{\theta}} \left(
+\textbf{z}^{(i)}_k \right)  \right]
+\end{align}
+\]</span></p>
+<p>Note that we assume that each <span class="math inline">\(\textbf{z}_k^{(i)}\)</span> is sampled independently from their respective distribution such that products could equally be rewritten as concatenated vectors. Clearly, there are three different prior distributions that we need to define in advance:</p>
+<ul>
+<li><span class="math inline">\(p_{\boldsymbol{\theta}} \left(\textbf{z}_{\text{what}}^{(i)} \right) \sim \mathcal{N} \left(\textbf{0}, \textbf{I} \right)\)</span>: A centerd isotropic Gaussian prior is a typical choice in standard VAEs and has proven to be effective<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>. Remind that the <code>what</code>-VAE should ideally receive patches of standard MNIST digits.</li>
+</ul>
+<ul>
+<li><p><span class="math inline">\(p_{\boldsymbol{\theta}} \left(\textbf{z}_{\text{where}}^{(i)}\right) \sim \mathcal{N} \left( \boldsymbol{\mu}_{\text{w}} , \boldsymbol{\sigma}_{\text{w}}^2 \textbf{I} \right)\)</span>: In this distribution, we can encode prior knowledge about the objects locality, i.e., average size and location of objects and their standard deviations.</p></li>
+<li><p><span class="math inline">\(p_{\boldsymbol{\theta}} \left(\textbf{z}_{\text{pres}}^{(i)}\right) \sim \text{Bern} (p_{\text{pres}})\)</span>: <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> used an annealing geometric distribution as a prior on the number of objects<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>, i.e., the success probability decreases from a value close to 1 to some small value close to 0 during the course of the training. The intuitive idea behind this process is to encourage the model to explore the use of objects (in the initial phase), and then to constrain the model to use as few objects as possible (trade-off between number of objects and reconstruction accuracy).</p>
+<p>For simplicity, we use a fixed Bernoulli distribution for each step as suggested in <a href="https://pyro.ai/examples/air.html#In-practice">the pyro tutorial</a> with <span class="math inline">\(p_{\text{pres}} = 0.01\)</span>, i.e., we will constrain the number of objects from the beginning. To encourage the model to use objects we initialize the <code>what</code>-decoder to produce empty scenes such that things do not get much worse in terms of reconstruction accuracy when objects are used (also inspired by <a href="https://pyro.ai/examples/air.html#In-practice">pyro</a>).</p></li>
+</ul>
+</section>
+</section>
+<section id="implementation" class="level2">
+<h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
+<p>The following reimplementation aims to reproduce the results of the multi-MNIST experiment, see image below. We will make some adaptations inspired by <a href="https://pyro.ai/examples/air.html">this pyro tutorial</a> and <a href="https://github.com/addtt/attend-infer-repeat-pytorch">this pytorch reimplementation</a> from Andrea Dittadi. As a result, the following reimplementation receives a huge speed up in terms of convergence time and can be trained in less than 10 minutes on a Nvidia Tesla K80 (compared to 2 days on a Nvidia Quadro K4000 GPU by <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a>).</p>
+<p>As noted by <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a>, their model successfully learned to count the number of digits and their location in each image (i.e., appropriate attention windows) without any supervision. Furthermore, the scanning policy of the inference network (i.e., object assignment policy) converges to spatially divided regions where the direction of the spatial border seems to be random (dependent on random initialization). Lastly, the model also learned that it never needs to assign a third object (all images in the training dataset contained a maximum of two digits). <!-- This ensures that different regions are --> <!-- assigned as different objects. --></p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="../../assets/paper_summaries/06_AIR/img/paper_results.png" title="Multi-MNIST Paper Results" class="img-fluid" alt="Multi-MNIST Paper Results"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Paper Results of Multi-MNIST Experiment</strong>. Taken from <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a>.</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> argue that the the structure of AIR puts an important inductive bias onto explaining multi-object scenes by using two adversaries: * AIR wants to explain the scene, i.e., the reconstruction error should be minimized. * AIR is penalized for each instantiated object due to the KL divergence. Furthermore, the <code>what</code>-VAE puts an additional prior of instantiating similar objects.</p>
+<section id="multi-mnist-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="multi-mnist-dataset">Multi-MNIST Dataset</h3>
+<p>The multi-MNIST datasets consists of <span class="math inline">\(50 \times 50\)</span> gray-scale images containing zero, one or two non-overlapping random MNIST digits with equal probability, see image below. This dataset can easily be generated by taking a blank <span class="math inline">\(50 \times 50\)</span> canvas and positioning a random number of digits (drawn uniformly from MNIST dataset) onto it. To ensure that MNIST digits (<span class="math inline">\(28\times28\)</span>) will not overlap, we scale them to <span class="math inline">\(24\times 24\)</span> and then position them such that the centers of two MNIST digits do not overlap. Note that some small overlap may occur which we simply accept. At the same time, we record the number of digits in each generated image to measure the count accuracy during training.</p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img src="../../assets/paper_summaries/06_AIR/img/multi-MNIST_dataset.png" title="Multi-MNIST Dataset Examples" class="img-fluid" alt="Multi-MNIST Dataset Examples"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Multi-MNIST Dataset Examples</strong>.</td>
+</tr>
+</tbody>
+</table>
+<p>{% capture code %}{% raw %}import torch import numpy as np from torchvision import datasets, transforms from torch.utils.data import TensorDataset</p>
+<p>CANVAS_SIZE = 50 # canvas in which 0/1/2 MNIST digits are put MNIST_SIZE = 24 # size of original MNIST digits (resized)</p>
+<p>def generate_dataset(num_images, SEED=1): “““generates multiple MNIST dataset with 0, 1 or 2 non-overlaping digits</p>
+<pre><code>Args:
+    num_images (int): number of images inside dataset
+
+Returns:
+    multiple_MNIST (torch dataset)
+"""
+data = torch.zeros([num_images, 1, CANVAS_SIZE, CANVAS_SIZE])
+
+original_MNIST = datasets.MNIST('./data', train=True, download=True,
+    transform=transforms.Compose([
+      transforms.Resize(size=(MNIST_SIZE, MNIST_SIZE)),
+      transforms.ToTensor()]))
+# sample random digits and positions
+np.random.seed(SEED)
+pos_positions = np.arange(int(MNIST_SIZE/2),CANVAS_SIZE - int(MNIST_SIZE/2))
+
+mnist_indices = np.random.randint(len(original_MNIST), size=(num_images, 2))
+num_digits = np.random.randint(3, size=(num_images))
+positions_0 = np.random.choice(pos_positions, size=(num_images, 2),
+                               replace=True)
+
+for i_data in range(num_images):
+    if num_digits[i_data] &gt; 0:
+        # add random digit at random position
+        random_digit = original_MNIST[mnist_indices[i_data][0]][0]
+        x_0, y_0 = positions_0[i_data][0], positions_0[i_data][1]
+        x = [x_0-int(MNIST_SIZE/2), x_0+int(MNIST_SIZE/2)]
+        y = [y_0-int(MNIST_SIZE/2), y_0+int(MNIST_SIZE/2)]
+        data[i_data,:,y[0]:y[1],x[0]:x[1]] += random_digit
+        if num_digits[i_data] == 2:
+            # add second non overlaping random digit
+            random_digit = original_MNIST[mnist_indices[i_data][1]][0]
+            impos_x_pos = np.arange(x_0-int(MNIST_SIZE/2),
+                                    x_0+int(MNIST_SIZE/2))
+            impos_y_pos = np.arange(y_0-int(MNIST_SIZE/2),
+                                    y_0+int(MNIST_SIZE/2))
+            x_1 = np.random.choice(np.setdiff1d(pos_positions, impos_x_pos),
+                                   size=1)[0]
+            y_1 = np.random.choice(np.setdiff1d(pos_positions, impos_y_pos),
+                                   size=1)[0]
+            x = [x_1-int(MNIST_SIZE/2), x_1+int(MNIST_SIZE/2)]
+            y = [y_1-int(MNIST_SIZE/2), y_1+int(MNIST_SIZE/2)]
+            data[i_data,:,y[0]:y[1],x[0]:x[1]] += random_digit
+labels = torch.from_numpy(num_digits)
+return TensorDataset(data.type(torch.float32), labels){% endraw %}{% endcapture %}</code></pre>
+<p>{% include code.html code=code lang=“python” %}</p>
+</section>
+<section id="model-implementation" class="level3">
+<h3 class="anchored" data-anchor-id="model-implementation">Model Implementation</h3>
+<p>For the sake of clarity, the model implementation is divided into its constitutive parts:</p>
+<ul>
+<li><p><code>what</code>-<strong>VAE implementation</strong>: The <code>what</code>-VAE can be implemented as an independent class that receives an image patch (crop) and outputs its reconstruction as well as its latent distribution parameters. Note that we could also compute the KL divergence and reconstruction error within that class, however we will put the whole loss computation in another function to have everything in one place. As shown in a <a href="https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes#vae-implementation">previous summary</a>, two fully connected layers with ReLU non-linearity in between suffice for decent reconstructions of MNIST digits.</p>
+<p>We have additional prior knowledge about the output distribution: It should only be between 0 and 1. It is always useful to put as much prior knowledge as possible into the architecture, but how to achieve this?</p>
+<ul>
+<li><p><em>Clamping</em>: The most intuitive idea would be to simply clamp the network outputs, however this is a bad idea as gradients wont propagate if the outputs are outside of the clamped region.</p></li>
+<li><p><em>Network Initialization</em>: Another approach would be to simply initialize the weights and biases of the output layer to zero such that further updates push the outputs into the positive direction. However, as the reconstruction of the whole image in AIR is a sum over multiple reconstructions, this turns out to be a bad idea as well. I tried it and the <code>what</code>-VAE produces negative outputs which it compensates with another object that has outputs greater than 1.</p></li>
+<li><p><em>Sigmoid Layer</em>: This is a typical choice in classification problems and is commonly used in VAEs when the decoder approximates a Bernoulli distribution. However, it should be noted that using MSE loss (Gaussian decoder distribution) with a sigmoid is generally not advised due to the vanishing/saturating gradients (explained <a href="https://borea17,gitbub.io/ML_101/probability_theory/sigmoid_loss">here</a>).</p>
+<p>On the other hand, using a Bernoulli distribution for the reconstruction of the whole image (sum over multiple reconstruction) comes with additional problems, e.g., numerical instabilities due to empty canvas (binary cross entropy can not be computed when probabilties are exactly 0) and due to clamping (as the sum over multiple bernoulli means could easily overshoot 1). While there might be some workarounds, I decided to go an easier path.</p></li>
+<li><p><strong>Output Distribution</strong> <span class="math inline">\(\mathbb{R}_{+}\)</span>: This is motivated by the observations I made during the <em>network initialization</em> approach. By impeding the network to produce negative outputs, we indirectly force outputs between <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>. Thereby, we do not need to get our hands dirty with a Bernoulli distribution or vanishing gradient problems. Furthermore, we use Pytorch’s default initialization<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a> to produce mostly empty objects. This encourages the model to try out objects in the beginning of the training.</p></li>
+</ul></li>
+</ul>
+<p>{% capture code %}{% raw %}from torch import nn</p>
+<p>WINDOW_SIZE = MNIST_SIZE # patch size (in one dimension) of what-VAE Z_WHAT_HIDDEN_DIM = 400 # hidden dimension of what-VAE Z_WHAT_LATENT_DIM = 20 # latent dimension of what-VAE FIXED_VAR = 0.5**2 # fixed variance of Gaussian decoder</p>
+<p>class VAE(nn.Module): “““simple VAE class with a Gaussian encoder (mean and diagonal variance structure) and a Gaussian decoder with fixed variance</p>
+<pre><code>Attributes:
+    encoder (nn.Sequential): encoder network for mean and log_var
+    decoder (nn.Sequential): decoder network for mean (fixed var)
+"""
+
+def __init__(self):
+    super(VAE, self).__init__()
+    self.encoder = nn.Sequential(
+        nn.Linear(WINDOW_SIZE**2, Z_WHAT_HIDDEN_DIM),
+        nn.ReLU(),
+        nn.Linear(Z_WHAT_HIDDEN_DIM, Z_WHAT_LATENT_DIM*2),
+    )
+    self.decoder = nn.Sequential(
+        nn.Linear(Z_WHAT_LATENT_DIM, Z_WHAT_HIDDEN_DIM),
+        nn.ReLU(),
+        nn.Linear(Z_WHAT_HIDDEN_DIM, WINDOW_SIZE**2),
+    )
+    return
+
+def forward(self, x_att_i):
+    z_what_i, mu_E_i, log_var_E_i = self.encode(x_att_i)
+    x_tilde_att_i = self.decode(z_what_i)
+    return x_tilde_att_i, z_what_i, mu_E_i, log_var_E_i
+
+def encode(self, x_att_i):
+    batch_size = x_att_i.shape[0]
+    # get encoder distribution parameters
+    out_encoder = self.encoder(x_att_i.view(batch_size, -1))
+    mu_E_i, log_var_E_i = torch.chunk(out_encoder, 2, dim=1)
+    # sample noise variable for each batch
+    epsilon = torch.randn_like(log_var_E_i)
+    # get latent variable by reparametrization trick
+    z_what_i = mu_E_i + torch.exp(0.5*log_var_E_i) * epsilon
+    return z_what_i, mu_E_i, log_var_E_i
+
+def decode(self, z_what_i):
+    # get decoder distribution parameters
+    x_tilde_att_i = self.decoder(z_what_i)
+    # force output to be positive
+    x_tilde_att_i = x_tilde_att_i.abs()
+    # reshape to [1, WINDOW_SIZE, WINDOW_SIZE] (input shape)
+    x_tilde_att_i = x_tilde_att_i.view(-1, 1, WINDOW_SIZE, WINDOW_SIZE)
+    return x_tilde_att_i{% endraw %}{% endcapture %}</code></pre>
+<p>{% include code.html code=code lang=“python” %}</p>
+<ul>
+<li><p><strong>Recurrent Inference Network</strong>: <a href="https://arxiv.org/abs/1603.08575">Eslami et al. (2016)</a> used a standard recurrent neural network (RNN) which in each step <span class="math inline">\(i\)</span> computes</p>
+<p><span class="math display">\[
+\left(\underbrace{p^{(i)}_{\text{pres}}, \boldsymbol{\mu}_{\text{where}},
+\boldsymbol{\sigma}^2_{\text{where}}}_{\boldsymbol{\omega}^{(i)}},
+\textbf{h}^{(i)} \right) = RNN \left(\textbf{x},
+\underbrace{\text{z}_{\text{pres}}^{(i-1)}, \textbf{z}_{\text{what}}^{(i-1)},
+\textbf{z}_{\text{where}}^{(i-1)}}_{\textbf{z}^{(i-1)}}, \textbf{h}^{(i-1)}
+\right),
+\]</span></p>
+<p>i.e., the distribution parameters of <span class="math inline">\(\text{z}_{\text{pres}}^{(i)}\sim \text{Bern}\left( p^{(i)}_{\text{pres}} \right)\)</span> and <span class="math inline">\(\textbf{z}_{\text{where}}^{(i)} \sim \mathcal{N} \left( \boldsymbol{\mu}_{\text{where}},  \boldsymbol{\sigma}^2_{\text{where}}\textbf{I}\right)\)</span>, and the next hidden state <span class="math inline">\(\textbf{h}^{(i)}\)</span>. They did not provide any specifics about the network architecture, however in my experiments it turned out that a simple 3 layer (fully-connected) network suffices for this task.</p>
+<p>To speed up convergence, we initialize useful distribution parameters:</p>
+<ul>
+<li><span class="math inline">\(p_{\text{pres}}^{(i)}\approx 0.8\)</span>: This encourages AIR to use objects in the beginning of training.</li>
+<li><span class="math inline">\(\boldsymbol{\mu}_{\text{where}} = \begin{bmatrix} -3 &amp; 0 &amp; 0\end{bmatrix}^{\text{T}}\)</span>: This leads to a center crop with (approximate) size of the inserted digits.</li>
+<li><span class="math inline">\(\boldsymbol{\sigma}_{\text{where}}^2 \approx \begin{bmatrix} 0.05 &amp; 0.05 &amp; 0.05\end{bmatrix}^{\text{T}}\)</span>: Start with low variance.</li>
+</ul>
+<p>Note: We use a very similar recurrent network architecture for the neural baseline model (to predict the negative log-likelihood), see code below.</p></li>
+</ul>
+<p>{% capture code %}{% raw %}Z_PRES_DIM = 1 # latent dimension of z_pres Z_WHERE_DIM = 3 # latent dimension of z_where RNN_HIDDEN_STATE_DIM = 256 # hidden state dimension of RNN P_PRES_INIT = [2.] # initialization p_pres (sigmoid -&gt; 0.8) MU_WHERE_INIT = [3.0, 0., 0.] # initialization z_where mean LOG_VAR_WHERE_INIT = [-3.,-3.,-3.] # initialization z_where log var Z_DIM = Z_PRES_DIM + Z_WHERE_DIM + Z_WHAT_DIM</p>
+<p>class RNN(nn.Module):</p>
+<pre><code>def __init__(self, baseline_net=False):
+    super(RNN, self).__init__()
+    self.baseline_net = baseline_net
+    INPUT_SIZE = (CANVAS_SIZE**2) + RNN_HIDDEN_STATE_DIM + Z_DIM
+    if baseline_net:
+        OUTPUT_SIZE = (RNN_HIDDEN_STATE_DIM + 1)
+    else:
+        OUTPUT_SIZE = (RNN_HIDDEN_STATE_DIM + Z_PRES_DIM + 2*Z_WHERE_DIM)
+    output_layer = nn.Linear(RNN_HIDDEN_STATE_DIM, OUTPUT_SIZE)
+
+    self.fc_rnn = nn.Sequential(
+        nn.Linear(INPUT_SIZE, RNN_HIDDEN_STATE_DIM),
+        nn.ReLU(),
+        nn.Linear(RNN_HIDDEN_STATE_DIM, RNN_HIDDEN_STATE_DIM),
+        nn.ReLU(),
+        output_layer
+    )
+    if not baseline_net:
+        # initialize distribution parameters
+        output_layer.weight.data[0:7] = nn.Parameter(
+            torch.zeros(Z_PRES_DIM+2*Z_WHERE_DIM, RNN_HIDDEN_STATE_DIM)
+        )
+        output_layer.bias.data[0:7] = nn.Parameter(
+            torch.tensor(P_PRES_INIT + MU_WHERE_INIT + LOG_VAR_WHERE_INIT)
+        )
+    return
+
+def forward(self, x, z_im1, h_im1):
+    batch_size = x.shape[0]
+    rnn_input = torch.cat((x.sum(axis=1).view(batch_size, -1), z_im1, h_im1), dim=1)
+    rnn_output = self.fc_rnn(rnn_input)
+    if self.baseline_net:
+        baseline_value_i = rnn_output[:, 0:1]
+        h_i = rnn_output[:, 1::]
+        return baseline_value_i, h_i
+    else:
+        omega_i = rnn_output[:, 0:(Z_PRES_DIM+2*Z_WHERE_DIM)]
+        h_i = rnn_output[:, (Z_PRES_DIM+2*Z_WHERE_DIM)::]
+        # omega_i[:, 0] corresponds to z_pres probability
+        omega_i[:, 0] = torch.sigmoid(omega_i[:, 0])
+        return omega_i, h_i{% endraw %}{% endcapture %}</code></pre>
+<p>{% include code.html code=code lang=“python” %}</p>
+<ul>
+<li><p><strong>AIR Implementation</strong>: The whole AIR model is obtained by putting everything together. To better understand what’s happening, let’s take a closer look on the two main functions:</p>
+<ul>
+<li><p><code>forward(x)</code>: This function essentially does what is described in <a href="https://borea17.github.io/paper_summaries/AIR#high-level-overview">High-Level Overview</a>. Its purpose is to obtain a structured latent representation <span class="math inline">\(\textbf{z}=\bigg\{ \left[ \textbf{z}_{\text{pres}}^{(i)}, \textbf{z}_{\text{where}}^{(i)}, \textbf{z}_{\text{what}}^{(i)}\right]_{i=1}^N \bigg\}\)</span> for a given input (batch of images) <span class="math inline">\(\textbf{x}\)</span> and to collect everything needed to compute the loss.</p></li>
+<li><p><code>compute_loss(x)</code>: This function is only necessary for training. It computes four loss quantities:</p>
+<ol type="1">
+<li><p><em>KL Divergence</em>: As noted <a href="https://borea17.github.io/paper_summaries/AIR#difficulties">above</a> the KL divergence term can be computed by summing the KL divergences of each type (<code>pres</code>, <code>what</code>, <code>where</code>) for each step.</p></li>
+<li><p><em>NLL</em>: We assume a Gaussian decoder such that the negative log-likelihood can be computed as follows</p>
+<p><span class="math display">\[
+\text{NLL} = \frac {1}{2 \cdot \sigma^2}\sum_{i=1}^{W \cdot H} \left(x_i - \widetilde{x}_i \right)^2,
+\]</span></p>
+<p>where <span class="math inline">\(i\)</span> enumerates the pixel space, <span class="math inline">\(\textbf{x}\)</span> denotes the original image, <span class="math inline">\(\widetilde{\textbf{x}}\)</span> the reconstructed image and <span class="math inline">\(\sigma^2\)</span> is a the fixed variance of the Gaussian distribution (hyperparameter).</p></li>
+<li><p><em>REINFORCE Term</em>: Since the image reconstruction is build by sampling from a discrete distribution, backpropagation stops at the sampling operation. In order to optimize the distribution parameters <span class="math inline">\(p_{\text{pres}}^{(i)}\)</span>, we use a score-function estimator with a data-dependent neural baseline.</p></li>
+<li><p><em>Baseline Loss</em>: This loss is needed to approximately fit the neural baseline to the true NLL in order to reduce the variance of the REINFORCE estimator.</p></li>
+</ol></li>
+</ul>
+<p>{% capture code %}{% raw %}import torch.nn.functional as F from torch.distributions import Bernoulli</p></li>
+</ul>
+<p>N = 3 # number of inference steps EPS = 1e-32 # numerical stability PRIOR_MEAN_WHERE = [3., 0., 0.] # prior for mean of z_i_where PRIOR_VAR_WHERE = [0.1**2, 1., 1.] # prior for variance of z_i_where PRIOR_P_PRES = [0.01] # prior for p_i_pres of z_i_pres BETA = 0.5 # hyperparameter to scale KL div OMEGA_DIM = Z_PRES_DIM + 2<em>Z_WHERE_DIM + 2</em>Z_WHAT_DIM</p>
+<p>class AIR(nn.Module):</p>
+<pre><code>PRIOR_MEAN_Z_WHERE = nn.Parameter(torch.tensor(PRIOR_MEAN_WHERE),
+                                  requires_grad=False)
+PRIOR_VAR_Z_WHERE = nn.Parameter(torch.tensor(PRIOR_VAR_WHERE),
+                                 requires_grad=False)
+PRIOR_P_Z_PRES = nn.Parameter(torch.tensor(PRIOR_P_PRES),
+                              requires_grad=False)
+
+expansion_indices = torch.LongTensor([1, 0, 2, 0, 1, 3])
+target_rectangle = torch.tensor(
+  [[-1., -1., 1., 1., -1.],
+   [-1., 1., 1., -1, -1.],
+   [1., 1., 1., 1., 1.]]
+).view(1, 3, 5)
+
+def __init__(self):
+    super(AIR, self).__init__()
+    self.vae = VAE()
+    self.rnn = RNN()
+    self.baseline = RNN(True)
+    return
+
+def compute_loss(self, x):
+    """compute the loss of AIR (essentially a VAE loss)
+    assuming the following prior distributions for the latent variables
+
+        z_where ~ N(PRIOR_MEAN_WHERE, PRIOR_VAR_WHERE)
+        z_what ~ N([0, 1])
+        z_pres ~ Bern(p_pres)
+
+    and a
+
+        Gaussian decoder with fixed diagonal var (FIXED_VAR)
+    """
+    batch_size = x.shape[0]
+    results = self.forward(x, True)
+    # kl_div for z_pres (between two Bernoulli distributions)
+    q_z_pres = results['all_prob_pres']
+    P_Z_PRES = AIR.PRIOR_P_Z_PRES.expand(q_z_pres.shape).to(x.device)
+    kl_div_pres = AIR.bernoulli_kl(q_z_pres, P_Z_PRES).sum(axis=2)
+    # kl_div for z_what (standard VAE regularization term)
+    q_z_what = [results['all_mu_what'], results['all_log_var_what']]
+    P_MU_WHAT = torch.zeros_like(results['all_mu_what'])
+    P_VAR_WHAT = torch.ones_like(results['all_log_var_what'])
+    P_Z_WHAT = [P_MU_WHAT, P_VAR_WHAT]
+    kl_div_what = AIR.gaussian_kl(q_z_what, P_Z_WHAT).sum(axis=2)
+    # kl_div for z_where (between two Gaussian distributions)
+    q_z_where = [results['all_mu_where'], results['all_log_var_where']]
+    P_MU_WHERE=AIR.PRIOR_MEAN_Z_WHERE.expand(results['all_mu_where'].shape)
+    P_VAR_WHERE=AIR.PRIOR_VAR_Z_WHERE.expand(results['all_mu_where'].shape)
+    P_Z_WHERE = [P_MU_WHERE.to(x.device), P_VAR_WHERE.to(x.device)]
+    kl_div_where = AIR.gaussian_kl(q_z_where, P_Z_WHERE).sum(axis=2)
+    # sum all kl_divs and use delayed mask to zero out irrelevants
+    delayed_mask = results['mask_delay']
+    kl_div = (kl_div_pres + kl_div_where + kl_div_what) * delayed_mask
+    # negative log-likelihood for Gaussian decoder (no gradient for z_pres)
+    factor = 0.5 * (1/FIXED_VAR)
+    nll = factor * ((x - results['x_tilde'])**2).sum(axis=(1,2,3))
+    # REINFORCE estimator for nll (gradient for z_pres)
+    baseline_target = nll.unsqueeze(1)
+    reinforce_term = ((baseline_target - results['baseline_values']
+                       ).detach()
+                      *results['z_pres_likelihood']*delayed_mask).sum(1)
+
+    # baseline model loss
+    baseline_loss = ((results['baseline_values'] -
+                      baseline_target.detach())**2 * delayed_mask).sum(1)
+    loss = dict()
+    loss['kl_div'] = BETA*kl_div.sum(1).mean()
+    loss['nll'] = nll.mean()
+    loss['reinforce'] = reinforce_term.mean()
+    loss['baseline'] = baseline_loss.mean()
+    return loss, results
+
+def forward(self, x, save_attention_rectangle=False):
+    batch_size = x.shape[0]
+    # initializations
+    all_z = torch.empty((batch_size, N, Z_DIM), device=x.device)
+    z_pres_likelihood = torch.empty((batch_size, N), device=x.device)
+    mask_delay = torch.empty((batch_size, N), device=x.device)
+    all_omega = torch.empty((batch_size, N, OMEGA_DIM), device=x.device)
+    all_x_tilde = torch.empty((batch_size, N, CANVAS_SIZE, CANVAS_SIZE),
+                             device=x.device)
+    baseline_values = torch.empty((batch_size, N), device=x.device)
+
+    z_im1 = torch.ones((batch_size, Z_DIM)).to(x.device)
+    h_im1 = torch.zeros((batch_size, RNN_HIDDEN_STATE_DIM)).to(x.device)
+    h_im1_b = torch.zeros((batch_size, RNN_HIDDEN_STATE_DIM)).to(x.device)
+    if save_attention_rectangle:
+        attention_rects = torch.empty((batch_size, N, 2, 5)).to(x.device)
+    for i in range(N):
+        z_im1_pres = z_im1[:, 0:1]
+        # mask_delay is used to zero out all steps AFTER FIRST z_pres = 0
+        mask_delay[:, i] = z_im1_pres.squeeze(1)
+        # obtain parameters of sampling distribution and hidden state
+        omega_i, h_i = self.rnn(x, z_im1, h_im1)
+        # baseline version
+        baseline_i, h_i_b = self.baseline(x.detach(), z_im1.detach(),
+                                          h_im1_b)
+        # set baseline 0 if z_im1_pres = 0
+        baseline_value = (baseline_i * z_im1_pres).squeeze()
+        # extract sample distributions parameters from omega_i
+        prob_pres_i = omega_i[:, 0:1]
+        mu_where_i = omega_i[:, 1:4]
+        log_var_where_i = omega_i[:, 4:7]
+        # sample from distributions to obtain z_i_pres and z_i_where
+        z_i_pres_post = Bernoulli(probs=prob_pres_i)
+        z_i_pres = z_i_pres_post.sample() * z_im1_pres
+        # likelihood of sampled z_i_pres (only if z_im_pres = 1)
+        z_pres_likelihood[:, i] = (z_i_pres_post.log_prob(z_i_pres) *
+                                   z_im1_pres).squeeze(1)
+        # get z_i_where by reparametrization trick
+        epsilon_w = torch.randn_like(log_var_where_i)
+        z_i_where = mu_where_i + torch.exp(0.5*log_var_where_i)*epsilon_w
+        # use z_where and x to obtain x_att_i
+        x_att_i = AIR.image_to_window(x, z_i_where)
+        # put x_att_i through VAE
+        x_tilde_att_i, z_i_what, mu_what_i, log_var_what_i = \
+            self.vae(x_att_i)
+        # create image reconstruction
+        x_tilde_i = AIR.window_to_image(x_tilde_att_i, z_i_where)
+        # update im1 with current versions
+        z_im1 = torch.cat((z_i_pres, z_i_where, z_i_what), 1)
+        h_im1 = h_i
+        h_im1_b = h_i_b
+        # put all distribution parameters into omega_i
+        omega_i = torch.cat((prob_pres_i, mu_where_i, log_var_where_i,
+                             mu_what_i, log_var_what_i), 1)
+        # store intermediate results
+        all_z[:, i:i+1] = z_im1.unsqueeze(1)
+        all_omega[:, i:i+1] = omega_i.unsqueeze(1)
+        all_x_tilde[:, i:i+1] = x_tilde_i
+        baseline_values[:, i] = baseline_value
+        # for nice visualization
+        if save_attention_rectangle:
+            attention_rects[:, i] = (AIR.get_attention_rectangle(z_i_where)
+                                     *z_i_pres.unsqueeze(1))
+    # save results in dict (easy accessibility)
+    results = dict()
+    # fixes Z_PRES_DIM = 1 and Z_WHERE_DIM = 3
+    results['z_pres_likelihood'] = z_pres_likelihood
+    results['all_z_pres'] = all_z[:, :, 0:1]
+    results['mask_delay'] = mask_delay
+    results['all_prob_pres'] = all_omega[:, :, 0:1]
+    results['all_z_where'] = all_z[:, :, 1:4]
+    results['all_mu_where'] =  all_omega[:, :, 1:4]
+    results['all_log_var_where'] = all_omega[:, :, 4:7]
+    results['all_z_what'] = all_z[:, :, 4::]
+    results['all_mu_what'] =  all_omega[:, :, 7:7+Z_WHAT_DIM]
+    results['all_log_var_what'] = all_omega[:, :, 7+Z_WHAT_DIM::]
+    results['baseline_values'] = baseline_values
+    if save_attention_rectangle:
+        results['attention_rects'] = attention_rects
+    # compute reconstructed image (take only x_tilde_i with z_i_pres=1)
+    results['x_tilde_i'] = all_x_tilde
+    x_tilde = (all_z[:, :, 0:1].unsqueeze(2) * all_x_tilde).sum(axis=1,
+                                                          keepdim=True)
+    results['x_tilde'] = x_tilde
+    # compute counts as identified objects (sum z_i_pres)
+    results['counts'] = results['all_z_pres'].sum(1).to(dtype=torch.long)
+    return results
+
+@staticmethod
+def image_to_window(x, z_i_where):
+    grid_shape = (z_i_where.shape[0], 1, WINDOW_SIZE, WINDOW_SIZE)
+    z_i_where_inv = AIR.invert_z_where(z_i_where)
+    x_att_i = AIR.spatial_transform(x, z_i_where_inv, grid_shape)
+    return x_att_i
+
+@staticmethod
+def window_to_image(x_tilde_att_i, z_i_where):
+    grid_shape = (z_i_where.shape[0], 1, CANVAS_SIZE, CANVAS_SIZE)
+    x_tilde_i = AIR.spatial_transform(x_tilde_att_i, z_i_where, grid_shape)
+    return x_tilde_i
+
+@staticmethod
+def spatial_transform(x, z_where, grid_shape):
+    theta_matrix = AIR.z_where_to_transformation_matrix(z_where)
+    grid = F.affine_grid(theta_matrix, grid_shape, align_corners=False)
+    out = F.grid_sample(x, grid, align_corners=False)
+    return out
+
+@staticmethod
+def z_where_to_transformation_matrix(z_i_where):
+    """taken from
+    https://github.com/pyro-ppl/pyro/blob/dev/examples/air/air.py
+    """
+    batch_size = z_i_where.shape[0]
+    out = torch.cat((z_i_where.new_zeros(batch_size, 1), z_i_where), 1)
+    ix = AIR.expansion_indices
+    if z_i_where.is_cuda:
+        ix = ix.cuda()
+    out = torch.index_select(out, 1, ix)
+    theta_matrix = out.view(batch_size, 2, 3)
+    return theta_matrix
+
+@staticmethod
+def invert_z_where(z_where):
+    z_where_inv = torch.zeros_like(z_where)
+    scale = z_where[:, 0:1] + 1e-9
+    z_where_inv[:, 1:3] = -z_where[:, 1:3] / scale
+    z_where_inv[:, 0:1] = 1 / scale
+    return z_where_inv
+
+@staticmethod
+def get_attention_rectangle(z_i_where):
+    batch_size = z_i_where.shape[0]
+    z_i_where_inv = AIR.invert_z_where(z_i_where)
+    theta_matrix = AIR.z_where_to_transformation_matrix(z_i_where_inv)
+    target_rectangle = AIR.target_rectangle.expand(batch_size, 3,
+                                                   5).to(z_i_where.device)
+    source_rectangle_normalized = torch.matmul(theta_matrix,
+                                               target_rectangle)
+    # remap into absolute values
+    source_rectangle = 0 + (CANVAS_SIZE/2)*(source_rectangle_normalized + 1)
+    return source_rectangle
+
+@staticmethod
+def bernoulli_kl(q_probs, p_probs):
+    # https://github.com/pytorch/pytorch/issues/15288
+    p1 = p_probs
+    p0 = 1 - p1
+    q1 = q_probs
+    q0 = 1 - q1
+
+    logq1 = (q1 + EPS).log()
+    logq0 = (q0 + EPS).log()
+    logp1 = (p1).log()
+    logp0 = (p0).log()
+
+    kl_div_1 = q1*(logq1 - logp1)
+    kl_div_0 = q0*(logq0 - logp0)
+    return kl_div_1 + kl_div_0
+
+@staticmethod
+def gaussian_kl(q, p):
+    # https://pytorch.org/docs/stable/_modules/torch/distributions/kl.html
+    mean_q, log_var_q = q[0], q[1]
+    mean_p, var_p = p[0], p[1]
+
+    var_ratio = log_var_q.exp()/var_p
+    t1 = (mean_q - mean_p).pow(2)/var_p
+    return -0.5 * (1 + var_ratio.log() - var_ratio - t1){% endraw %}{% endcapture %}</code></pre>
+<p>{% include code.html code=code lang=“python” %}</p>
+<ul>
+<li><strong>Training Procedure</strong>: Lastly, a standard training procedure is implemented. We will use two optimizers, one for the model parameters and one for the neural baseline parameters. Note that the training process is completely unsupervised, i.e., the model only receives a batch of images to compute the losses.</li>
+</ul>
+<p>{% capture code %}{% raw %}from livelossplot import PlotLosses, outputs from torch.utils.data import DataLoader import matplotlib.pyplot as plt</p>
+<p>EPOCHS = 50 BATCH_SIZE = 64 LEARNING_RATE = 1e-4 BASE_LEARNING_RATE = 1e-2 EPOCHS_TO_SAVE_MODEL = [1, 10, EPOCHS]</p>
+<p>def train(air, dataset): device = ‘cuda’ if torch.cuda.is_available() else ‘cpu’ print(‘Device: {}’.format(device))</p>
+<pre><code>data_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True,
+                         num_workers=4)
+optimizer = torch.optim.Adam([{'params': list(air.rnn.parameters()) +
+                               list(air.vae.parameters()),
+                               'lr': LEARNING_RATE,},
+                              {'params': air.baseline.parameters(),
+                               'lr': BASE_LEARNING_RATE}])
+air.to(device)
+
+# prettify livelossplot
+def custom(ax: plt.Axes, group: str, x_label: str):
+    ax.legend()
+    if group == 'accuracy':
+        ax.set_ylim(0, 1)
+    elif group == 'loss base':
+        ax.set_ylim(0, 300)
+
+matplot = [outputs.MatplotlibPlot(after_subplot=custom,max_cols=3)]
+losses_plot = PlotLosses(groups={'loss model':['KL div','NLL','REINFORCE'],
+                                 'loss base': ['baseline'],
+                                 'accuracy': ['count accuracy']},
+                         outputs=matplot)
+for epoch in range(1, EPOCHS+1):
+    avg_kl_div, avg_nll, avg_reinforce, avg_base, avg_acc = 0, 0, 0, 0, 0
+    for x, label in data_loader:
+        air.zero_grad()
+
+        losses, results = air.compute_loss(x.to(device, non_blocking=True))
+        loss  = (losses['kl_div'] + losses['nll'] + losses['reinforce']
+                 +losses['baseline'])
+        loss.backward()
+        optimizer.step()
+
+        # compute accuracy
+        label = label.unsqueeze(1).to(device)
+        acc = (results['counts']==label).sum().item()/len(results['counts'])
+        # update epoch means
+        avg_kl_div += losses['kl_div'].item() / len(data_loader)
+        avg_nll += losses['nll'].item() / len(data_loader)
+        avg_reinforce += losses['reinforce'].item() / len(data_loader)
+        avg_base += losses['baseline'].item() / len(data_loader)
+        avg_acc += acc / len(data_loader)
+
+    if epoch in EPOCHS_TO_SAVE_MODEL:  # save model
+        torch.save(air, f'./results/checkpoint_{epoch}.pth')
+    losses_plot.update({'KL div': avg_kl_div,
+                        'NLL': avg_nll,
+                        'REINFORCE': avg_reinforce,
+                        'baseline': avg_base,
+                        'count accuracy': avg_acc}, current_step=epoch)
+    losses_plot.send()
+print(f'Accuracy after Training {avg_acc:.2f} (on training dataset)')
+torch.save(air, f'./results/checkpoint_{epoch}.pth')
+trained_air = air
+return trained_air{% endraw %}{% endcapture %}</code></pre>
+<p>{% include code.html code=code lang=“python” %}</p>
+</section>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">Results</h3>
+<p>Let’s train our model:</p>
+<p>{% capture code %}{% raw %}air_model = AIR() train_dataset = generate_dataset(num_images=10000, SEED=np.random.randint(1000)) trained_air = train(air_model, train_dataset){% endraw %}{% endcapture %} {% include code.html code=code lang=“python” %}</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../assets/paper_summaries/06_AIR/img/training_results.png" title="Training Results" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Training Results</figcaption>
+</figure>
+</div>
+<p>This looks pretty awesome! It seems that our model nearly perfectly learns to count the number of digits without even knowing what a digit is.</p>
+<p>Let us take a closer look and plot the results of the model at different stages of the training against a test dataset.</p>
+<p>{% capture code %}{% raw %}def plot_results(dataset): device = ‘cuda’ if torch.cuda.is_available() else ‘cpu’ n_samples = 7</p>
+<pre><code>i_samples = np.random.choice(range(len(dataset)), n_samples, replace=False)
+colors_rect = ['red', 'green', 'yellow']
+num_rows = len(EPOCHS_TO_SAVE_MODEL) + 1
+
+fig = plt.figure(figsize=(14, 8))
+for counter, i_sample in enumerate(i_samples):
+    orig_img = dataset[i_sample][0]
+    # data
+    ax = plt.subplot(num_rows, n_samples, 1 + counter)
+    plt.imshow(orig_img[0].numpy(), cmap='gray', vmin=0, vmax=1)
+    plt.axis('off')
+    if counter == 0:
+        ax.annotate('Data', xy=(-0.05, 0.5), xycoords='axes fraction',
+                    fontsize=14, va='center', ha='right', rotation=90)
+    # outputs after epochs of training
+    MODELS = [, , ]
+    for j, (epoch, model) in enumerate(zip(EPOCHS_TO_SAVE_MODEL, MODELS)):
+        trained_air = torch.load(model)
+        trained_air.to(device)
+
+        results = trained_air(orig_img.unsqueeze(0).to(device), True)
+
+        attention_recs = results['attention_rects'].squeeze(0)
+        x_tilde = torch.clamp(results['x_tilde'][0], 0 , 1)
+
+        ax = plt.subplot(num_rows, n_samples, 1 + counter + n_samples*(j+1))
+        plt.imshow(x_tilde[0].cpu().detach().numpy(), cmap='gray',
+                   vmin=0, vmax=1)
+        plt.axis('off')
+        # show attention windows
+        for step_counter, step in enumerate(range(N)):
+            rect = attention_recs[step].detach().cpu().numpy()
+            if rect.sum() &gt; 0:  # valid rectangle
+                plt.plot(rect[0], rect[1]-0.5,
+                         color=colors_rect[step_counter])
+        if counter == 0:
+            # compute accuracy
+            data_loader = DataLoader(dataset, batch_size=BATCH_SIZE)
+            avg_acc = 0
+            for batch, label in data_loader:
+                label = label.unsqueeze(1).to(device)
+                r = trained_air(batch.to(device))
+                acc = (r['counts']==label).sum().item()/len(r['counts'])
+                avg_acc += acc / len(data_loader)
+            # annotate plot
+            ax.annotate(f'Epoch {epoch}\n Acc {avg_acc:.2f}',
+                        xy=(-0.05, 0.5), va='center',
+                        xycoords='axes fraction', fontsize=14,  ha='right',
+                        rotation=90)
+return</code></pre>
+<p>test_dataset = generate_dataset(num_images=300, SEED=2) plot_results(test_dataset){% endraw %}{% endcapture %} {% include code.html code=code lang=“python” %}</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../assets/paper_summaries/06_AIR/img/test_results.png" title="Test Results" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Test Results</figcaption>
+</figure>
+</div>
+<p>Very neat results, indeed! Note that this looks very similar to Figure 3 in the <a href="https://arxiv.org/abs/1603.08575">AIR paper</a>. The accuracy on the left denotes the count accuracy of the test dataset.</p>
+</section>
+<section id="closing-notes" class="level3">
+<h3 class="anchored" data-anchor-id="closing-notes">Closing Notes</h3>
+<p>Alright, time to step down from our high horse. Actually, it took me quite some time to tweak the hyperparameters to obtain such good results. I put a lot of prior knowledge into the model so that <code>completely unsupervised</code> is probably exaggerated. Using a slightly different setup might lead to entirely different results. Furthermore, even in this setup, there may be cases in which the training converges to some local maximum (depending on the random network initializations and random training dataset).</p>
+</section>
+</section>
+<section id="acknowledgements" class="level2">
+<h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
+<p>The <a href="http://akosiorek.github.io/ml/2017/09/03/implementing-air.html">blog post</a> by Adam Kosiorek, the <a href="https://pyro.ai/examples/air.html">pyro tutorial on AIR</a> and <a href="https://github.com/addtt/attend-infer-repeat-pytorch">the pytorch implementation</a> by Andrea Dittadi are great resources and helped very much to understand the details of the paper.</p>
+<hr>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Visualization of a standard attention transformation, for more details refer to my <a href="https://borea17.github.io/paper_summaries/spatial_transformer#model-description">Spatial Transformer description</a>.</p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/attention_transform.gif" title="Attention Transform" class="img-fluid" alt="Attention Transfrom"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">This transformation is more constrained with only 3-DoF. Therefore it only allows cropping, translation and isotropic scaling to be applied to the input feature map.</td>
+</tr>
+</tbody>
+</table>
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></li>
+<li id="fn2"><p>Using the pseudoinverse (or Moore-Penrose inverse) is beneficial to allow inverse mappings even if <span class="math inline">\(\textbf{A}^{(i)}\)</span> becomes non-invertible, i.e., if <span class="math inline">\(s^{(i)} = 0\)</span>.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Note that we assume normalized coordinates with same resolutions such that the notation is not completely messed up.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p><code>Amortized</code> variational approximation means basically <code>parameterized</code> variational approximation, i.e., we introduce a parameterized function <span class="math inline">\(q_{\boldsymbol{\phi}} \left( \textbf{z}, n | \textbf{x}\right)\)</span> (e.g., neural network parameterized by <span class="math inline">\(\boldsymbol{\phi}\)</span>) that maps from an image <span class="math inline">\(\textbf{x}\)</span> to the distribution parameters for number of objects <span class="math inline">\(n\)</span> and their latent representation <span class="math inline">\(\textbf{z}\)</span>, see <a href="https://www.quora.com/What-is-amortized-variational-inference">this excellent answer on variational inference</a>.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>The probabilistic decoder <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n \right)\)</span> is also just an approximation to the true generative process. However, note that for each <span class="math inline">\(\textbf{x}^{(i)}\)</span> we know how the reconstruction should look like. I.e., if <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}, n \right)\)</span> approximates the true generative process, we can optimize it by maximizing its expectation for given <span class="math inline">\(\textbf{z}\)</span> and <span class="math inline">\(n\)</span> sampled from the approximate true posterior <span class="math inline">\(q_{\boldsymbol{\phi}} \left( \textbf{z}, n | \textbf{x}^{(i)}\right)\)</span>.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>On a standard MNIST dataset, <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a> successfully used the centered isotropic multivariate Gaussian as a prior distribution.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>That <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> used an anealing geometric distribution is not mentioned in their paper, however Adam Kosiorek emailed the authors and received that information, see <a href="[this blog post](http://akosiorek.github.io/ml/2017/09/03/implementing-air.html)">his blog post</a>.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p>Note that weights and biases of linear layers are <a href="https://discuss.pytorch.org/t/how-are-layer-weights-and-biases-initialized-by-default/13073/2">defaulty initialized</a> by drawing uniformly in the interval <span class="math inline">\([-\frac {1}{\sqrt{n_o}}, \frac {1}{\sqrt{n_o}}]\)</span>, where <span class="math inline">\(n_o\)</span> denotes the number of outputs of the linear layer.<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

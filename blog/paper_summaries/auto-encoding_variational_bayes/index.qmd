@@ -1,6 +1,6 @@
 ---
 title: "Auto-Encoding Variational Bayes"
-categories: ["reimplementation", "VAE"]
+categories: ["reimplementation", "VAE", "generative"]
 date: "2020-07-25"
 execute:
   eval: false # true

@@ -147,7 +147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <div class="quarto-title-block"><div><h1 class="title">Spatial Transformer Networks</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/04_Spatial_Transformer_Networks.ipynb"><i class="bi"></i> Code</button></div></div>
+      <div class="quarto-title-block"><div><h1 class="title">Spatial Transformer Networks</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/04_Spatial_Transformer_Networks.ipynb">View Source</a></li></ul></div></div>
                                 <div class="quarto-categories">
                 <div class="quarto-category">reimplementation</div>
               </div>
@@ -320,7 +320,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <table class="table">
 <thead>
 <tr class="header">
-<th style="text-align: left;"><img src="../../assets/img/09_spatial_transformer/spatial_transformer.png" title="Architecture of Spatial Transformer" class="img-fluid" alt="Architecture of Spatial Transformer"></th>
+<th style="text-align: left;"><img src="./img/spatial_transformer.png" title="Architecture of Spatial Transformer" class="img-fluid" alt="Architecture of Spatial Transformer"></th>
 </tr>
 </thead>
 <tbody>
@@ -348,7 +348,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: center;"><img src="../../assets/img/09_spatial_transformer/distortedMNIST.png" title="RTS Distorted MNIST Examples" class="img-fluid" alt="RTS Distorted MNIST Examples"></th>
+<th style="text-align: center;"><img src="./img/distortedMNIST.png" title="RTS Distorted MNIST Examples" class="img-fluid" alt="RTS Distorted MNIST Examples"></th>
 </tr>
 </thead>
 <tbody>
@@ -359,7 +359,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>Note that this transformation could also be used as a data augmentation technique, as the resulting images remain (mostly) valid digit representations (humans could still assign correct labels).</p>
 <p>The code below can be used to create this dataset:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="cell" data-execution_count="1">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision <span class="im">import</span> datasets, transforms</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -392,6 +395,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>train_dataset, test_dataset <span class="op">=</span> load_data()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 </section>
 <section id="model-implementation" class="level3">
 <h3 class="anchored" data-anchor-id="model-implementation">Model Implementation</h3>
@@ -399,7 +404,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><p><strong>Network Architectures</strong>: The network architectures are based upon the description in appendix A.4 of <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al. (2015)</a>. Note that there is only one ST at the beginning of the network such that the resulting transformation is only applied over one channel (input channel). For the sake of simplicity, we only implement an affine transformation matrix. Clearly, including an ST increases the networks capacity due to the number of added trainable parameters. To allow for a fair comparison, we therefore increase the capacity of the convolutional and linear layers in the standard CNN.</p>
 <p>The code below creates both architectures and counts their trainable parameters.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<div class="cell" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -503,14 +511,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> [cnn, st_cnn]:</span>
 <span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>  num_trainable_params <span class="op">=</span> get_number_of_trainable_parameters(model)</span>
 <span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>model<span class="sc">.</span>name<span class="sc">}</span><span class="ss"> has </span><span class="sc">{</span>num_trainable_params<span class="sc">}</span><span class="ss"> trainable parameters'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<img src="../../assets/img/09_spatial_transformer/trainable_params.png" title="Trainable Paramas" class="img-fluid" alt="Trainable Parameters"></li>
+</details>
+</div>
+<img src="./img/trainable_params.png" title="Trainable Paramas" class="img-fluid" alt="Trainable Parameters"></li>
 <li><p><strong>Training Procedure</strong>: As described in appendix A.4 of <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al. (2015)</a>, the networks are trained with standard SGD, batch size of <span class="math inline">\(256\)</span> and base learning rate of <span class="math inline">\(0.01\)</span>. To reduce computation time, the number of epochs is limited to <span class="math inline">\(50\)</span>.</p>
 <p>The loss function is the multinomial cross entropy loss, i.e.,</p>
 <p><span class="math display">\[
   \text{Loss} = - \sum_{i=1}^N \sum_{k=1}^C p_i^{(k)} \cdot \log
   \left( \widehat{p}_i^{(k)} \right),
 \]</span></p>
-<p>where <span class="math inline">\(k\)</span> enumerates the number of classes, <span class="math inline">\(i\)</span> enumerates the number of images, <span class="math inline">\(p_i^{k} \in \{0, 1\}\)</span> denotes the true probability of image <span class="math inline">\(i\)</span> and class <span class="math inline">\(k\)</span> and <span class="math inline">\(\widehat{p}_i^{k} \in [0, 1]\)</span> is the probability predicted by the network. Note that the true probability distribution is categorical (hard labels), i.e.,</p>
+<p>where <span class="math inline">\(k\)</span> enumerates the number of classes, <span class="math inline">\(i\)</span> enumerates the number of images, <span class="math inline">\(p_i^{(k)} \in \{0, 1\}\)</span> denotes the true probability of image <span class="math inline">\(i\)</span> and class <span class="math inline">\(k\)</span> and <span class="math inline">\(\widehat{p}_i^{(k)} \in [0, 1]\)</span> is the probability predicted by the network. Note that the true probability distribution is categorical (hard labels), i.e.,</p>
 <p><span class="math display">\[
   p_i^{(k)} = 1_{k = y_i} = \begin{cases}1 &amp; \text{if } k = y_i \\ 0
   &amp; \text{else}\end{cases}
@@ -522,7 +532,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 \]</span></p>
 <p>which is the definition of the negative log likelihood loss (<a href="https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html">NLLLoss</a>) in Pytorch, when the logarithmized predictions <span class="math inline">\(\log \left( \widehat{p}_{i, y_i} \right)\)</span> (matrix of size <span class="math inline">\(N\times C\)</span>) and class labels <span class="math inline">\(y_i\)</span> (vector of size <span class="math inline">\(N\)</span>) are given as input.</p>
 <p>The code below summarizes the whole training procedure.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> livelossplot <span class="im">import</span> PlotLosses</span>
+<div class="cell" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> livelossplot <span class="im">import</span> PlotLosses</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -565,9 +578,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        losses_plot.update({<span class="st">'log loss'</span>: np.log(avg_loss)})</span>
 <span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        losses_plot.send()</span>
 <span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    trained_model <span class="op">=</span> model</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> trained_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> trained_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div></li>
 <li><p><strong>Test Procedure</strong>: A very simple test procedure to evaluate both models is shown below. It is basically the same as in <a href="https://pytorch.org/tutorials/intermediate/spatial_transformer_tutorial.html">the pytorch tutorial</a>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test(trained_model, test_dataset):</span>
+<div class="cell" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test(trained_model, test_dataset):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    test_loader <span class="op">=</span> DataLoader(test_dataset, batch_size<span class="op">=</span><span class="dv">256</span>, shuffle<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                            num_workers<span class="op">=</span><span class="dv">4</span>)</span>
@@ -586,7 +604,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>trained_model<span class="sc">.</span>name<span class="sc">}</span><span class="ss">: avg loss: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(test_loss, <span class="dv">2</span>)<span class="sc">}</span><span class="ss">,  '</span> <span class="op">+</span></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f'avg acc </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">round</span>(<span class="dv">100</span><span class="op">*</span>correct<span class="op">/</span><span class="bu">len</span>(test_dataset), <span class="dv">2</span>)<span class="sc">}</span><span class="ss">%'</span>)</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div></li>
 </ul>
 </section>
 <section id="results" class="level3">
@@ -594,18 +614,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Lastly, the results can also divided into three sections:</p>
 <ul>
 <li><p><strong>Training Results</strong>: Firstly, we train our models on the training dataset and compare the logarithmized losses:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>trained_cnn <span class="op">=</span> train(cnn, train_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<img src="../../assets/img/09_spatial_transformer/train_cnn_results.png" title="Training Results CNN" class="img-fluid" alt="Training Results CNN">
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>trained_st_cnn <span class="op">=</span> train(st_cnn, train_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<img src="../../assets/img/09_spatial_transformer/train_st_cnn_results.png" title="Training Results ST-CNN" class="img-fluid" alt="Training Results ST-CNN">
+<div class="cell" data-execution_count="5">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>trained_cnn <span class="op">=</span> train(cnn, train_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<img src="./img/train_cnn_results.png" title="Training Results CNN" class="img-fluid" alt="Training Results CNN">
+<div class="cell" data-execution_count="6">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>trained_st_cnn <span class="op">=</span> train(st_cnn, train_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<img src="./img/train_st_cnn_results.png" title="Training Results ST-CNN" class="img-fluid" alt="Training Results ST-CNN">
 <p>The logarithmized losses already indicate that the ST-CNN performs better than the standard CNN (at least, it decreases the loss faster). However, it can also be noted that training the ST-CNN seems less stable.</p></li>
 <li><p><strong>Test Performance</strong>: While the performance on the training dataset may be a good indicator, test set performance is much more meaningful. Let’s compare the losses and accuracies between both trained models:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> trained_model <span class="kw">in</span> [trained_cnn, trained_st_cnn]:</span>
+<div class="cell" data-execution_count="7">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> trained_model <span class="kw">in</span> [trained_cnn, trained_st_cnn]:</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    test(trained_model, test_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<img src="../../assets/img/09_spatial_transformer/test_results.png" title="Test Results" class="img-fluid" alt="Test Results">
+</details>
+</div>
+<img src="./img/test_results.png" title="Test Results" class="img-fluid" alt="Test Results">
 <p>Clearly, the ST-CNN performs much better than the standard CNN. Note that training for more epochs would probably result in even better accuracies in both models.</p></li>
 <li><p><strong>Visualization of Learned Transformations</strong>: Lastly, it might be interesting to see what the ST module actually does after training:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="cell" data-execution_count="8">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> ConnectionPatch</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -690,7 +728,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>visualize_learned_transformations(st_cnn, test_dataset, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<img src="../../assets/img/09_spatial_transformer/transformation_visualization.png" title="Transformation Visualization" class="img-fluid" alt="Transformation Visualization">
+</details>
+</div>
+<img src="./img/transformation_visualization.png" title="Transformation Visualization" class="img-fluid" alt="Transformation Visualization">
 <p>Clearly, the ST module attends to the digits such that the ST output has much less variation in terms of rotation, translation and scale making the classification task for the follow up CNN easier.</p>
 <p>Pretty cool, hugh?</p></li>
 </ul>
