@@ -455,3 +455,6 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# juypter cache
+.jupyter_cache/

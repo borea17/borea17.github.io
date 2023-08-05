@@ -1,6 +1,6 @@
 ---
 title: "Schema Networks: Zero-shot Transfer with a Generative Causal Model of Intuitive Physics"
-categories: ["reinforcement learning"]
+categories: ["RL"]
 image: "./img/transition_dynamics.png"
 date: "2020-07-15"
 ---

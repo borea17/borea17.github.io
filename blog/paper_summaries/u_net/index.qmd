@@ -1,6 +1,6 @@
 ---
 title: "U-Net: Convolutional Networks for Biomedical Image Segmentation"
-categories: ["reimplementation", "CNN", "image segmentation"]
+categories: ["reimplementation", "CNN", "segmentation"]
 date: "2020-08-21"
 execute:
   eval: false # true
