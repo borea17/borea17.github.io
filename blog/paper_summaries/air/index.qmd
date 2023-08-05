@@ -199,7 +199,8 @@ original image and placing the reconstructed version with the inverse
 scaling and shifting on an otherwise empty (black) canvas. The code and visualization can be
 found [here](https://github.com/borea17/InteractiveTransformations).
 
-| <img width="900" height="404" src='/assets/paper_summaries/06_AIR/img/transformation.gif'> |
+
+| ![Interactive Transformation Visualization](./img/transformation.gif "Interactive Transformation Visualization") |
 | :--: |
 |  **Interactive Transformation Visualization** |
 
@@ -253,7 +254,7 @@ $$
  p_{\boldsymbol{\theta}}^x \left( \textbf{x} | \textbf{z}\right) d \textbf{z}
 $$
 
-| ![Generative Model VAE vs AIR](/assets/paper_summaries/06_AIR/img/VAE_vs_AIR.png "Generative Model VAE vs AIR") |
+| ![Generative Model VAE vs AIR](./img/VAE_vs_AIR.png "Generative Model VAE vs AIR") |
 | :--  |
 |  **Generative Model VAE vs AIR**. Note that for a given dataset $\textbf{X} = \{ \textbf{x}^{(i)}\}_{i=1}^{L}$ the marginal likelihood of the whole dataset can be computed via $p_{\boldsymbol{\theta}} ( \textbf{X} ) = \prod_{i=1}^{L} p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} \right) $. |
 
@@ -537,7 +538,7 @@ images in the training dataset contained a maximum of two digits).
 <!-- This ensures that different regions are -->
 <!-- assigned as different objects. -->
 
-| ![Multi-MNIST Paper Results](/assets/paper_summaries/06_AIR/img/paper_results.png "Multi-MNIST Paper Results") |
+| ![Multi-MNIST Paper Results](./img/paper_results.png "Multi-MNIST Paper Results") |
 | :--  |
 |  **Paper Results of Multi-MNIST Experiment**. Taken from [Eslami et al. (2016)](https://arxiv.org/abs/1603.08575). |
 
@@ -562,11 +563,12 @@ two MNIST digits do not overlap. Note that some small overlap may occur which we
 simply accept. At the same time, we record the number of digits in each
 generated image to measure the count accuracy during training.
 
-| ![Multi-MNIST Dataset Examples](/assets/paper_summaries/06_AIR/img/multi-MNIST_dataset.png "Multi-MNIST Dataset Examples") |
+| ![Multi-MNIST Dataset Examples](./img/multi-MNIST_dataset.png "Multi-MNIST Dataset Examples") |
 | :---: |
 |  **Multi-MNIST Dataset Examples**. |
 
-{% capture code %}{% raw %}import torch
+```{python}
+import torch
 import numpy as np
 from torchvision import datasets, transforms
 from torch.utils.data import TensorDataset
@@ -621,8 +623,8 @@ def generate_dataset(num_images, SEED=1):
                 y = [y_1-int(MNIST_SIZE/2), y_1+int(MNIST_SIZE/2)]
                 data[i_data,:,y[0]:y[1],x[0]:x[1]] += random_digit
     labels = torch.from_numpy(num_digits)
-    return TensorDataset(data.type(torch.float32), labels){% endraw %}{% endcapture %}
-{% include code.html code=code lang="python" %}
+    return TensorDataset(data.type(torch.float32), labels)
+```
 
 
 ### Model Implementation
@@ -685,11 +687,12 @@ parts:
     {1}{\sqrt{n_o}}]$, where $n_o$ denotes the number of outputs of the linear layer.
 
 
-  {% capture code %}{% raw %}from torch import nn
+```{python}
+from torch import nn
 
 WINDOW_SIZE = MNIST_SIZE        # patch size (in one dimension) of what-VAE
 Z_WHAT_HIDDEN_DIM = 400         # hidden dimension of what-VAE
-Z_WHAT_LATENT_DIM = 20          # latent dimension of what-VAE
+Z_WHAT_DIM = 20                 # latent dimension of what-VAE
 FIXED_VAR = 0.5**2              # fixed variance of Gaussian decoder
 
 
@@ -707,10 +710,10 @@ class VAE(nn.Module):
         self.encoder = nn.Sequential(
             nn.Linear(WINDOW_SIZE**2, Z_WHAT_HIDDEN_DIM),
             nn.ReLU(),
-            nn.Linear(Z_WHAT_HIDDEN_DIM, Z_WHAT_LATENT_DIM*2),
+            nn.Linear(Z_WHAT_HIDDEN_DIM, Z_WHAT_DIM*2),
         )
         self.decoder = nn.Sequential(
-            nn.Linear(Z_WHAT_LATENT_DIM, Z_WHAT_HIDDEN_DIM),
+            nn.Linear(Z_WHAT_DIM, Z_WHAT_HIDDEN_DIM),
             nn.ReLU(),
             nn.Linear(Z_WHAT_HIDDEN_DIM, WINDOW_SIZE**2),
         )
@@ -739,8 +742,8 @@ class VAE(nn.Module):
         x_tilde_att_i = x_tilde_att_i.abs()
         # reshape to [1, WINDOW_SIZE, WINDOW_SIZE] (input shape)
         x_tilde_att_i = x_tilde_att_i.view(-1, 1, WINDOW_SIZE, WINDOW_SIZE)
-        return x_tilde_att_i{% endraw %}{% endcapture %}
-  {% include code.html code=code lang="python" %}
+        return x_tilde_att_i
+```
 
 * **Recurrent Inference Network**: [Eslami et al.
   (2016)](https://arxiv.org/abs/1603.08575) used a standard recurrent neural
@@ -776,7 +779,8 @@ class VAE(nn.Module):
   Note: We use a very similar recurrent network architecture for the neural baseline
   model (to predict the negative log-likelihood), see code below.
 
-{% capture code %}{% raw %}Z_PRES_DIM = 1                      # latent dimension of z_pres
+```{python}
+Z_PRES_DIM = 1                      # latent dimension of z_pres
 Z_WHERE_DIM = 3                     # latent dimension of z_where
 RNN_HIDDEN_STATE_DIM = 256          # hidden state dimension of RNN
 P_PRES_INIT = [2.]                  # initialization p_pres (sigmoid -> 0.8)
@@ -827,8 +831,8 @@ class RNN(nn.Module):
             h_i = rnn_output[:, (Z_PRES_DIM+2*Z_WHERE_DIM)::]
             # omega_i[:, 0] corresponds to z_pres probability
             omega_i[:, 0] = torch.sigmoid(omega_i[:, 0])
-            return omega_i, h_i{% endraw %}{% endcapture %}
-{% include code.html code=code lang="python" %}
+            return omega_i, h_i
+```
 
 * **AIR Implementation**: The whole AIR model is obtained by putting everything
   together. To better understand what's happening, let's take a closer look on
@@ -872,7 +876,8 @@ class RNN(nn.Module):
        baseline to the true NLL in order to reduce the variance of the REINFORCE
        estimator.
 
-  {% capture code %}{% raw %}import torch.nn.functional as F
+```{python}
+import torch.nn.functional as F
 from torch.distributions import Bernoulli
 
 
@@ -1128,8 +1133,8 @@ class AIR(nn.Module):
 
         var_ratio = log_var_q.exp()/var_p
         t1 = (mean_q - mean_p).pow(2)/var_p
-        return -0.5 * (1 + var_ratio.log() - var_ratio - t1){% endraw %}{% endcapture %}
-  {% include code.html code=code lang="python" %}
+        return -0.5 * (1 + var_ratio.log() - var_ratio - t1)
+```
 
 
 * **Training Procedure**: Lastly, a standard training procedure is implemented.
@@ -1138,7 +1143,8 @@ class AIR(nn.Module):
   completely unsupervised, i.e., the model only receives a batch of images to
   compute the losses.
 
-{% capture code %}{% raw %}from livelossplot import PlotLosses, outputs
+```{python}
+from livelossplot import PlotLosses, outputs
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
@@ -1208,20 +1214,21 @@ def train(air, dataset):
     print(f'Accuracy after Training {avg_acc:.2f} (on training dataset)')
     torch.save(air, f'./results/checkpoint_{epoch}.pth')
     trained_air = air
-    return trained_air{% endraw %}{% endcapture %}
-{% include code.html code=code lang="python" %}
+    return trained_air
+```
 
 
 ### Results
 
 Let's train our model:
 
-{% capture code %}{% raw %}air_model = AIR()
-train_dataset = generate_dataset(num_images=10000, SEED=np.random.randint(1000))
-trained_air = train(air_model, train_dataset){% endraw %}{% endcapture %}
-{% include code.html code=code lang="python" %}
+```{python}
+air_model = AIR()
+train_dataset = generate_dataset(num_images=10000, SEED=42)
+trained_air = train(air_model, train_dataset)
+```
 
-![Training Results](/assets/paper_summaries/06_AIR/img/training_results.png "Training Results")
+![Training Results](./img/training_results.png "Training Results")
 
 This looks pretty awesome! It seems that our model nearly perfectly learns to
 count the number of digits without even knowing what a digit is.
@@ -1229,7 +1236,8 @@ count the number of digits without even knowing what a digit is.
 Let us take a closer look and plot the results of the model
 at different stages of the training against a test dataset.
 
-{% capture code %}{% raw %}def plot_results(dataset):
+```{python}
+def plot_results(dataset):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     n_samples = 7
 
@@ -1286,10 +1294,10 @@ at different stages of the training against a test dataset.
 
 
 test_dataset = generate_dataset(num_images=300, SEED=2)
-plot_results(test_dataset){% endraw %}{% endcapture %}
-{% include code.html code=code lang="python" %}
+plot_results(test_dataset)
+```
 
-![Test Results](/assets/paper_summaries/06_AIR/img/test_results.png "Test Results")
+![Test Results](./img/test_results.png "Test Results")
 
 Very neat results, indeed! Note that this looks very similar to Figure 3 in the
 [AIR paper](https://arxiv.org/abs/1603.08575). The accuracy on the left denotes

@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -113,7 +147,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <div class="quarto-title-block"><div><h1 class="title">Attend, Infer, Repeat: Fast Scene Understanding with Generative Models</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/05_Attend-Infer-Repeat.ipynb"><i class="bi"></i> Code</button></div></div>
+      <div class="quarto-title-block"><div><h1 class="title">Attend, Infer, Repeat: Fast Scene Understanding with Generative Models</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/05_Attend-Infer-Repeat.ipynb">View Source</a></li></ul></div></div>
                                 <div class="quarto-categories">
                 <div class="quarto-category">reimplementation</div>
                 <div class="quarto-category">unsupervised</div>
@@ -282,7 +316,7 @@ ul.task-list li input[type="checkbox"] {
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: center;"><img width="900" height="404" src="../../assets/paper_summaries/06_AIR/img/transformation.gif"></th>
+<th style="text-align: center;"><img src="./img/transformation.gif" title="Interactive Transformation Visualization" class="img-fluid" alt="Interactive Transformation Visualization"></th>
 </tr>
 </thead>
 <tbody>
@@ -313,7 +347,7 @@ p_{\boldsymbol{\theta}}^x \left( \textbf{x} | \textbf{z}\right) d \textbf{z}
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;"><img src="../../assets/paper_summaries/06_AIR/img/VAE_vs_AIR.png" title="Generative Model VAE vs AIR" class="img-fluid" alt="Generative Model VAE vs AIR"></th>
+<th style="text-align: left;"><img src="./img/VAE_vs_AIR.png" title="Generative Model VAE vs AIR" class="img-fluid" alt="Generative Model VAE vs AIR"></th>
 </tr>
 </thead>
 <tbody>
@@ -430,7 +464,7 @@ D_{KL} &amp; \left(q_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x}^{(i)}
 <table class="table">
 <thead>
 <tr class="header">
-<th style="text-align: left;"><img src="../../assets/paper_summaries/06_AIR/img/paper_results.png" title="Multi-MNIST Paper Results" class="img-fluid" alt="Multi-MNIST Paper Results"></th>
+<th style="text-align: left;"><img src="./img/paper_results.png" title="Multi-MNIST Paper Results" class="img-fluid" alt="Multi-MNIST Paper Results"></th>
 </tr>
 </thead>
 <tbody>
@@ -449,7 +483,7 @@ D_{KL} &amp; \left(q_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x}^{(i)}
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: center;"><img src="../../assets/paper_summaries/06_AIR/img/multi-MNIST_dataset.png" title="Multi-MNIST Dataset Examples" class="img-fluid" alt="Multi-MNIST Dataset Examples"></th>
+<th style="text-align: center;"><img src="./img/multi-MNIST_dataset.png" title="Multi-MNIST Dataset Examples" class="img-fluid" alt="Multi-MNIST Dataset Examples"></th>
 </tr>
 </thead>
 <tbody>
@@ -458,55 +492,67 @@ D_{KL} &amp; \left(q_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x}^{(i)}
 </tr>
 </tbody>
 </table>
-<p>{% capture code %}{% raw %}import torch import numpy as np from torchvision import datasets, transforms from torch.utils.data import TensorDataset</p>
-<p>CANVAS_SIZE = 50 # canvas in which 0/1/2 MNIST digits are put MNIST_SIZE = 24 # size of original MNIST digits (resized)</p>
-<p>def generate_dataset(num_images, SEED=1): “““generates multiple MNIST dataset with 0, 1 or 2 non-overlaping digits</p>
-<pre><code>Args:
-    num_images (int): number of images inside dataset
-
-Returns:
-    multiple_MNIST (torch dataset)
-"""
-data = torch.zeros([num_images, 1, CANVAS_SIZE, CANVAS_SIZE])
-
-original_MNIST = datasets.MNIST('./data', train=True, download=True,
-    transform=transforms.Compose([
-      transforms.Resize(size=(MNIST_SIZE, MNIST_SIZE)),
-      transforms.ToTensor()]))
-# sample random digits and positions
-np.random.seed(SEED)
-pos_positions = np.arange(int(MNIST_SIZE/2),CANVAS_SIZE - int(MNIST_SIZE/2))
-
-mnist_indices = np.random.randint(len(original_MNIST), size=(num_images, 2))
-num_digits = np.random.randint(3, size=(num_images))
-positions_0 = np.random.choice(pos_positions, size=(num_images, 2),
-                               replace=True)
-
-for i_data in range(num_images):
-    if num_digits[i_data] &gt; 0:
-        # add random digit at random position
-        random_digit = original_MNIST[mnist_indices[i_data][0]][0]
-        x_0, y_0 = positions_0[i_data][0], positions_0[i_data][1]
-        x = [x_0-int(MNIST_SIZE/2), x_0+int(MNIST_SIZE/2)]
-        y = [y_0-int(MNIST_SIZE/2), y_0+int(MNIST_SIZE/2)]
-        data[i_data,:,y[0]:y[1],x[0]:x[1]] += random_digit
-        if num_digits[i_data] == 2:
-            # add second non overlaping random digit
-            random_digit = original_MNIST[mnist_indices[i_data][1]][0]
-            impos_x_pos = np.arange(x_0-int(MNIST_SIZE/2),
-                                    x_0+int(MNIST_SIZE/2))
-            impos_y_pos = np.arange(y_0-int(MNIST_SIZE/2),
-                                    y_0+int(MNIST_SIZE/2))
-            x_1 = np.random.choice(np.setdiff1d(pos_positions, impos_x_pos),
-                                   size=1)[0]
-            y_1 = np.random.choice(np.setdiff1d(pos_positions, impos_y_pos),
-                                   size=1)[0]
-            x = [x_1-int(MNIST_SIZE/2), x_1+int(MNIST_SIZE/2)]
-            y = [y_1-int(MNIST_SIZE/2), y_1+int(MNIST_SIZE/2)]
-            data[i_data,:,y[0]:y[1],x[0]:x[1]] += random_digit
-labels = torch.from_numpy(num_digits)
-return TensorDataset(data.type(torch.float32), labels){% endraw %}{% endcapture %}</code></pre>
-<p>{% include code.html code=code lang=“python” %}</p>
+<div class="cell" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision <span class="im">import</span> datasets, transforms</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> TensorDataset</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>CANVAS_SIZE <span class="op">=</span> <span class="dv">50</span>                <span class="co"># canvas in which 0/1/2 MNIST digits are put</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>MNIST_SIZE <span class="op">=</span> <span class="dv">24</span>                 <span class="co"># size of original MNIST digits (resized)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_dataset(num_images, SEED<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""generates multiple MNIST dataset with 0, 1 or 2 non-overlaping digits</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">        num_images (int): number of images inside dataset</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">        multiple_MNIST (torch dataset)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> torch.zeros([num_images, <span class="dv">1</span>, CANVAS_SIZE, CANVAS_SIZE])</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    original_MNIST <span class="op">=</span> datasets.MNIST(<span class="st">'./data'</span>, train<span class="op">=</span><span class="va">True</span>, download<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        transform<span class="op">=</span>transforms.Compose([</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>          transforms.Resize(size<span class="op">=</span>(MNIST_SIZE, MNIST_SIZE)),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>          transforms.ToTensor()]))</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># sample random digits and positions</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    np.random.seed(SEED)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    pos_positions <span class="op">=</span> np.arange(<span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>),CANVAS_SIZE <span class="op">-</span> <span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>))</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    mnist_indices <span class="op">=</span> np.random.randint(<span class="bu">len</span>(original_MNIST), size<span class="op">=</span>(num_images, <span class="dv">2</span>))</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    num_digits <span class="op">=</span> np.random.randint(<span class="dv">3</span>, size<span class="op">=</span>(num_images))</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    positions_0 <span class="op">=</span> np.random.choice(pos_positions, size<span class="op">=</span>(num_images, <span class="dv">2</span>),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                                   replace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i_data <span class="kw">in</span> <span class="bu">range</span>(num_images):</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> num_digits[i_data] <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>            <span class="co"># add random digit at random position</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>            random_digit <span class="op">=</span> original_MNIST[mnist_indices[i_data][<span class="dv">0</span>]][<span class="dv">0</span>]</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>            x_0, y_0 <span class="op">=</span> positions_0[i_data][<span class="dv">0</span>], positions_0[i_data][<span class="dv">1</span>]</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> [x_0<span class="op">-</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>), x_0<span class="op">+</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>)]</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>            y <span class="op">=</span> [y_0<span class="op">-</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>), y_0<span class="op">+</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>)]</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>            data[i_data,:,y[<span class="dv">0</span>]:y[<span class="dv">1</span>],x[<span class="dv">0</span>]:x[<span class="dv">1</span>]] <span class="op">+=</span> random_digit</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> num_digits[i_data] <span class="op">==</span> <span class="dv">2</span>:</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>                <span class="co"># add second non overlaping random digit</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>                random_digit <span class="op">=</span> original_MNIST[mnist_indices[i_data][<span class="dv">1</span>]][<span class="dv">0</span>]</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>                impos_x_pos <span class="op">=</span> np.arange(x_0<span class="op">-</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>),</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>                                        x_0<span class="op">+</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>))</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>                impos_y_pos <span class="op">=</span> np.arange(y_0<span class="op">-</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>),</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>                                        y_0<span class="op">+</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>))</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>                x_1 <span class="op">=</span> np.random.choice(np.setdiff1d(pos_positions, impos_x_pos),</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>                                       size<span class="op">=</span><span class="dv">1</span>)[<span class="dv">0</span>]</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>                y_1 <span class="op">=</span> np.random.choice(np.setdiff1d(pos_positions, impos_y_pos),</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>                                       size<span class="op">=</span><span class="dv">1</span>)[<span class="dv">0</span>]</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>                x <span class="op">=</span> [x_1<span class="op">-</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>), x_1<span class="op">+</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>)]</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>                y <span class="op">=</span> [y_1<span class="op">-</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>), y_1<span class="op">+</span><span class="bu">int</span>(MNIST_SIZE<span class="op">/</span><span class="dv">2</span>)]</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>                data[i_data,:,y[<span class="dv">0</span>]:y[<span class="dv">1</span>],x[<span class="dv">0</span>]:x[<span class="dv">1</span>]] <span class="op">+=</span> random_digit</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    labels <span class="op">=</span> torch.from_numpy(num_digits)</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> TensorDataset(data.<span class="bu">type</span>(torch.float32), labels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 </section>
 <section id="model-implementation" class="level3">
 <h3 class="anchored" data-anchor-id="model-implementation">Model Implementation</h3>
@@ -522,53 +568,66 @@ return TensorDataset(data.type(torch.float32), labels){% endraw %}{% endcapture 
 <li><p><strong>Output Distribution</strong> <span class="math inline">\(\mathbb{R}_{+}\)</span>: This is motivated by the observations I made during the <em>network initialization</em> approach. By impeding the network to produce negative outputs, we indirectly force outputs between <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>. Thereby, we do not need to get our hands dirty with a Bernoulli distribution or vanishing gradient problems. Furthermore, we use Pytorch’s default initialization<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a> to produce mostly empty objects. This encourages the model to try out objects in the beginning of the training.</p></li>
 </ul></li>
 </ul>
-<p>{% capture code %}{% raw %}from torch import nn</p>
-<p>WINDOW_SIZE = MNIST_SIZE # patch size (in one dimension) of what-VAE Z_WHAT_HIDDEN_DIM = 400 # hidden dimension of what-VAE Z_WHAT_LATENT_DIM = 20 # latent dimension of what-VAE FIXED_VAR = 0.5**2 # fixed variance of Gaussian decoder</p>
-<p>class VAE(nn.Module): “““simple VAE class with a Gaussian encoder (mean and diagonal variance structure) and a Gaussian decoder with fixed variance</p>
-<pre><code>Attributes:
-    encoder (nn.Sequential): encoder network for mean and log_var
-    decoder (nn.Sequential): decoder network for mean (fixed var)
-"""
-
-def __init__(self):
-    super(VAE, self).__init__()
-    self.encoder = nn.Sequential(
-        nn.Linear(WINDOW_SIZE**2, Z_WHAT_HIDDEN_DIM),
-        nn.ReLU(),
-        nn.Linear(Z_WHAT_HIDDEN_DIM, Z_WHAT_LATENT_DIM*2),
-    )
-    self.decoder = nn.Sequential(
-        nn.Linear(Z_WHAT_LATENT_DIM, Z_WHAT_HIDDEN_DIM),
-        nn.ReLU(),
-        nn.Linear(Z_WHAT_HIDDEN_DIM, WINDOW_SIZE**2),
-    )
-    return
-
-def forward(self, x_att_i):
-    z_what_i, mu_E_i, log_var_E_i = self.encode(x_att_i)
-    x_tilde_att_i = self.decode(z_what_i)
-    return x_tilde_att_i, z_what_i, mu_E_i, log_var_E_i
-
-def encode(self, x_att_i):
-    batch_size = x_att_i.shape[0]
-    # get encoder distribution parameters
-    out_encoder = self.encoder(x_att_i.view(batch_size, -1))
-    mu_E_i, log_var_E_i = torch.chunk(out_encoder, 2, dim=1)
-    # sample noise variable for each batch
-    epsilon = torch.randn_like(log_var_E_i)
-    # get latent variable by reparametrization trick
-    z_what_i = mu_E_i + torch.exp(0.5*log_var_E_i) * epsilon
-    return z_what_i, mu_E_i, log_var_E_i
-
-def decode(self, z_what_i):
-    # get decoder distribution parameters
-    x_tilde_att_i = self.decoder(z_what_i)
-    # force output to be positive
-    x_tilde_att_i = x_tilde_att_i.abs()
-    # reshape to [1, WINDOW_SIZE, WINDOW_SIZE] (input shape)
-    x_tilde_att_i = x_tilde_att_i.view(-1, 1, WINDOW_SIZE, WINDOW_SIZE)
-    return x_tilde_att_i{% endraw %}{% endcapture %}</code></pre>
-<p>{% include code.html code=code lang=“python” %}</p>
+<div class="cell" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>WINDOW_SIZE <span class="op">=</span> MNIST_SIZE        <span class="co"># patch size (in one dimension) of what-VAE</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>Z_WHAT_HIDDEN_DIM <span class="op">=</span> <span class="dv">400</span>         <span class="co"># hidden dimension of what-VAE</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>Z_WHAT_DIM <span class="op">=</span> <span class="dv">20</span>                 <span class="co"># latent dimension of what-VAE</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>FIXED_VAR <span class="op">=</span> <span class="fl">0.5</span><span class="op">**</span><span class="dv">2</span>              <span class="co"># fixed variance of Gaussian decoder</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VAE(nn.Module):</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""simple VAE class with a Gaussian encoder (mean and diagonal variance</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">    structure) and a Gaussian decoder with fixed variance</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes:</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">        encoder (nn.Sequential): encoder network for mean and log_var</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">        decoder (nn.Sequential): decoder network for mean (fixed var)</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(VAE, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.encoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>            nn.Linear(WINDOW_SIZE<span class="op">**</span><span class="dv">2</span>, Z_WHAT_HIDDEN_DIM),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>            nn.Linear(Z_WHAT_HIDDEN_DIM, Z_WHAT_DIM<span class="op">*</span><span class="dv">2</span>),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.decoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>            nn.Linear(Z_WHAT_DIM, Z_WHAT_HIDDEN_DIM),</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>            nn.Linear(Z_WHAT_HIDDEN_DIM, WINDOW_SIZE<span class="op">**</span><span class="dv">2</span>),</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x_att_i):</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        z_what_i, mu_E_i, log_var_E_i <span class="op">=</span> <span class="va">self</span>.encode(x_att_i)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        x_tilde_att_i <span class="op">=</span> <span class="va">self</span>.decode(z_what_i)</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_tilde_att_i, z_what_i, mu_E_i, log_var_E_i</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> encode(<span class="va">self</span>, x_att_i):</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        batch_size <span class="op">=</span> x_att_i.shape[<span class="dv">0</span>]</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get encoder distribution parameters</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>        out_encoder <span class="op">=</span> <span class="va">self</span>.encoder(x_att_i.view(batch_size, <span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>        mu_E_i, log_var_E_i <span class="op">=</span> torch.chunk(out_encoder, <span class="dv">2</span>, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>        <span class="co"># sample noise variable for each batch</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>        epsilon <span class="op">=</span> torch.randn_like(log_var_E_i)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get latent variable by reparametrization trick</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>        z_what_i <span class="op">=</span> mu_E_i <span class="op">+</span> torch.exp(<span class="fl">0.5</span><span class="op">*</span>log_var_E_i) <span class="op">*</span> epsilon</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> z_what_i, mu_E_i, log_var_E_i</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> decode(<span class="va">self</span>, z_what_i):</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get decoder distribution parameters</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>        x_tilde_att_i <span class="op">=</span> <span class="va">self</span>.decoder(z_what_i)</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># force output to be positive</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>        x_tilde_att_i <span class="op">=</span> x_tilde_att_i.<span class="bu">abs</span>()</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>        <span class="co"># reshape to [1, WINDOW_SIZE, WINDOW_SIZE] (input shape)</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>        x_tilde_att_i <span class="op">=</span> x_tilde_att_i.view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, WINDOW_SIZE, WINDOW_SIZE)</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_tilde_att_i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <ul>
 <li><p><strong>Recurrent Inference Network</strong>: <a href="https://arxiv.org/abs/1603.08575">Eslami et al. (2016)</a> used a standard recurrent neural network (RNN) which in each step <span class="math inline">\(i\)</span> computes</p>
 <p><span class="math display">\[
@@ -588,50 +647,63 @@ def decode(self, z_what_i):
 </ul>
 <p>Note: We use a very similar recurrent network architecture for the neural baseline model (to predict the negative log-likelihood), see code below.</p></li>
 </ul>
-<p>{% capture code %}{% raw %}Z_PRES_DIM = 1 # latent dimension of z_pres Z_WHERE_DIM = 3 # latent dimension of z_where RNN_HIDDEN_STATE_DIM = 256 # hidden state dimension of RNN P_PRES_INIT = [2.] # initialization p_pres (sigmoid -&gt; 0.8) MU_WHERE_INIT = [3.0, 0., 0.] # initialization z_where mean LOG_VAR_WHERE_INIT = [-3.,-3.,-3.] # initialization z_where log var Z_DIM = Z_PRES_DIM + Z_WHERE_DIM + Z_WHAT_DIM</p>
-<p>class RNN(nn.Module):</p>
-<pre><code>def __init__(self, baseline_net=False):
-    super(RNN, self).__init__()
-    self.baseline_net = baseline_net
-    INPUT_SIZE = (CANVAS_SIZE**2) + RNN_HIDDEN_STATE_DIM + Z_DIM
-    if baseline_net:
-        OUTPUT_SIZE = (RNN_HIDDEN_STATE_DIM + 1)
-    else:
-        OUTPUT_SIZE = (RNN_HIDDEN_STATE_DIM + Z_PRES_DIM + 2*Z_WHERE_DIM)
-    output_layer = nn.Linear(RNN_HIDDEN_STATE_DIM, OUTPUT_SIZE)
-
-    self.fc_rnn = nn.Sequential(
-        nn.Linear(INPUT_SIZE, RNN_HIDDEN_STATE_DIM),
-        nn.ReLU(),
-        nn.Linear(RNN_HIDDEN_STATE_DIM, RNN_HIDDEN_STATE_DIM),
-        nn.ReLU(),
-        output_layer
-    )
-    if not baseline_net:
-        # initialize distribution parameters
-        output_layer.weight.data[0:7] = nn.Parameter(
-            torch.zeros(Z_PRES_DIM+2*Z_WHERE_DIM, RNN_HIDDEN_STATE_DIM)
-        )
-        output_layer.bias.data[0:7] = nn.Parameter(
-            torch.tensor(P_PRES_INIT + MU_WHERE_INIT + LOG_VAR_WHERE_INIT)
-        )
-    return
-
-def forward(self, x, z_im1, h_im1):
-    batch_size = x.shape[0]
-    rnn_input = torch.cat((x.sum(axis=1).view(batch_size, -1), z_im1, h_im1), dim=1)
-    rnn_output = self.fc_rnn(rnn_input)
-    if self.baseline_net:
-        baseline_value_i = rnn_output[:, 0:1]
-        h_i = rnn_output[:, 1::]
-        return baseline_value_i, h_i
-    else:
-        omega_i = rnn_output[:, 0:(Z_PRES_DIM+2*Z_WHERE_DIM)]
-        h_i = rnn_output[:, (Z_PRES_DIM+2*Z_WHERE_DIM)::]
-        # omega_i[:, 0] corresponds to z_pres probability
-        omega_i[:, 0] = torch.sigmoid(omega_i[:, 0])
-        return omega_i, h_i{% endraw %}{% endcapture %}</code></pre>
-<p>{% include code.html code=code lang=“python” %}</p>
+<div class="cell" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Z_PRES_DIM <span class="op">=</span> <span class="dv">1</span>                      <span class="co"># latent dimension of z_pres</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>Z_WHERE_DIM <span class="op">=</span> <span class="dv">3</span>                     <span class="co"># latent dimension of z_where</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>RNN_HIDDEN_STATE_DIM <span class="op">=</span> <span class="dv">256</span>          <span class="co"># hidden state dimension of RNN</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>P_PRES_INIT <span class="op">=</span> [<span class="fl">2.</span>]                  <span class="co"># initialization p_pres (sigmoid -&gt; 0.8)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>MU_WHERE_INIT <span class="op">=</span> [<span class="fl">3.0</span>, <span class="fl">0.</span>, <span class="fl">0.</span>]       <span class="co"># initialization z_where mean</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>LOG_VAR_WHERE_INIT <span class="op">=</span> [<span class="op">-</span><span class="fl">3.</span>,<span class="op">-</span><span class="fl">3.</span>,<span class="op">-</span><span class="fl">3.</span>]  <span class="co"># initialization z_where log var</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>Z_DIM <span class="op">=</span> Z_PRES_DIM <span class="op">+</span> Z_WHERE_DIM <span class="op">+</span> Z_WHAT_DIM</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RNN(nn.Module):</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, baseline_net<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(RNN, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.baseline_net <span class="op">=</span> baseline_net</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        INPUT_SIZE <span class="op">=</span> (CANVAS_SIZE<span class="op">**</span><span class="dv">2</span>) <span class="op">+</span> RNN_HIDDEN_STATE_DIM <span class="op">+</span> Z_DIM</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> baseline_net:</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>            OUTPUT_SIZE <span class="op">=</span> (RNN_HIDDEN_STATE_DIM <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>            OUTPUT_SIZE <span class="op">=</span> (RNN_HIDDEN_STATE_DIM <span class="op">+</span> Z_PRES_DIM <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>Z_WHERE_DIM)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        output_layer <span class="op">=</span> nn.Linear(RNN_HIDDEN_STATE_DIM, OUTPUT_SIZE)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fc_rnn <span class="op">=</span> nn.Sequential(</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>            nn.Linear(INPUT_SIZE, RNN_HIDDEN_STATE_DIM),</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>            nn.Linear(RNN_HIDDEN_STATE_DIM, RNN_HIDDEN_STATE_DIM),</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>            output_layer</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> baseline_net:</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>            <span class="co"># initialize distribution parameters</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            output_layer.weight.data[<span class="dv">0</span>:<span class="dv">7</span>] <span class="op">=</span> nn.Parameter(</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>                torch.zeros(Z_PRES_DIM<span class="op">+</span><span class="dv">2</span><span class="op">*</span>Z_WHERE_DIM, RNN_HIDDEN_STATE_DIM)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>            output_layer.bias.data[<span class="dv">0</span>:<span class="dv">7</span>] <span class="op">=</span> nn.Parameter(</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>                torch.tensor(P_PRES_INIT <span class="op">+</span> MU_WHERE_INIT <span class="op">+</span> LOG_VAR_WHERE_INIT)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x, z_im1, h_im1):</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        batch_size <span class="op">=</span> x.shape[<span class="dv">0</span>]</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        rnn_input <span class="op">=</span> torch.cat((x.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>).view(batch_size, <span class="op">-</span><span class="dv">1</span>), z_im1, h_im1), dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        rnn_output <span class="op">=</span> <span class="va">self</span>.fc_rnn(rnn_input)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.baseline_net:</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>            baseline_value_i <span class="op">=</span> rnn_output[:, <span class="dv">0</span>:<span class="dv">1</span>]</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>            h_i <span class="op">=</span> rnn_output[:, <span class="dv">1</span>::]</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> baseline_value_i, h_i</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>            omega_i <span class="op">=</span> rnn_output[:, <span class="dv">0</span>:(Z_PRES_DIM<span class="op">+</span><span class="dv">2</span><span class="op">*</span>Z_WHERE_DIM)]</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>            h_i <span class="op">=</span> rnn_output[:, (Z_PRES_DIM<span class="op">+</span><span class="dv">2</span><span class="op">*</span>Z_WHERE_DIM)::]</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>            <span class="co"># omega_i[:, 0] corresponds to z_pres probability</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>            omega_i[:, <span class="dv">0</span>] <span class="op">=</span> torch.sigmoid(omega_i[:, <span class="dv">0</span>])</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> omega_i, h_i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <ul>
 <li><p><strong>AIR Implementation</strong>: The whole AIR model is obtained by putting everything together. To better understand what’s happening, let’s take a closer look on the two main functions:</p>
 <ul>
@@ -647,384 +719,435 @@ def forward(self, x, z_im1, h_im1):
 <li><p><em>REINFORCE Term</em>: Since the image reconstruction is build by sampling from a discrete distribution, backpropagation stops at the sampling operation. In order to optimize the distribution parameters <span class="math inline">\(p_{\text{pres}}^{(i)}\)</span>, we use a score-function estimator with a data-dependent neural baseline.</p></li>
 <li><p><em>Baseline Loss</em>: This loss is needed to approximately fit the neural baseline to the true NLL in order to reduce the variance of the REINFORCE estimator.</p></li>
 </ol></li>
+</ul></li>
 </ul>
-<p>{% capture code %}{% raw %}import torch.nn.functional as F from torch.distributions import Bernoulli</p></li>
-</ul>
-<p>N = 3 # number of inference steps EPS = 1e-32 # numerical stability PRIOR_MEAN_WHERE = [3., 0., 0.] # prior for mean of z_i_where PRIOR_VAR_WHERE = [0.1**2, 1., 1.] # prior for variance of z_i_where PRIOR_P_PRES = [0.01] # prior for p_i_pres of z_i_pres BETA = 0.5 # hyperparameter to scale KL div OMEGA_DIM = Z_PRES_DIM + 2<em>Z_WHERE_DIM + 2</em>Z_WHAT_DIM</p>
-<p>class AIR(nn.Module):</p>
-<pre><code>PRIOR_MEAN_Z_WHERE = nn.Parameter(torch.tensor(PRIOR_MEAN_WHERE),
-                                  requires_grad=False)
-PRIOR_VAR_Z_WHERE = nn.Parameter(torch.tensor(PRIOR_VAR_WHERE),
-                                 requires_grad=False)
-PRIOR_P_Z_PRES = nn.Parameter(torch.tensor(PRIOR_P_PRES),
-                              requires_grad=False)
-
-expansion_indices = torch.LongTensor([1, 0, 2, 0, 1, 3])
-target_rectangle = torch.tensor(
-  [[-1., -1., 1., 1., -1.],
-   [-1., 1., 1., -1, -1.],
-   [1., 1., 1., 1., 1.]]
-).view(1, 3, 5)
-
-def __init__(self):
-    super(AIR, self).__init__()
-    self.vae = VAE()
-    self.rnn = RNN()
-    self.baseline = RNN(True)
-    return
-
-def compute_loss(self, x):
-    """compute the loss of AIR (essentially a VAE loss)
-    assuming the following prior distributions for the latent variables
-
-        z_where ~ N(PRIOR_MEAN_WHERE, PRIOR_VAR_WHERE)
-        z_what ~ N([0, 1])
-        z_pres ~ Bern(p_pres)
-
-    and a
-
-        Gaussian decoder with fixed diagonal var (FIXED_VAR)
-    """
-    batch_size = x.shape[0]
-    results = self.forward(x, True)
-    # kl_div for z_pres (between two Bernoulli distributions)
-    q_z_pres = results['all_prob_pres']
-    P_Z_PRES = AIR.PRIOR_P_Z_PRES.expand(q_z_pres.shape).to(x.device)
-    kl_div_pres = AIR.bernoulli_kl(q_z_pres, P_Z_PRES).sum(axis=2)
-    # kl_div for z_what (standard VAE regularization term)
-    q_z_what = [results['all_mu_what'], results['all_log_var_what']]
-    P_MU_WHAT = torch.zeros_like(results['all_mu_what'])
-    P_VAR_WHAT = torch.ones_like(results['all_log_var_what'])
-    P_Z_WHAT = [P_MU_WHAT, P_VAR_WHAT]
-    kl_div_what = AIR.gaussian_kl(q_z_what, P_Z_WHAT).sum(axis=2)
-    # kl_div for z_where (between two Gaussian distributions)
-    q_z_where = [results['all_mu_where'], results['all_log_var_where']]
-    P_MU_WHERE=AIR.PRIOR_MEAN_Z_WHERE.expand(results['all_mu_where'].shape)
-    P_VAR_WHERE=AIR.PRIOR_VAR_Z_WHERE.expand(results['all_mu_where'].shape)
-    P_Z_WHERE = [P_MU_WHERE.to(x.device), P_VAR_WHERE.to(x.device)]
-    kl_div_where = AIR.gaussian_kl(q_z_where, P_Z_WHERE).sum(axis=2)
-    # sum all kl_divs and use delayed mask to zero out irrelevants
-    delayed_mask = results['mask_delay']
-    kl_div = (kl_div_pres + kl_div_where + kl_div_what) * delayed_mask
-    # negative log-likelihood for Gaussian decoder (no gradient for z_pres)
-    factor = 0.5 * (1/FIXED_VAR)
-    nll = factor * ((x - results['x_tilde'])**2).sum(axis=(1,2,3))
-    # REINFORCE estimator for nll (gradient for z_pres)
-    baseline_target = nll.unsqueeze(1)
-    reinforce_term = ((baseline_target - results['baseline_values']
-                       ).detach()
-                      *results['z_pres_likelihood']*delayed_mask).sum(1)
-
-    # baseline model loss
-    baseline_loss = ((results['baseline_values'] -
-                      baseline_target.detach())**2 * delayed_mask).sum(1)
-    loss = dict()
-    loss['kl_div'] = BETA*kl_div.sum(1).mean()
-    loss['nll'] = nll.mean()
-    loss['reinforce'] = reinforce_term.mean()
-    loss['baseline'] = baseline_loss.mean()
-    return loss, results
-
-def forward(self, x, save_attention_rectangle=False):
-    batch_size = x.shape[0]
-    # initializations
-    all_z = torch.empty((batch_size, N, Z_DIM), device=x.device)
-    z_pres_likelihood = torch.empty((batch_size, N), device=x.device)
-    mask_delay = torch.empty((batch_size, N), device=x.device)
-    all_omega = torch.empty((batch_size, N, OMEGA_DIM), device=x.device)
-    all_x_tilde = torch.empty((batch_size, N, CANVAS_SIZE, CANVAS_SIZE),
-                             device=x.device)
-    baseline_values = torch.empty((batch_size, N), device=x.device)
-
-    z_im1 = torch.ones((batch_size, Z_DIM)).to(x.device)
-    h_im1 = torch.zeros((batch_size, RNN_HIDDEN_STATE_DIM)).to(x.device)
-    h_im1_b = torch.zeros((batch_size, RNN_HIDDEN_STATE_DIM)).to(x.device)
-    if save_attention_rectangle:
-        attention_rects = torch.empty((batch_size, N, 2, 5)).to(x.device)
-    for i in range(N):
-        z_im1_pres = z_im1[:, 0:1]
-        # mask_delay is used to zero out all steps AFTER FIRST z_pres = 0
-        mask_delay[:, i] = z_im1_pres.squeeze(1)
-        # obtain parameters of sampling distribution and hidden state
-        omega_i, h_i = self.rnn(x, z_im1, h_im1)
-        # baseline version
-        baseline_i, h_i_b = self.baseline(x.detach(), z_im1.detach(),
-                                          h_im1_b)
-        # set baseline 0 if z_im1_pres = 0
-        baseline_value = (baseline_i * z_im1_pres).squeeze()
-        # extract sample distributions parameters from omega_i
-        prob_pres_i = omega_i[:, 0:1]
-        mu_where_i = omega_i[:, 1:4]
-        log_var_where_i = omega_i[:, 4:7]
-        # sample from distributions to obtain z_i_pres and z_i_where
-        z_i_pres_post = Bernoulli(probs=prob_pres_i)
-        z_i_pres = z_i_pres_post.sample() * z_im1_pres
-        # likelihood of sampled z_i_pres (only if z_im_pres = 1)
-        z_pres_likelihood[:, i] = (z_i_pres_post.log_prob(z_i_pres) *
-                                   z_im1_pres).squeeze(1)
-        # get z_i_where by reparametrization trick
-        epsilon_w = torch.randn_like(log_var_where_i)
-        z_i_where = mu_where_i + torch.exp(0.5*log_var_where_i)*epsilon_w
-        # use z_where and x to obtain x_att_i
-        x_att_i = AIR.image_to_window(x, z_i_where)
-        # put x_att_i through VAE
-        x_tilde_att_i, z_i_what, mu_what_i, log_var_what_i = \
-            self.vae(x_att_i)
-        # create image reconstruction
-        x_tilde_i = AIR.window_to_image(x_tilde_att_i, z_i_where)
-        # update im1 with current versions
-        z_im1 = torch.cat((z_i_pres, z_i_where, z_i_what), 1)
-        h_im1 = h_i
-        h_im1_b = h_i_b
-        # put all distribution parameters into omega_i
-        omega_i = torch.cat((prob_pres_i, mu_where_i, log_var_where_i,
-                             mu_what_i, log_var_what_i), 1)
-        # store intermediate results
-        all_z[:, i:i+1] = z_im1.unsqueeze(1)
-        all_omega[:, i:i+1] = omega_i.unsqueeze(1)
-        all_x_tilde[:, i:i+1] = x_tilde_i
-        baseline_values[:, i] = baseline_value
-        # for nice visualization
-        if save_attention_rectangle:
-            attention_rects[:, i] = (AIR.get_attention_rectangle(z_i_where)
-                                     *z_i_pres.unsqueeze(1))
-    # save results in dict (easy accessibility)
-    results = dict()
-    # fixes Z_PRES_DIM = 1 and Z_WHERE_DIM = 3
-    results['z_pres_likelihood'] = z_pres_likelihood
-    results['all_z_pres'] = all_z[:, :, 0:1]
-    results['mask_delay'] = mask_delay
-    results['all_prob_pres'] = all_omega[:, :, 0:1]
-    results['all_z_where'] = all_z[:, :, 1:4]
-    results['all_mu_where'] =  all_omega[:, :, 1:4]
-    results['all_log_var_where'] = all_omega[:, :, 4:7]
-    results['all_z_what'] = all_z[:, :, 4::]
-    results['all_mu_what'] =  all_omega[:, :, 7:7+Z_WHAT_DIM]
-    results['all_log_var_what'] = all_omega[:, :, 7+Z_WHAT_DIM::]
-    results['baseline_values'] = baseline_values
-    if save_attention_rectangle:
-        results['attention_rects'] = attention_rects
-    # compute reconstructed image (take only x_tilde_i with z_i_pres=1)
-    results['x_tilde_i'] = all_x_tilde
-    x_tilde = (all_z[:, :, 0:1].unsqueeze(2) * all_x_tilde).sum(axis=1,
-                                                          keepdim=True)
-    results['x_tilde'] = x_tilde
-    # compute counts as identified objects (sum z_i_pres)
-    results['counts'] = results['all_z_pres'].sum(1).to(dtype=torch.long)
-    return results
-
-@staticmethod
-def image_to_window(x, z_i_where):
-    grid_shape = (z_i_where.shape[0], 1, WINDOW_SIZE, WINDOW_SIZE)
-    z_i_where_inv = AIR.invert_z_where(z_i_where)
-    x_att_i = AIR.spatial_transform(x, z_i_where_inv, grid_shape)
-    return x_att_i
-
-@staticmethod
-def window_to_image(x_tilde_att_i, z_i_where):
-    grid_shape = (z_i_where.shape[0], 1, CANVAS_SIZE, CANVAS_SIZE)
-    x_tilde_i = AIR.spatial_transform(x_tilde_att_i, z_i_where, grid_shape)
-    return x_tilde_i
-
-@staticmethod
-def spatial_transform(x, z_where, grid_shape):
-    theta_matrix = AIR.z_where_to_transformation_matrix(z_where)
-    grid = F.affine_grid(theta_matrix, grid_shape, align_corners=False)
-    out = F.grid_sample(x, grid, align_corners=False)
-    return out
-
-@staticmethod
-def z_where_to_transformation_matrix(z_i_where):
-    """taken from
-    https://github.com/pyro-ppl/pyro/blob/dev/examples/air/air.py
-    """
-    batch_size = z_i_where.shape[0]
-    out = torch.cat((z_i_where.new_zeros(batch_size, 1), z_i_where), 1)
-    ix = AIR.expansion_indices
-    if z_i_where.is_cuda:
-        ix = ix.cuda()
-    out = torch.index_select(out, 1, ix)
-    theta_matrix = out.view(batch_size, 2, 3)
-    return theta_matrix
-
-@staticmethod
-def invert_z_where(z_where):
-    z_where_inv = torch.zeros_like(z_where)
-    scale = z_where[:, 0:1] + 1e-9
-    z_where_inv[:, 1:3] = -z_where[:, 1:3] / scale
-    z_where_inv[:, 0:1] = 1 / scale
-    return z_where_inv
-
-@staticmethod
-def get_attention_rectangle(z_i_where):
-    batch_size = z_i_where.shape[0]
-    z_i_where_inv = AIR.invert_z_where(z_i_where)
-    theta_matrix = AIR.z_where_to_transformation_matrix(z_i_where_inv)
-    target_rectangle = AIR.target_rectangle.expand(batch_size, 3,
-                                                   5).to(z_i_where.device)
-    source_rectangle_normalized = torch.matmul(theta_matrix,
-                                               target_rectangle)
-    # remap into absolute values
-    source_rectangle = 0 + (CANVAS_SIZE/2)*(source_rectangle_normalized + 1)
-    return source_rectangle
-
-@staticmethod
-def bernoulli_kl(q_probs, p_probs):
-    # https://github.com/pytorch/pytorch/issues/15288
-    p1 = p_probs
-    p0 = 1 - p1
-    q1 = q_probs
-    q0 = 1 - q1
-
-    logq1 = (q1 + EPS).log()
-    logq0 = (q0 + EPS).log()
-    logp1 = (p1).log()
-    logp0 = (p0).log()
-
-    kl_div_1 = q1*(logq1 - logp1)
-    kl_div_0 = q0*(logq0 - logp0)
-    return kl_div_1 + kl_div_0
-
-@staticmethod
-def gaussian_kl(q, p):
-    # https://pytorch.org/docs/stable/_modules/torch/distributions/kl.html
-    mean_q, log_var_q = q[0], q[1]
-    mean_p, var_p = p[0], p[1]
-
-    var_ratio = log_var_q.exp()/var_p
-    t1 = (mean_q - mean_p).pow(2)/var_p
-    return -0.5 * (1 + var_ratio.log() - var_ratio - t1){% endraw %}{% endcapture %}</code></pre>
-<p>{% include code.html code=code lang=“python” %}</p>
+<div class="cell" data-execution_count="5">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.distributions <span class="im">import</span> Bernoulli</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">3</span>                                 <span class="co"># number of inference steps</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>EPS <span class="op">=</span> <span class="fl">1e-32</span>                           <span class="co"># numerical stability</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>PRIOR_MEAN_WHERE <span class="op">=</span> [<span class="fl">3.</span>, <span class="fl">0.</span>, <span class="fl">0.</span>]       <span class="co"># prior for mean of z_i_where</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>PRIOR_VAR_WHERE <span class="op">=</span> [<span class="fl">0.1</span><span class="op">**</span><span class="dv">2</span>, <span class="fl">1.</span>, <span class="fl">1.</span>]    <span class="co"># prior for variance of z_i_where</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>PRIOR_P_PRES <span class="op">=</span> [<span class="fl">0.01</span>]                 <span class="co"># prior for p_i_pres of z_i_pres</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>BETA <span class="op">=</span> <span class="fl">0.5</span>                            <span class="co"># hyperparameter to scale KL div</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>OMEGA_DIM <span class="op">=</span> Z_PRES_DIM <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>Z_WHERE_DIM <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>Z_WHAT_DIM</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AIR(nn.Module):</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    PRIOR_MEAN_Z_WHERE <span class="op">=</span> nn.Parameter(torch.tensor(PRIOR_MEAN_WHERE),</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                                      requires_grad<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    PRIOR_VAR_Z_WHERE <span class="op">=</span> nn.Parameter(torch.tensor(PRIOR_VAR_WHERE),</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                                     requires_grad<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    PRIOR_P_Z_PRES <span class="op">=</span> nn.Parameter(torch.tensor(PRIOR_P_PRES),</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                                  requires_grad<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    expansion_indices <span class="op">=</span> torch.LongTensor([<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3</span>])</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    target_rectangle <span class="op">=</span> torch.tensor(</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>      [[<span class="op">-</span><span class="fl">1.</span>, <span class="op">-</span><span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>, <span class="op">-</span><span class="fl">1.</span>],</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>       [<span class="op">-</span><span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>, <span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="fl">1.</span>],</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>       [<span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>, <span class="fl">1.</span>]]</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    ).view(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(AIR, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vae <span class="op">=</span> VAE()</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.rnn <span class="op">=</span> RNN()</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.baseline <span class="op">=</span> RNN(<span class="va">True</span>)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> compute_loss(<span class="va">self</span>, x):</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""compute the loss of AIR (essentially a VAE loss)</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="co">        assuming the following prior distributions for the latent variables</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="co">            z_where ~ N(PRIOR_MEAN_WHERE, PRIOR_VAR_WHERE)</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="co">            z_what ~ N([0, 1])</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co">            z_pres ~ Bern(p_pres)</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co">        and a</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="co">            Gaussian decoder with fixed diagonal var (FIXED_VAR)</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        batch_size <span class="op">=</span> x.shape[<span class="dv">0</span>]</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        results <span class="op">=</span> <span class="va">self</span>.forward(x, <span class="va">True</span>)</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># kl_div for z_pres (between two Bernoulli distributions)</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>        q_z_pres <span class="op">=</span> results[<span class="st">'all_prob_pres'</span>]</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>        P_Z_PRES <span class="op">=</span> AIR.PRIOR_P_Z_PRES.expand(q_z_pres.shape).to(x.device)</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>        kl_div_pres <span class="op">=</span> AIR.bernoulli_kl(q_z_pres, P_Z_PRES).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>        <span class="co"># kl_div for z_what (standard VAE regularization term)</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        q_z_what <span class="op">=</span> [results[<span class="st">'all_mu_what'</span>], results[<span class="st">'all_log_var_what'</span>]]</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>        P_MU_WHAT <span class="op">=</span> torch.zeros_like(results[<span class="st">'all_mu_what'</span>])</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>        P_VAR_WHAT <span class="op">=</span> torch.ones_like(results[<span class="st">'all_log_var_what'</span>])</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>        P_Z_WHAT <span class="op">=</span> [P_MU_WHAT, P_VAR_WHAT]</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>        kl_div_what <span class="op">=</span> AIR.gaussian_kl(q_z_what, P_Z_WHAT).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>        <span class="co"># kl_div for z_where (between two Gaussian distributions)</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>        q_z_where <span class="op">=</span> [results[<span class="st">'all_mu_where'</span>], results[<span class="st">'all_log_var_where'</span>]]</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>        P_MU_WHERE<span class="op">=</span>AIR.PRIOR_MEAN_Z_WHERE.expand(results[<span class="st">'all_mu_where'</span>].shape)</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>        P_VAR_WHERE<span class="op">=</span>AIR.PRIOR_VAR_Z_WHERE.expand(results[<span class="st">'all_mu_where'</span>].shape)</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>        P_Z_WHERE <span class="op">=</span> [P_MU_WHERE.to(x.device), P_VAR_WHERE.to(x.device)]</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>        kl_div_where <span class="op">=</span> AIR.gaussian_kl(q_z_where, P_Z_WHERE).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>        <span class="co"># sum all kl_divs and use delayed mask to zero out irrelevants</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>        delayed_mask <span class="op">=</span> results[<span class="st">'mask_delay'</span>]</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>        kl_div <span class="op">=</span> (kl_div_pres <span class="op">+</span> kl_div_where <span class="op">+</span> kl_div_what) <span class="op">*</span> delayed_mask</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>        <span class="co"># negative log-likelihood for Gaussian decoder (no gradient for z_pres)</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>        factor <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span><span class="op">/</span>FIXED_VAR)</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>        nll <span class="op">=</span> factor <span class="op">*</span> ((x <span class="op">-</span> results[<span class="st">'x_tilde'</span>])<span class="op">**</span><span class="dv">2</span>).<span class="bu">sum</span>(axis<span class="op">=</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>))</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>        <span class="co"># REINFORCE estimator for nll (gradient for z_pres)</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>        baseline_target <span class="op">=</span> nll.unsqueeze(<span class="dv">1</span>)</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>        reinforce_term <span class="op">=</span> ((baseline_target <span class="op">-</span> results[<span class="st">'baseline_values'</span>]</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>                           ).detach()</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>                          <span class="op">*</span>results[<span class="st">'z_pres_likelihood'</span>]<span class="op">*</span>delayed_mask).<span class="bu">sum</span>(<span class="dv">1</span>)</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>        <span class="co"># baseline model loss</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>        baseline_loss <span class="op">=</span> ((results[<span class="st">'baseline_values'</span>] <span class="op">-</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>                          baseline_target.detach())<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> delayed_mask).<span class="bu">sum</span>(<span class="dv">1</span>)</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> <span class="bu">dict</span>()</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>        loss[<span class="st">'kl_div'</span>] <span class="op">=</span> BETA<span class="op">*</span>kl_div.<span class="bu">sum</span>(<span class="dv">1</span>).mean()</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>        loss[<span class="st">'nll'</span>] <span class="op">=</span> nll.mean()</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>        loss[<span class="st">'reinforce'</span>] <span class="op">=</span> reinforce_term.mean()</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>        loss[<span class="st">'baseline'</span>] <span class="op">=</span> baseline_loss.mean()</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> loss, results</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x, save_attention_rectangle<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>        batch_size <span class="op">=</span> x.shape[<span class="dv">0</span>]</span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>        <span class="co"># initializations</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>        all_z <span class="op">=</span> torch.empty((batch_size, N, Z_DIM), device<span class="op">=</span>x.device)</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>        z_pres_likelihood <span class="op">=</span> torch.empty((batch_size, N), device<span class="op">=</span>x.device)</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>        mask_delay <span class="op">=</span> torch.empty((batch_size, N), device<span class="op">=</span>x.device)</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>        all_omega <span class="op">=</span> torch.empty((batch_size, N, OMEGA_DIM), device<span class="op">=</span>x.device)</span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>        all_x_tilde <span class="op">=</span> torch.empty((batch_size, N, CANVAS_SIZE, CANVAS_SIZE),</span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>                                 device<span class="op">=</span>x.device)</span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>        baseline_values <span class="op">=</span> torch.empty((batch_size, N), device<span class="op">=</span>x.device)</span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>        z_im1 <span class="op">=</span> torch.ones((batch_size, Z_DIM)).to(x.device)</span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>        h_im1 <span class="op">=</span> torch.zeros((batch_size, RNN_HIDDEN_STATE_DIM)).to(x.device)</span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>        h_im1_b <span class="op">=</span> torch.zeros((batch_size, RNN_HIDDEN_STATE_DIM)).to(x.device)</span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> save_attention_rectangle:</span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>            attention_rects <span class="op">=</span> torch.empty((batch_size, N, <span class="dv">2</span>, <span class="dv">5</span>)).to(x.device)</span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>            z_im1_pres <span class="op">=</span> z_im1[:, <span class="dv">0</span>:<span class="dv">1</span>]</span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>            <span class="co"># mask_delay is used to zero out all steps AFTER FIRST z_pres = 0</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>            mask_delay[:, i] <span class="op">=</span> z_im1_pres.squeeze(<span class="dv">1</span>)</span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>            <span class="co"># obtain parameters of sampling distribution and hidden state</span></span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>            omega_i, h_i <span class="op">=</span> <span class="va">self</span>.rnn(x, z_im1, h_im1)</span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>            <span class="co"># baseline version</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>            baseline_i, h_i_b <span class="op">=</span> <span class="va">self</span>.baseline(x.detach(), z_im1.detach(),</span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>                                              h_im1_b)</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a>            <span class="co"># set baseline 0 if z_im1_pres = 0</span></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a>            baseline_value <span class="op">=</span> (baseline_i <span class="op">*</span> z_im1_pres).squeeze()</span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a>            <span class="co"># extract sample distributions parameters from omega_i</span></span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>            prob_pres_i <span class="op">=</span> omega_i[:, <span class="dv">0</span>:<span class="dv">1</span>]</span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>            mu_where_i <span class="op">=</span> omega_i[:, <span class="dv">1</span>:<span class="dv">4</span>]</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>            log_var_where_i <span class="op">=</span> omega_i[:, <span class="dv">4</span>:<span class="dv">7</span>]</span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>            <span class="co"># sample from distributions to obtain z_i_pres and z_i_where</span></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>            z_i_pres_post <span class="op">=</span> Bernoulli(probs<span class="op">=</span>prob_pres_i)</span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>            z_i_pres <span class="op">=</span> z_i_pres_post.sample() <span class="op">*</span> z_im1_pres</span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>            <span class="co"># likelihood of sampled z_i_pres (only if z_im_pres = 1)</span></span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>            z_pres_likelihood[:, i] <span class="op">=</span> (z_i_pres_post.log_prob(z_i_pres) <span class="op">*</span></span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>                                       z_im1_pres).squeeze(<span class="dv">1</span>)</span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>            <span class="co"># get z_i_where by reparametrization trick</span></span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>            epsilon_w <span class="op">=</span> torch.randn_like(log_var_where_i)</span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>            z_i_where <span class="op">=</span> mu_where_i <span class="op">+</span> torch.exp(<span class="fl">0.5</span><span class="op">*</span>log_var_where_i)<span class="op">*</span>epsilon_w</span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>            <span class="co"># use z_where and x to obtain x_att_i</span></span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a>            x_att_i <span class="op">=</span> AIR.image_to_window(x, z_i_where)</span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a>            <span class="co"># put x_att_i through VAE</span></span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a>            x_tilde_att_i, z_i_what, mu_what_i, log_var_what_i <span class="op">=</span> <span class="op">\</span></span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.vae(x_att_i)</span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a>            <span class="co"># create image reconstruction</span></span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a>            x_tilde_i <span class="op">=</span> AIR.window_to_image(x_tilde_att_i, z_i_where)</span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a>            <span class="co"># update im1 with current versions</span></span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a>            z_im1 <span class="op">=</span> torch.cat((z_i_pres, z_i_where, z_i_what), <span class="dv">1</span>)</span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a>            h_im1 <span class="op">=</span> h_i</span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a>            h_im1_b <span class="op">=</span> h_i_b</span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a>            <span class="co"># put all distribution parameters into omega_i</span></span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a>            omega_i <span class="op">=</span> torch.cat((prob_pres_i, mu_where_i, log_var_where_i,</span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a>                                 mu_what_i, log_var_what_i), <span class="dv">1</span>)</span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a>            <span class="co"># store intermediate results</span></span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a>            all_z[:, i:i<span class="op">+</span><span class="dv">1</span>] <span class="op">=</span> z_im1.unsqueeze(<span class="dv">1</span>)</span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a>            all_omega[:, i:i<span class="op">+</span><span class="dv">1</span>] <span class="op">=</span> omega_i.unsqueeze(<span class="dv">1</span>)</span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a>            all_x_tilde[:, i:i<span class="op">+</span><span class="dv">1</span>] <span class="op">=</span> x_tilde_i</span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a>            baseline_values[:, i] <span class="op">=</span> baseline_value</span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a>            <span class="co"># for nice visualization</span></span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> save_attention_rectangle:</span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a>                attention_rects[:, i] <span class="op">=</span> (AIR.get_attention_rectangle(z_i_where)</span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a>                                         <span class="op">*</span>z_i_pres.unsqueeze(<span class="dv">1</span>))</span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a>        <span class="co"># save results in dict (easy accessibility)</span></span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a>        results <span class="op">=</span> <span class="bu">dict</span>()</span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a>        <span class="co"># fixes Z_PRES_DIM = 1 and Z_WHERE_DIM = 3</span></span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'z_pres_likelihood'</span>] <span class="op">=</span> z_pres_likelihood</span>
+<span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'all_z_pres'</span>] <span class="op">=</span> all_z[:, :, <span class="dv">0</span>:<span class="dv">1</span>]</span>
+<span id="cb4-157"><a href="#cb4-157" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'mask_delay'</span>] <span class="op">=</span> mask_delay</span>
+<span id="cb4-158"><a href="#cb4-158" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'all_prob_pres'</span>] <span class="op">=</span> all_omega[:, :, <span class="dv">0</span>:<span class="dv">1</span>]</span>
+<span id="cb4-159"><a href="#cb4-159" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'all_z_where'</span>] <span class="op">=</span> all_z[:, :, <span class="dv">1</span>:<span class="dv">4</span>]</span>
+<span id="cb4-160"><a href="#cb4-160" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'all_mu_where'</span>] <span class="op">=</span>  all_omega[:, :, <span class="dv">1</span>:<span class="dv">4</span>]</span>
+<span id="cb4-161"><a href="#cb4-161" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'all_log_var_where'</span>] <span class="op">=</span> all_omega[:, :, <span class="dv">4</span>:<span class="dv">7</span>]</span>
+<span id="cb4-162"><a href="#cb4-162" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'all_z_what'</span>] <span class="op">=</span> all_z[:, :, <span class="dv">4</span>::]</span>
+<span id="cb4-163"><a href="#cb4-163" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'all_mu_what'</span>] <span class="op">=</span>  all_omega[:, :, <span class="dv">7</span>:<span class="dv">7</span><span class="op">+</span>Z_WHAT_DIM]</span>
+<span id="cb4-164"><a href="#cb4-164" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'all_log_var_what'</span>] <span class="op">=</span> all_omega[:, :, <span class="dv">7</span><span class="op">+</span>Z_WHAT_DIM::]</span>
+<span id="cb4-165"><a href="#cb4-165" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'baseline_values'</span>] <span class="op">=</span> baseline_values</span>
+<span id="cb4-166"><a href="#cb4-166" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> save_attention_rectangle:</span>
+<span id="cb4-167"><a href="#cb4-167" aria-hidden="true" tabindex="-1"></a>            results[<span class="st">'attention_rects'</span>] <span class="op">=</span> attention_rects</span>
+<span id="cb4-168"><a href="#cb4-168" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute reconstructed image (take only x_tilde_i with z_i_pres=1)</span></span>
+<span id="cb4-169"><a href="#cb4-169" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'x_tilde_i'</span>] <span class="op">=</span> all_x_tilde</span>
+<span id="cb4-170"><a href="#cb4-170" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> (all_z[:, :, <span class="dv">0</span>:<span class="dv">1</span>].unsqueeze(<span class="dv">2</span>) <span class="op">*</span> all_x_tilde).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb4-171"><a href="#cb4-171" aria-hidden="true" tabindex="-1"></a>                                                              keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-172"><a href="#cb4-172" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'x_tilde'</span>] <span class="op">=</span> x_tilde</span>
+<span id="cb4-173"><a href="#cb4-173" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute counts as identified objects (sum z_i_pres)</span></span>
+<span id="cb4-174"><a href="#cb4-174" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">'counts'</span>] <span class="op">=</span> results[<span class="st">'all_z_pres'</span>].<span class="bu">sum</span>(<span class="dv">1</span>).to(dtype<span class="op">=</span>torch.<span class="bu">long</span>)</span>
+<span id="cb4-175"><a href="#cb4-175" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> results</span>
+<span id="cb4-176"><a href="#cb4-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-177"><a href="#cb4-177" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-178"><a href="#cb4-178" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> image_to_window(x, z_i_where):</span>
+<span id="cb4-179"><a href="#cb4-179" aria-hidden="true" tabindex="-1"></a>        grid_shape <span class="op">=</span> (z_i_where.shape[<span class="dv">0</span>], <span class="dv">1</span>, WINDOW_SIZE, WINDOW_SIZE)</span>
+<span id="cb4-180"><a href="#cb4-180" aria-hidden="true" tabindex="-1"></a>        z_i_where_inv <span class="op">=</span> AIR.invert_z_where(z_i_where)</span>
+<span id="cb4-181"><a href="#cb4-181" aria-hidden="true" tabindex="-1"></a>        x_att_i <span class="op">=</span> AIR.spatial_transform(x, z_i_where_inv, grid_shape)</span>
+<span id="cb4-182"><a href="#cb4-182" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_att_i</span>
+<span id="cb4-183"><a href="#cb4-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-184"><a href="#cb4-184" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-185"><a href="#cb4-185" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> window_to_image(x_tilde_att_i, z_i_where):</span>
+<span id="cb4-186"><a href="#cb4-186" aria-hidden="true" tabindex="-1"></a>        grid_shape <span class="op">=</span> (z_i_where.shape[<span class="dv">0</span>], <span class="dv">1</span>, CANVAS_SIZE, CANVAS_SIZE)</span>
+<span id="cb4-187"><a href="#cb4-187" aria-hidden="true" tabindex="-1"></a>        x_tilde_i <span class="op">=</span> AIR.spatial_transform(x_tilde_att_i, z_i_where, grid_shape)</span>
+<span id="cb4-188"><a href="#cb4-188" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_tilde_i</span>
+<span id="cb4-189"><a href="#cb4-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-190"><a href="#cb4-190" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-191"><a href="#cb4-191" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> spatial_transform(x, z_where, grid_shape):</span>
+<span id="cb4-192"><a href="#cb4-192" aria-hidden="true" tabindex="-1"></a>        theta_matrix <span class="op">=</span> AIR.z_where_to_transformation_matrix(z_where)</span>
+<span id="cb4-193"><a href="#cb4-193" aria-hidden="true" tabindex="-1"></a>        grid <span class="op">=</span> F.affine_grid(theta_matrix, grid_shape, align_corners<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-194"><a href="#cb4-194" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> F.grid_sample(x, grid, align_corners<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-195"><a href="#cb4-195" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span>
+<span id="cb4-196"><a href="#cb4-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-197"><a href="#cb4-197" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-198"><a href="#cb4-198" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> z_where_to_transformation_matrix(z_i_where):</span>
+<span id="cb4-199"><a href="#cb4-199" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""taken from</span></span>
+<span id="cb4-200"><a href="#cb4-200" aria-hidden="true" tabindex="-1"></a><span class="co">        https://github.com/pyro-ppl/pyro/blob/dev/examples/air/air.py</span></span>
+<span id="cb4-201"><a href="#cb4-201" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb4-202"><a href="#cb4-202" aria-hidden="true" tabindex="-1"></a>        batch_size <span class="op">=</span> z_i_where.shape[<span class="dv">0</span>]</span>
+<span id="cb4-203"><a href="#cb4-203" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> torch.cat((z_i_where.new_zeros(batch_size, <span class="dv">1</span>), z_i_where), <span class="dv">1</span>)</span>
+<span id="cb4-204"><a href="#cb4-204" aria-hidden="true" tabindex="-1"></a>        ix <span class="op">=</span> AIR.expansion_indices</span>
+<span id="cb4-205"><a href="#cb4-205" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> z_i_where.is_cuda:</span>
+<span id="cb4-206"><a href="#cb4-206" aria-hidden="true" tabindex="-1"></a>            ix <span class="op">=</span> ix.cuda()</span>
+<span id="cb4-207"><a href="#cb4-207" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> torch.index_select(out, <span class="dv">1</span>, ix)</span>
+<span id="cb4-208"><a href="#cb4-208" aria-hidden="true" tabindex="-1"></a>        theta_matrix <span class="op">=</span> out.view(batch_size, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb4-209"><a href="#cb4-209" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> theta_matrix</span>
+<span id="cb4-210"><a href="#cb4-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-211"><a href="#cb4-211" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-212"><a href="#cb4-212" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> invert_z_where(z_where):</span>
+<span id="cb4-213"><a href="#cb4-213" aria-hidden="true" tabindex="-1"></a>        z_where_inv <span class="op">=</span> torch.zeros_like(z_where)</span>
+<span id="cb4-214"><a href="#cb4-214" aria-hidden="true" tabindex="-1"></a>        scale <span class="op">=</span> z_where[:, <span class="dv">0</span>:<span class="dv">1</span>] <span class="op">+</span> <span class="fl">1e-9</span></span>
+<span id="cb4-215"><a href="#cb4-215" aria-hidden="true" tabindex="-1"></a>        z_where_inv[:, <span class="dv">1</span>:<span class="dv">3</span>] <span class="op">=</span> <span class="op">-</span>z_where[:, <span class="dv">1</span>:<span class="dv">3</span>] <span class="op">/</span> scale</span>
+<span id="cb4-216"><a href="#cb4-216" aria-hidden="true" tabindex="-1"></a>        z_where_inv[:, <span class="dv">0</span>:<span class="dv">1</span>] <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> scale</span>
+<span id="cb4-217"><a href="#cb4-217" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> z_where_inv</span>
+<span id="cb4-218"><a href="#cb4-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-219"><a href="#cb4-219" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-220"><a href="#cb4-220" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_attention_rectangle(z_i_where):</span>
+<span id="cb4-221"><a href="#cb4-221" aria-hidden="true" tabindex="-1"></a>        batch_size <span class="op">=</span> z_i_where.shape[<span class="dv">0</span>]</span>
+<span id="cb4-222"><a href="#cb4-222" aria-hidden="true" tabindex="-1"></a>        z_i_where_inv <span class="op">=</span> AIR.invert_z_where(z_i_where)</span>
+<span id="cb4-223"><a href="#cb4-223" aria-hidden="true" tabindex="-1"></a>        theta_matrix <span class="op">=</span> AIR.z_where_to_transformation_matrix(z_i_where_inv)</span>
+<span id="cb4-224"><a href="#cb4-224" aria-hidden="true" tabindex="-1"></a>        target_rectangle <span class="op">=</span> AIR.target_rectangle.expand(batch_size, <span class="dv">3</span>,</span>
+<span id="cb4-225"><a href="#cb4-225" aria-hidden="true" tabindex="-1"></a>                                                       <span class="dv">5</span>).to(z_i_where.device)</span>
+<span id="cb4-226"><a href="#cb4-226" aria-hidden="true" tabindex="-1"></a>        source_rectangle_normalized <span class="op">=</span> torch.matmul(theta_matrix,</span>
+<span id="cb4-227"><a href="#cb4-227" aria-hidden="true" tabindex="-1"></a>                                                   target_rectangle)</span>
+<span id="cb4-228"><a href="#cb4-228" aria-hidden="true" tabindex="-1"></a>        <span class="co"># remap into absolute values</span></span>
+<span id="cb4-229"><a href="#cb4-229" aria-hidden="true" tabindex="-1"></a>        source_rectangle <span class="op">=</span> <span class="dv">0</span> <span class="op">+</span> (CANVAS_SIZE<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>(source_rectangle_normalized <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb4-230"><a href="#cb4-230" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> source_rectangle</span>
+<span id="cb4-231"><a href="#cb4-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-232"><a href="#cb4-232" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-233"><a href="#cb4-233" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> bernoulli_kl(q_probs, p_probs):</span>
+<span id="cb4-234"><a href="#cb4-234" aria-hidden="true" tabindex="-1"></a>        <span class="co"># https://github.com/pytorch/pytorch/issues/15288</span></span>
+<span id="cb4-235"><a href="#cb4-235" aria-hidden="true" tabindex="-1"></a>        p1 <span class="op">=</span> p_probs</span>
+<span id="cb4-236"><a href="#cb4-236" aria-hidden="true" tabindex="-1"></a>        p0 <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> p1</span>
+<span id="cb4-237"><a href="#cb4-237" aria-hidden="true" tabindex="-1"></a>        q1 <span class="op">=</span> q_probs</span>
+<span id="cb4-238"><a href="#cb4-238" aria-hidden="true" tabindex="-1"></a>        q0 <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> q1</span>
+<span id="cb4-239"><a href="#cb4-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-240"><a href="#cb4-240" aria-hidden="true" tabindex="-1"></a>        logq1 <span class="op">=</span> (q1 <span class="op">+</span> EPS).log()</span>
+<span id="cb4-241"><a href="#cb4-241" aria-hidden="true" tabindex="-1"></a>        logq0 <span class="op">=</span> (q0 <span class="op">+</span> EPS).log()</span>
+<span id="cb4-242"><a href="#cb4-242" aria-hidden="true" tabindex="-1"></a>        logp1 <span class="op">=</span> (p1).log()</span>
+<span id="cb4-243"><a href="#cb4-243" aria-hidden="true" tabindex="-1"></a>        logp0 <span class="op">=</span> (p0).log()</span>
+<span id="cb4-244"><a href="#cb4-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-245"><a href="#cb4-245" aria-hidden="true" tabindex="-1"></a>        kl_div_1 <span class="op">=</span> q1<span class="op">*</span>(logq1 <span class="op">-</span> logp1)</span>
+<span id="cb4-246"><a href="#cb4-246" aria-hidden="true" tabindex="-1"></a>        kl_div_0 <span class="op">=</span> q0<span class="op">*</span>(logq0 <span class="op">-</span> logp0)</span>
+<span id="cb4-247"><a href="#cb4-247" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> kl_div_1 <span class="op">+</span> kl_div_0</span>
+<span id="cb4-248"><a href="#cb4-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-249"><a href="#cb4-249" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-250"><a href="#cb4-250" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> gaussian_kl(q, p):</span>
+<span id="cb4-251"><a href="#cb4-251" aria-hidden="true" tabindex="-1"></a>        <span class="co"># https://pytorch.org/docs/stable/_modules/torch/distributions/kl.html</span></span>
+<span id="cb4-252"><a href="#cb4-252" aria-hidden="true" tabindex="-1"></a>        mean_q, log_var_q <span class="op">=</span> q[<span class="dv">0</span>], q[<span class="dv">1</span>]</span>
+<span id="cb4-253"><a href="#cb4-253" aria-hidden="true" tabindex="-1"></a>        mean_p, var_p <span class="op">=</span> p[<span class="dv">0</span>], p[<span class="dv">1</span>]</span>
+<span id="cb4-254"><a href="#cb4-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-255"><a href="#cb4-255" aria-hidden="true" tabindex="-1"></a>        var_ratio <span class="op">=</span> log_var_q.exp()<span class="op">/</span>var_p</span>
+<span id="cb4-256"><a href="#cb4-256" aria-hidden="true" tabindex="-1"></a>        t1 <span class="op">=</span> (mean_q <span class="op">-</span> mean_p).<span class="bu">pow</span>(<span class="dv">2</span>)<span class="op">/</span>var_p</span>
+<span id="cb4-257"><a href="#cb4-257" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> var_ratio.log() <span class="op">-</span> var_ratio <span class="op">-</span> t1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <ul>
 <li><strong>Training Procedure</strong>: Lastly, a standard training procedure is implemented. We will use two optimizers, one for the model parameters and one for the neural baseline parameters. Note that the training process is completely unsupervised, i.e., the model only receives a batch of images to compute the losses.</li>
 </ul>
-<p>{% capture code %}{% raw %}from livelossplot import PlotLosses, outputs from torch.utils.data import DataLoader import matplotlib.pyplot as plt</p>
-<p>EPOCHS = 50 BATCH_SIZE = 64 LEARNING_RATE = 1e-4 BASE_LEARNING_RATE = 1e-2 EPOCHS_TO_SAVE_MODEL = [1, 10, EPOCHS]</p>
-<p>def train(air, dataset): device = ‘cuda’ if torch.cuda.is_available() else ‘cpu’ print(‘Device: {}’.format(device))</p>
-<pre><code>data_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True,
-                         num_workers=4)
-optimizer = torch.optim.Adam([{'params': list(air.rnn.parameters()) +
-                               list(air.vae.parameters()),
-                               'lr': LEARNING_RATE,},
-                              {'params': air.baseline.parameters(),
-                               'lr': BASE_LEARNING_RATE}])
-air.to(device)
-
-# prettify livelossplot
-def custom(ax: plt.Axes, group: str, x_label: str):
-    ax.legend()
-    if group == 'accuracy':
-        ax.set_ylim(0, 1)
-    elif group == 'loss base':
-        ax.set_ylim(0, 300)
-
-matplot = [outputs.MatplotlibPlot(after_subplot=custom,max_cols=3)]
-losses_plot = PlotLosses(groups={'loss model':['KL div','NLL','REINFORCE'],
-                                 'loss base': ['baseline'],
-                                 'accuracy': ['count accuracy']},
-                         outputs=matplot)
-for epoch in range(1, EPOCHS+1):
-    avg_kl_div, avg_nll, avg_reinforce, avg_base, avg_acc = 0, 0, 0, 0, 0
-    for x, label in data_loader:
-        air.zero_grad()
-
-        losses, results = air.compute_loss(x.to(device, non_blocking=True))
-        loss  = (losses['kl_div'] + losses['nll'] + losses['reinforce']
-                 +losses['baseline'])
-        loss.backward()
-        optimizer.step()
-
-        # compute accuracy
-        label = label.unsqueeze(1).to(device)
-        acc = (results['counts']==label).sum().item()/len(results['counts'])
-        # update epoch means
-        avg_kl_div += losses['kl_div'].item() / len(data_loader)
-        avg_nll += losses['nll'].item() / len(data_loader)
-        avg_reinforce += losses['reinforce'].item() / len(data_loader)
-        avg_base += losses['baseline'].item() / len(data_loader)
-        avg_acc += acc / len(data_loader)
-
-    if epoch in EPOCHS_TO_SAVE_MODEL:  # save model
-        torch.save(air, f'./results/checkpoint_{epoch}.pth')
-    losses_plot.update({'KL div': avg_kl_div,
-                        'NLL': avg_nll,
-                        'REINFORCE': avg_reinforce,
-                        'baseline': avg_base,
-                        'count accuracy': avg_acc}, current_step=epoch)
-    losses_plot.send()
-print(f'Accuracy after Training {avg_acc:.2f} (on training dataset)')
-torch.save(air, f'./results/checkpoint_{epoch}.pth')
-trained_air = air
-return trained_air{% endraw %}{% endcapture %}</code></pre>
-<p>{% include code.html code=code lang=“python” %}</p>
+<div class="cell" data-execution_count="6">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> livelossplot <span class="im">import</span> PlotLosses, outputs</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>EPOCHS <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>BATCH_SIZE <span class="op">=</span> <span class="dv">64</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>LEARNING_RATE <span class="op">=</span> <span class="fl">1e-4</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>BASE_LEARNING_RATE <span class="op">=</span> <span class="fl">1e-2</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>EPOCHS_TO_SAVE_MODEL <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">10</span>, EPOCHS]</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(air, dataset):</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'Device: </span><span class="sc">{}</span><span class="st">'</span>.<span class="bu">format</span>(device))</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    data_loader <span class="op">=</span> DataLoader(dataset, batch_size<span class="op">=</span>BATCH_SIZE, shuffle<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>                             num_workers<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    optimizer <span class="op">=</span> torch.optim.Adam([{<span class="st">'params'</span>: <span class="bu">list</span>(air.rnn.parameters()) <span class="op">+</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                                   <span class="bu">list</span>(air.vae.parameters()),</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">'lr'</span>: LEARNING_RATE,},</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>                                  {<span class="st">'params'</span>: air.baseline.parameters(),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">'lr'</span>: BASE_LEARNING_RATE}])</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    air.to(device)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># prettify livelossplot</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> custom(ax: plt.Axes, group: <span class="bu">str</span>, x_label: <span class="bu">str</span>):</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>        ax.legend()</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> group <span class="op">==</span> <span class="st">'accuracy'</span>:</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>            ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> group <span class="op">==</span> <span class="st">'loss base'</span>:</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>            ax.set_ylim(<span class="dv">0</span>, <span class="dv">300</span>)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    matplot <span class="op">=</span> [outputs.MatplotlibPlot(after_subplot<span class="op">=</span>custom,max_cols<span class="op">=</span><span class="dv">3</span>)]</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    losses_plot <span class="op">=</span> PlotLosses(groups<span class="op">=</span>{<span class="st">'loss model'</span>:[<span class="st">'KL div'</span>,<span class="st">'NLL'</span>,<span class="st">'REINFORCE'</span>],</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">'loss base'</span>: [<span class="st">'baseline'</span>],</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">'accuracy'</span>: [<span class="st">'count accuracy'</span>]},</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>                             outputs<span class="op">=</span>matplot)</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, EPOCHS<span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>        avg_kl_div, avg_nll, avg_reinforce, avg_base, avg_acc <span class="op">=</span> <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> x, label <span class="kw">in</span> data_loader:</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>            air.zero_grad()</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>            losses, results <span class="op">=</span> air.compute_loss(x.to(device, non_blocking<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>            loss  <span class="op">=</span> (losses[<span class="st">'kl_div'</span>] <span class="op">+</span> losses[<span class="st">'nll'</span>] <span class="op">+</span> losses[<span class="st">'reinforce'</span>]</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>                     <span class="op">+</span>losses[<span class="st">'baseline'</span>])</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>            optimizer.step()</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>            <span class="co"># compute accuracy</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>            label <span class="op">=</span> label.unsqueeze(<span class="dv">1</span>).to(device)</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>            acc <span class="op">=</span> (results[<span class="st">'counts'</span>]<span class="op">==</span>label).<span class="bu">sum</span>().item()<span class="op">/</span><span class="bu">len</span>(results[<span class="st">'counts'</span>])</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>            <span class="co"># update epoch means</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>            avg_kl_div <span class="op">+=</span> losses[<span class="st">'kl_div'</span>].item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>            avg_nll <span class="op">+=</span> losses[<span class="st">'nll'</span>].item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>            avg_reinforce <span class="op">+=</span> losses[<span class="st">'reinforce'</span>].item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>            avg_base <span class="op">+=</span> losses[<span class="st">'baseline'</span>].item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>            avg_acc <span class="op">+=</span> acc <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> epoch <span class="kw">in</span> EPOCHS_TO_SAVE_MODEL:  <span class="co"># save model</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>            torch.save(air, <span class="ss">f'./results/checkpoint_</span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">.pth'</span>)</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>        losses_plot.update({<span class="st">'KL div'</span>: avg_kl_div,</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>                            <span class="st">'NLL'</span>: avg_nll,</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>                            <span class="st">'REINFORCE'</span>: avg_reinforce,</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>                            <span class="st">'baseline'</span>: avg_base,</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>                            <span class="st">'count accuracy'</span>: avg_acc}, current_step<span class="op">=</span>epoch)</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>        losses_plot.send()</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Accuracy after Training </span><span class="sc">{</span>avg_acc<span class="sc">:.2f}</span><span class="ss"> (on training dataset)'</span>)</span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>    torch.save(air, <span class="ss">f'./results/checkpoint_</span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">.pth'</span>)</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>    trained_air <span class="op">=</span> air</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> trained_air</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 </section>
 <section id="results" class="level3">
 <h3 class="anchored" data-anchor-id="results">Results</h3>
 <p>Let’s train our model:</p>
-<p>{% capture code %}{% raw %}air_model = AIR() train_dataset = generate_dataset(num_images=10000, SEED=np.random.randint(1000)) trained_air = train(air_model, train_dataset){% endraw %}{% endcapture %} {% include code.html code=code lang=“python” %}</p>
+<div class="cell" data-execution_count="7">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>air_model <span class="op">=</span> AIR()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>train_dataset <span class="op">=</span> generate_dataset(num_images<span class="op">=</span><span class="dv">10000</span>, SEED<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>trained_air <span class="op">=</span> train(air_model, train_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="../../assets/paper_summaries/06_AIR/img/training_results.png" title="Training Results" class="img-fluid figure-img"></p>
+<p><img src="./img/training_results.png" title="Training Results" class="img-fluid figure-img"></p>
 <figcaption class="figure-caption">Training Results</figcaption>
 </figure>
 </div>
 <p>This looks pretty awesome! It seems that our model nearly perfectly learns to count the number of digits without even knowing what a digit is.</p>
 <p>Let us take a closer look and plot the results of the model at different stages of the training against a test dataset.</p>
-<p>{% capture code %}{% raw %}def plot_results(dataset): device = ‘cuda’ if torch.cuda.is_available() else ‘cpu’ n_samples = 7</p>
-<pre><code>i_samples = np.random.choice(range(len(dataset)), n_samples, replace=False)
-colors_rect = ['red', 'green', 'yellow']
-num_rows = len(EPOCHS_TO_SAVE_MODEL) + 1
-
-fig = plt.figure(figsize=(14, 8))
-for counter, i_sample in enumerate(i_samples):
-    orig_img = dataset[i_sample][0]
-    # data
-    ax = plt.subplot(num_rows, n_samples, 1 + counter)
-    plt.imshow(orig_img[0].numpy(), cmap='gray', vmin=0, vmax=1)
-    plt.axis('off')
-    if counter == 0:
-        ax.annotate('Data', xy=(-0.05, 0.5), xycoords='axes fraction',
-                    fontsize=14, va='center', ha='right', rotation=90)
-    # outputs after epochs of training
-    MODELS = [, , ]
-    for j, (epoch, model) in enumerate(zip(EPOCHS_TO_SAVE_MODEL, MODELS)):
-        trained_air = torch.load(model)
-        trained_air.to(device)
-
-        results = trained_air(orig_img.unsqueeze(0).to(device), True)
-
-        attention_recs = results['attention_rects'].squeeze(0)
-        x_tilde = torch.clamp(results['x_tilde'][0], 0 , 1)
-
-        ax = plt.subplot(num_rows, n_samples, 1 + counter + n_samples*(j+1))
-        plt.imshow(x_tilde[0].cpu().detach().numpy(), cmap='gray',
-                   vmin=0, vmax=1)
-        plt.axis('off')
-        # show attention windows
-        for step_counter, step in enumerate(range(N)):
-            rect = attention_recs[step].detach().cpu().numpy()
-            if rect.sum() &gt; 0:  # valid rectangle
-                plt.plot(rect[0], rect[1]-0.5,
-                         color=colors_rect[step_counter])
-        if counter == 0:
-            # compute accuracy
-            data_loader = DataLoader(dataset, batch_size=BATCH_SIZE)
-            avg_acc = 0
-            for batch, label in data_loader:
-                label = label.unsqueeze(1).to(device)
-                r = trained_air(batch.to(device))
-                acc = (r['counts']==label).sum().item()/len(r['counts'])
-                avg_acc += acc / len(data_loader)
-            # annotate plot
-            ax.annotate(f'Epoch {epoch}\n Acc {avg_acc:.2f}',
-                        xy=(-0.05, 0.5), va='center',
-                        xycoords='axes fraction', fontsize=14,  ha='right',
-                        rotation=90)
-return</code></pre>
-<p>test_dataset = generate_dataset(num_images=300, SEED=2) plot_results(test_dataset){% endraw %}{% endcapture %} {% include code.html code=code lang=“python” %}</p>
+<div class="cell" data-execution_count="8">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_results(dataset):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    n_samples <span class="op">=</span> <span class="dv">7</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    i_samples <span class="op">=</span> np.random.choice(<span class="bu">range</span>(<span class="bu">len</span>(dataset)), n_samples, replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    colors_rect <span class="op">=</span> [<span class="st">'red'</span>, <span class="st">'green'</span>, <span class="st">'yellow'</span>]</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    num_rows <span class="op">=</span> <span class="bu">len</span>(EPOCHS_TO_SAVE_MODEL) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">8</span>))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> counter, i_sample <span class="kw">in</span> <span class="bu">enumerate</span>(i_samples):</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        orig_img <span class="op">=</span> dataset[i_sample][<span class="dv">0</span>]</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># data</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> plt.subplot(num_rows, n_samples, <span class="dv">1</span> <span class="op">+</span> counter)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        plt.imshow(orig_img[<span class="dv">0</span>].numpy(), cmap<span class="op">=</span><span class="st">'gray'</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            ax.annotate(<span class="st">'Data'</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">'axes fraction'</span>,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                        fontsize<span class="op">=</span><span class="dv">14</span>, va<span class="op">=</span><span class="st">'center'</span>, ha<span class="op">=</span><span class="st">'right'</span>, rotation<span class="op">=</span><span class="dv">90</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># outputs after epochs of training</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        MODELS <span class="op">=</span> [, , ]</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j, (epoch, model) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(EPOCHS_TO_SAVE_MODEL, MODELS)):</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>            trained_air <span class="op">=</span> torch.load(model)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>            trained_air.to(device)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>            results <span class="op">=</span> trained_air(orig_img.unsqueeze(<span class="dv">0</span>).to(device), <span class="va">True</span>)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>            attention_recs <span class="op">=</span> results[<span class="st">'attention_rects'</span>].squeeze(<span class="dv">0</span>)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>            x_tilde <span class="op">=</span> torch.clamp(results[<span class="st">'x_tilde'</span>][<span class="dv">0</span>], <span class="dv">0</span> , <span class="dv">1</span>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>            ax <span class="op">=</span> plt.subplot(num_rows, n_samples, <span class="dv">1</span> <span class="op">+</span> counter <span class="op">+</span> n_samples<span class="op">*</span>(j<span class="op">+</span><span class="dv">1</span>))</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>            plt.imshow(x_tilde[<span class="dv">0</span>].cpu().detach().numpy(), cmap<span class="op">=</span><span class="st">'gray'</span>,</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>                       vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>            plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>            <span class="co"># show attention windows</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> step_counter, step <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">range</span>(N)):</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>                rect <span class="op">=</span> attention_recs[step].detach().cpu().numpy()</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> rect.<span class="bu">sum</span>() <span class="op">&gt;</span> <span class="dv">0</span>:  <span class="co"># valid rectangle</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>                    plt.plot(rect[<span class="dv">0</span>], rect[<span class="dv">1</span>]<span class="op">-</span><span class="fl">0.5</span>,</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>                             color<span class="op">=</span>colors_rect[step_counter])</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>                <span class="co"># compute accuracy</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>                data_loader <span class="op">=</span> DataLoader(dataset, batch_size<span class="op">=</span>BATCH_SIZE)</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>                avg_acc <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> batch, label <span class="kw">in</span> data_loader:</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>                    label <span class="op">=</span> label.unsqueeze(<span class="dv">1</span>).to(device)</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>                    r <span class="op">=</span> trained_air(batch.to(device))</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>                    acc <span class="op">=</span> (r[<span class="st">'counts'</span>]<span class="op">==</span>label).<span class="bu">sum</span>().item()<span class="op">/</span><span class="bu">len</span>(r[<span class="st">'counts'</span>])</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>                    avg_acc <span class="op">+=</span> acc <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>                <span class="co"># annotate plot</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>                ax.annotate(<span class="ss">f'Epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ch">\n</span><span class="ss"> Acc </span><span class="sc">{</span>avg_acc<span class="sc">:.2f}</span><span class="ss">'</span>,</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>                            xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">0.5</span>), va<span class="op">=</span><span class="st">'center'</span>,</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>                            xycoords<span class="op">=</span><span class="st">'axes fraction'</span>, fontsize<span class="op">=</span><span class="dv">14</span>,  ha<span class="op">=</span><span class="st">'right'</span>,</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>                            rotation<span class="op">=</span><span class="dv">90</span>)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>test_dataset <span class="op">=</span> generate_dataset(num_images<span class="op">=</span><span class="dv">300</span>, SEED<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>plot_results(test_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="../../assets/paper_summaries/06_AIR/img/test_results.png" title="Test Results" class="img-fluid figure-img"></p>
+<p><img src="./img/test_results.png" title="Test Results" class="img-fluid figure-img"></p>
 <figcaption class="figure-caption">Test Results</figcaption>
 </figure>
 </div>
