@@ -2,6 +2,7 @@
   {
     "listing": "/paper_summaries.html",
     "items": [
+      "/paper_summaries/concrete_distribution/index.html",
       "/paper_summaries/iwae/index.html",
       "/paper_summaries/air/index.html",
       "/paper_summaries/spatial_transformer/index.html",
