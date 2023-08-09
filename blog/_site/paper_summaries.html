@@ -70,7 +70,7 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-image','listing-title','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-image','listing-title','listing-categories','listing-date',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
       searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
@@ -96,7 +96,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-sidebar docked nav-fixed">
+<body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -114,12 +114,12 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link active" href="./paper_summaries.html" rel="" target="" aria-current="page">
  <span class="menu-text">Paper Summaries</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./ml101.html" rel="" target="">
+ <span class="menu-text">ML101</span></a>
   </li>  
 </ul>
             <div class="quarto-navbar-tools">
@@ -127,23 +127,10 @@ ul.task-list li input[type="checkbox"] {
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Paper Summaries</li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-    </div>
-  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
-</nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
@@ -173,8 +160,14 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="listing-actions-group">
+    <div class="input-group input-group-sm quarto-listing-filter">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input type="text" class="search form-control" placeholder="Filter">
+    </div>
+</div>
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="reimplementation,unsupervised,VAE" data-listing-date-sort="1616799600000" data-listing-file-modified-sort="1691615604574" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="74">
+<div class="quarto-post image-left" data-index="0" data-categories="reimplementation,unsupervised,VAE" data-listing-date-sort="1616799600000" data-listing-file-modified-sort="1691615604574" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="74">
 <div class="thumbnail">
 <p><a href="./paper_summaries/multi-object_network/index.html"> <p class="card-img-top"><img src="paper_summaries/multi-object_network/img/MONet_schematic.png" alt="Schematic of MONet" title="Schematic of MONet" class="thumbnail-image card-img"/></p> </a></p>
 </div>
@@ -201,10 +194,14 @@ VAE
 <a href="./paper_summaries/multi-object_network/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/multi-object_network/index.html"> </a>
+<a href="./paper_summaries/multi-object_network/index.html">
+<div class="listing-date">
+Mar 27, 2021
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="reimplementation,VAE,D-VAE" data-listing-date-sort="1613862000000" data-listing-file-modified-sort="1691340963161" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="34">
+<div class="quarto-post image-left" data-index="1" data-categories="reimplementation,VAE,D-VAE" data-listing-date-sort="1613862000000" data-listing-file-modified-sort="1691340963161" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="34">
 <div class="thumbnail">
 <p><a href="./paper_summaries/concrete_distribution/index.html"> <p class="card-img-top"><img src="paper_summaries/concrete_distribution/img/Gumble_Max.png" alt="Gumble Max" title="Gumble Max" class="thumbnail-image card-img"/></p> </a></p>
 </div>
@@ -231,10 +228,14 @@ D-VAE
 <a href="./paper_summaries/concrete_distribution/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/concrete_distribution/index.html"> </a>
+<a href="./paper_summaries/concrete_distribution/index.html">
+<div class="listing-date">
+Feb 21, 2021
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="reimplementation,VAE,IWAE,generative" data-listing-date-sort="1610233200000" data-listing-file-modified-sort="1691260769205" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="34">
+<div class="quarto-post image-left" data-index="2" data-categories="reimplementation,VAE,IWAE,generative" data-listing-date-sort="1610233200000" data-listing-file-modified-sort="1691260769205" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="34">
 <div class="thumbnail">
 <p><a href="./paper_summaries/iwae/index.html"> <p class="card-img-top"><img src="paper_summaries/iwae/img/schematic_VAE.png" alt="VAE/IWAE Architecture" title="VAE/IWAE Architecture" class="thumbnail-image card-img"/></p> </a></p>
 </div>
@@ -264,10 +265,14 @@ generative
 <a href="./paper_summaries/iwae/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/iwae/index.html"> </a>
+<a href="./paper_summaries/iwae/index.html">
+<div class="listing-date">
+Jan 10, 2021
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="reimplementation,unsupervised,generative" data-listing-date-sort="1600552800000" data-listing-file-modified-sort="1691258643861" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="58">
+<div class="quarto-post image-left" data-index="3" data-categories="reimplementation,unsupervised,generative" data-listing-date-sort="1600552800000" data-listing-file-modified-sort="1691258643861" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="58">
 <div class="thumbnail">
 <p><a href="./paper_summaries/air/index.html"> <p class="card-img-top"><img src="paper_summaries/air/img/paper_results.gif" alt="Paper Results" title="Paper Results" class="thumbnail-image card-img"/></p> </a></p>
 </div>
@@ -294,10 +299,14 @@ generative
 <a href="./paper_summaries/air/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/air/index.html"> </a>
+<a href="./paper_summaries/air/index.html">
+<div class="listing-date">
+Sep 20, 2020
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="reimplementation" data-listing-date-sort="1598738400000" data-listing-file-modified-sort="1690848220121" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28">
+<div class="quarto-post image-left" data-index="4" data-categories="reimplementation" data-listing-date-sort="1598738400000" data-listing-file-modified-sort="1690848220121" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28">
 <div class="thumbnail">
 <p><a href="./paper_summaries/spatial_transformer/index.html"> <p class="card-img-top"><img src="paper_summaries/spatial_transformer/img/ST_inpractice.gif" alt="Spatial Transformer in Practice" title="Spatial Transformer in Practice" class="thumbnail-image card-img"/></p> </a></p>
 </div>
@@ -318,10 +327,14 @@ reimplementation
 <a href="./paper_summaries/spatial_transformer/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/spatial_transformer/index.html"> </a>
+<a href="./paper_summaries/spatial_transformer/index.html">
+<div class="listing-date">
+Aug 30, 2020
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="reimplementation,CNN,segmentation" data-listing-date-sort="1597960800000" data-listing-file-modified-sort="1691260853191" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="52">
+<div class="quarto-post image-left" data-index="5" data-categories="reimplementation,CNN,segmentation" data-listing-date-sort="1597960800000" data-listing-file-modified-sort="1691260853191" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="52">
 <div class="thumbnail">
 <p><a href="./paper_summaries/u_net/index.html"> <p class="card-img-top"><img src="paper_summaries/u_net/img/semantic_segmentation.png" alt="Semantic Segmentation Example" title="Semantic Segmentation Example" class="thumbnail-image card-img"/></p> </a></p>
 </div>
@@ -348,10 +361,14 @@ segmentation
 <a href="./paper_summaries/u_net/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/u_net/index.html"> </a>
+<a href="./paper_summaries/u_net/index.html">
+<div class="listing-date">
+Aug 21, 2020
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="reimplementation,VAE,disentanglement" data-listing-date-sort="1596751200000" data-listing-file-modified-sort="1690847212027" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="45">
+<div class="quarto-post image-left" data-index="6" data-categories="reimplementation,VAE,disentanglement" data-listing-date-sort="1596751200000" data-listing-file-modified-sort="1690847212027" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="45">
 <div class="thumbnail">
 <p><a href="./paper_summaries/spatial_broadcast_decoder/index.html"> <p class="card-img-top"><img src="paper_summaries/spatial_broadcast_decoder/img/sbd.png" alt="Schematic of the Spatial Broadcast VAE" title="Schematic of the Spatial Broadcast VAE" class="thumbnail-image card-img"/></p> </a></p>
 </div>
@@ -378,10 +395,14 @@ disentanglement
 <a href="./paper_summaries/spatial_broadcast_decoder/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/spatial_broadcast_decoder/index.html"> </a>
+<a href="./paper_summaries/spatial_broadcast_decoder/index.html">
+<div class="listing-date">
+Aug 7, 2020
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="7" data-categories="reimplementation,VAE,generative" data-listing-date-sort="1595628000000" data-listing-file-modified-sort="1690848376151" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="25">
+<div class="quarto-post image-left" data-index="7" data-categories="reimplementation,VAE,generative" data-listing-date-sort="1595628000000" data-listing-file-modified-sort="1690848376151" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="25">
 <div class="thumbnail">
 <p><a href="./paper_summaries/auto-encoding_variational_bayes/index.html"> <p class="card-img-top"><img src="paper_summaries/auto-encoding_variational_bayes/img/DAG.png" alt="Generative Process and Variational Approximation" title="Generative Process and Variational Approximation" class="thumbnail-image card-img"/></p> </a></p>
 </div>
@@ -408,10 +429,14 @@ generative
 <a href="./paper_summaries/auto-encoding_variational_bayes/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/auto-encoding_variational_bayes/index.html"> </a>
+<a href="./paper_summaries/auto-encoding_variational_bayes/index.html">
+<div class="listing-date">
+Jul 25, 2020
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="8" data-categories="RL" data-listing-date-sort="1594764000000" data-listing-file-modified-sort="1691260877960" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13">
+<div class="quarto-post image-left" data-index="8" data-categories="RL" data-listing-date-sort="1594764000000" data-listing-file-modified-sort="1691260877960" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13">
 <div class="thumbnail">
 <p><a href="./paper_summaries/schema_networks/index.html"> <img src="./paper_summaries/schema_networks/img/transition_dynamics.png" class="thumbnail-image"> </a></p>
 </div>
@@ -432,10 +457,14 @@ RL
 <a href="./paper_summaries/schema_networks/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/schema_networks/index.html"> </a>
+<a href="./paper_summaries/schema_networks/index.html">
+<div class="listing-date">
+Jul 15, 2020
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="9" data-categories="interaction network,graph networks,generalization" data-listing-date-sort="1594332000000" data-listing-file-modified-sort="1690413020135" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5">
+<div class="quarto-post image-left" data-index="9" data-categories="interaction network,graph networks,generalization" data-listing-date-sort="1594332000000" data-listing-file-modified-sort="1690413020135" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5">
 <div class="thumbnail">
 <p><a href="./paper_summaries/graph_networks/index.html"> <p class="card-img-top"><img src="paper_summaries/graph_networks/img/graph_networks_vs_RN.png" alt="GN block vs Relation Network" title="GN block vs Relation Network" class="thumbnail-image card-img"/></p> </a></p>
 </div>
@@ -462,10 +491,14 @@ generalization
 <a href="./paper_summaries/graph_networks/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/graph_networks/index.html"> </a>
+<a href="./paper_summaries/graph_networks/index.html">
+<div class="listing-date">
+Jul 10, 2020
+</div>
+</a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="10" data-categories="graph networks" data-listing-date-sort="1593122400000" data-listing-file-modified-sort="1690845915707" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
+<div class="quarto-post image-left" data-index="10" data-categories="graph networks" data-listing-date-sort="1593122400000" data-listing-file-modified-sort="1690845915707" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
 <div class="thumbnail">
 <p><a href="./paper_summaries/interaction_network/index.html"> <img src="./paper_summaries/interaction_network/img/implementation.png" class="thumbnail-image"> </a></p>
 </div>
@@ -486,7 +519,11 @@ graph networks
 <a href="./paper_summaries/interaction_network/index.html"> </a>
 </div>
 <div class="metadata">
-<a href="./paper_summaries/interaction_network/index.html"> </a>
+<a href="./paper_summaries/interaction_network/index.html">
+<div class="listing-date">
+Jun 26, 2020
+</div>
+</a>
 </div>
 </div>
 </div>

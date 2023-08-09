@@ -1,0 +1,16 @@
+execute:
+  freeze: auto  # re-render only when source changes
+  cache: true
+
+# enable banner style title blocks (see https://quarto.org/docs/authoring/title-blocks.html)
+title-block-banner: true
+
+# format:
+#   html: 
+#     code-fold: true #show 
+#     highlight-style: github 
+#     code-block-bg: true
+
+author: "borea17"
+
+highlight-style: github

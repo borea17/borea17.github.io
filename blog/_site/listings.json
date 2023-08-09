@@ -14,5 +14,11 @@
       "/paper_summaries/graph_networks/index.html",
       "/paper_summaries/interaction_network/index.html"
     ]
+  },
+  {
+    "listing": "/ml101.html",
+    "items": [
+      "/ml101/probability_theory/linear_regression_and_maximum_likelihood/index.html"
+    ]
   }
 ]

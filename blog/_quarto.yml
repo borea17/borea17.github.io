@@ -8,20 +8,20 @@ website:
 
   page-navigation: true
 
-  sidebar:
-    id: paper-summaries
-    title: Paper Summaries
-    style: "docked"
-    background: light
-    collapse-level: 2
+  # sidebar:
+  #   id: paper-summaries
+  #   title: Paper Summaries
+  #   style: "docked"
+  #   background: light
+  #   collapse-level: 2
+
 
   navbar:
     background: "#607d8b"
     search: true
     right:
-      - href: index.qmd
-        text: Home
       - paper_summaries.qmd
+      - ml101.qmd
     # left:
     #   - text: "Home"
     #     file: index.qmd

@@ -1,9 +1,11 @@
 ---
 title: "Paper Summaries"
 listing: 
-  contents: paper_summaries # all Quarto docs in the `posts` directory will be included on your listing page
-  type: default # or `default` or `table`; each type has its own set of yaml options to include
+  contents: "paper_summaries" # all Quarto docs in the `posts` directory will be included on your listing page
+  type: "default" # or `default` or `table`; each type has its own set of yaml options to include
   sort: "date desc" # can also sort on more than one field
+  filter-ui: true
   categories: true # allows you to sort posts by assigned categories 
-  fields: [image, title, categories] # reading-time, date
+  fields: [image, title, categories, date] # reading-time, date
+  image-align: "left"
 ---

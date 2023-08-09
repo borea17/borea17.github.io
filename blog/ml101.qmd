@@ -1,0 +1,33 @@
+---
+title: ML101 
+listing: 
+  - id: "engineering"
+    contents: "ml101/engineering"
+    type: "table"
+    fields: ["title"] # reading-time, date
+    filter-ui: false
+    table-striped: true
+  - id: "probabilityTheory"
+    contents: "ml101/probability_theory"
+    type: "table"
+    fields: ["title"] # reading-time, date
+    sort: "false" # can also sort on more than one field
+    filter-ui: false
+    table-striped: true
+    field-display-names:
+        title: "Question"
+---
+
+This is a loose collection of questions that I stumbled over during my studies.
+
+
+## Probability Theory
+
+:::{#probabilityTheory}
+:::
+
+
+## Engineering
+
+:::{#engineering}
+:::
