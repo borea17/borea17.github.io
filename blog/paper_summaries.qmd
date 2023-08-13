@@ -8,4 +8,5 @@ listing:
   categories: true # allows you to sort posts by assigned categories 
   fields: [image, title, categories, date] # reading-time, date
   image-align: "left"
+  # feed: true
 ---

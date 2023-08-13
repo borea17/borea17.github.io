@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>borea17 - mysite</title>
+<title>borea17 - How can the variance of the score function estimator be decreased?</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,22 +23,22 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -59,18 +59,20 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../../../styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">borea17</span>
     </a>
   </div>
@@ -81,11 +83,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./paper_summaries.html" rel="" target="">
+    <a class="nav-link" href="../../../paper_summaries.html" rel="" target="">
  <span class="menu-text">Paper Summaries</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./ml101.html" rel="" target="">
+    <a class="nav-link" href="../../../ml101.html" rel="" target="">
  <span class="menu-text">ML101</span></a>
   </li>  
 </ul>
@@ -96,34 +98,183 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">How can the variance of the score function estimator be decreased?</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    </div>
+    
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">mysite</h1>
+
+
+
+<p>Remind that the score function estimator moves the gradient of an expectation inside the expecation to allow for Monte Carlo integration, i.e.,</p>
+<p><span class="math display">\[
+\begin{align}
+\nabla_{\boldsymbol{\theta}} \mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \big[ f
+  (\textbf{z})\big] &amp;= \mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \left[
+  f(\textbf{z}) \nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z}) \right] \\
+  &amp;\approx \frac {1}{N}
+  \sum_{i=1}^N f\left(\textbf{z}^{(i)}\right) \nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} \left( \textbf{z}^{(i)}\right) \quad
+  \text{with} \quad \textbf{z}^{(i)} \sim p_{\boldsymbol{\theta}}(\textbf{z}),
+\end{align}
+\]</span></p>
+<p>where the term <span class="math inline">\(\nabla_{\boldsymbol{\theta}}\log p_{\boldsymbol{\theta}} (\textbf{z})\)</span> is called the score function. A nice property of the score function is that its expectated value is zero, i.e.,</p>
+<p><span class="math display">\[
+\mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \left[
+  \nabla_{\boldsymbol{\theta}}\log p_{\boldsymbol{\theta}}
+  (\textbf{z}) \right] = \textbf{0}
+\]</span></p>
+<p>Using this property and the linearity of the expectation, we can add an arbitrary term with zero expectation:</p>
+<p><span class="math display">\[
+\begin{align}
+\nabla_{\boldsymbol{\theta}} \mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \big[ f
+  (\textbf{z})\big] &amp;= \mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \left[
+  \Big(f(\textbf{z}) - \lambda \Big)\nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z}) \right] \\
+  &amp;\approx \frac {1}{N}
+  \sum_{i=1}^N \Big(f\left(\textbf{z}^{(i)}\right) - \lambda \Big)\nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} \left( \textbf{z}^{(i)}\right) \quad
+  \text{with} \quad \textbf{z}^{(i)} \sim p_{\boldsymbol{\theta}}(\textbf{z}),
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(\lambda\)</span> is called <strong>control variate</strong> or <strong>baseline</strong> which <strong>allows us to decrease the variance</strong>. This can be done via</p>
+<ul>
+<li><p>minimzing the variance of the above term w.r.t. <span class="math inline">\(\lambda\)</span>, <em>or</em></p></li>
+<li><p>using a <strong>data-dependent baseline</strong> or <strong>neural baseline</strong> in which we train the control variate such that</p>
+<p><span class="math display">\[
+\lambda_{\boldsymbol{\phi}} (\textbf{z}) \approx f(\textbf{z})
+\]</span></p></li>
+</ul>
+<!-- Note that the choice of $\lambda$ is non-trivial and an arbitrary function could also increase the variance. -->
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-</header>
-
-<p>This is a Quarto website.</p>
-<p>To learn more about Quarto websites visit <a href="https://quarto.org/docs/websites" class="uri">https://quarto.org/docs/websites</a>.</p>
+<div class="callout-title-container flex-fill">
+Expectation of Score Function
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The expectation of the score function is zero:</p>
+<p><span class="math display">\[
+\begin{align}
+\mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \left[
+  \nabla_{\boldsymbol{\theta}}\log p_{\boldsymbol{\theta}}
+  (\textbf{z}) \right] &amp;= \int \nabla_{\boldsymbol{\theta}}\log p_{\boldsymbol{\theta}}
+  (\textbf{z}) p_{\boldsymbol{\theta}} (\textbf{z}) d\textbf{z} \\
+  &amp;=\int \frac {\nabla_{\boldsymbol{\theta}} p_{\boldsymbol{\theta}}
+  (\textbf{z})} {p_{\boldsymbol{\theta}}
+  (\textbf{z})}  p_{\boldsymbol{\theta}}
+  (\textbf{z}) d\textbf{z} &amp;&amp;\text{(log derivative trick)}\\
+  &amp;= \nabla_{\boldsymbol{\theta}} \int p_{\boldsymbol{\theta}}
+  (\textbf{z}) d\textbf{z} &amp;&amp;\text{(Leibniz integral rule)}\\
+  &amp;= \nabla_{\boldsymbol{\theta}} \textbf{1} = \textbf{0}
+\end{align}
+\]</span></p>
+<p>The log derivative trick comes from the application of the chain rule, see <a href="https://borea17.github.io/ML_101/probability_theory/score_function_estimator#derivation">this post</a>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Variance of Score Function
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The variance of the score function estimator without baseline <span class="math inline">\(\lambda\)</span> <span class="math display">\[
+\begin{align}
+&amp;\text{Var} \Big[ \mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \left[
+  f(\textbf{z})\nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z}) \right] \Big] \\
+  &amp;=
+\mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \Big[ \Big(
+  f(\textbf{z}) \nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z}) \Big)^2\Big]  
+  -
+\Big(\mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \Big[
+  f(\textbf{z}) \nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z}) \Big]  
+  \Big)^2\\
+  &amp;= \text{Var}_{\text{score}}
+\end{align}
+\]</span></p>
+<p>The variance of the score function estimator including baseline <span class="math inline">\(\lambda\)</span></p>
+<p><span class="math display">\[
+\begin{align}
+&amp;\text{Var} \Big[ \mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \left[
+  \Big(f(\textbf{z}) - \lambda \Big)\nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z}) \right] \Big] \\
+  &amp;=
+\mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \Big[ \big(
+  \Big(f(\textbf{z}) - \lambda \Big)\nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z}) \big)^2\Big]  
+  -
+\Big(\mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)} \Big[
+  \Big(f(\textbf{z}) - \lambda \Big)\nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z}) \Big]  
+  \Big)^2\\
+  &amp;=\text{Var}_{\text{score}} -
+\mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)}
+  \Big[
+  \big(  2 f(\textbf{z}) \lambda  - \lambda^2  
+  \big)
+\nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z})
+  \Big]
+  +
+  \Big( \mathbb{E}_{\textbf{z} \sim
+  p_{\boldsymbol{\theta}}\left(\textbf{z} \right)}
+  \big[ \lambda
+\nabla_{\boldsymbol{\theta}} \log
+  p_{\boldsymbol{\theta}} (\textbf{z})
+  \big]
+  \Big)^2
+\end{align}
+\]</span></p>
+</div>
+</div>
+</div>
 
 
 

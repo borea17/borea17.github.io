@@ -5,3 +5,8 @@ th:first-child {
   text-align: center;
   border-bottom: 10px solid #bfbfbf;
 }
+
+.toc {
+  /* border: 1px solid $border-color; */
+  background-color: #ffffff;
+}

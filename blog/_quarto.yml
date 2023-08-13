@@ -5,15 +5,8 @@ project:
 
 website:
   title: "borea17"
-
+  site-url: "https://borea17.github.io/"
   page-navigation: true
-
-  # sidebar:
-  #   id: paper-summaries
-  #   title: Paper Summaries
-  #   style: "docked"
-  #   background: light
-  #   collapse-level: 2
 
 
   navbar:
@@ -22,15 +15,6 @@ website:
     right:
       - paper_summaries.qmd
       - ml101.qmd
-    # left:
-    #   - text: "Home"
-    #     file: index.qmd
-    #   - sidebar:paper-summaries
-
-    # left:
-    #   - href: index.qmd
-    #     text: Home
-    #   - about.qmd
 
 format:
   html:

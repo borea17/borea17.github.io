@@ -1,6 +1,5 @@
 ---
 title: "How is linear regression connected to maximum likelihood?"
-date: "2020-09-09"
 ---
 
 Under the assumption that the data is generated from a linear function
@@ -12,15 +11,9 @@ the residuals. Thus, **minimizing the negative log-likelihood
 least squares method**. 
 
 
-<!-- with i.i.d. Gaussian noise (i.e., each noise variable $\mu_i$ is -->
-<!-- sampled independently from the same/identical  $\mu \sim \mathcal{N}(0, \sigma^2)$) -->
-<!-- independent and identical ($\sigma$ constant) Gaussian noise ($\nu \sim \mathcal{N} (0, \sigma^2)$) -->
-<!-- the **negative log-likelihood** is proportional to the squared sum of the residuals, i.e., -->
-<!-- **minimizing the negative log-likelihood (maximizing the log-likelihood) leads to the same solution -->
-<!-- as the least squares method**. -->
 
-
-**Derivation:**  
+::: {.callout-tip collapse=false}
+## Derivation
 Given a dataset $\mathcal{D} = \{(\textbf{x}_1, y_1), \dots,
 (\textbf{x}_N, y_N)\}$ and the **model assumption**:
                                  
@@ -64,3 +57,4 @@ Note that in linear regression, we do not intent to estimate
 $\sigma^2$. However, it may be helpful since a large variance
 indicates that our linear regression model will produce highly biased
 estimates. 
+:::

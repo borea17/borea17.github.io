@@ -98,9 +98,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-title',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-title-sort'] }],
+      valueNames: ['listing-title',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-date","listing-title","listing-author"],
+      searchColumns: ["listing-title","listing-author","listing-image","listing-description"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -193,37 +193,59 @@ ul.task-list li input[type="checkbox"] {
 <p>This is a loose collection of questions that I stumbled over during my studies.</p>
 <section id="probability-theory" class="level2">
 <h2 class="anchored" data-anchor-id="probability-theory">Probability Theory</h2>
-<div id="listing-probabilityTheory" class="quarto-listing quarto-listing-container-table">
+<div id="listing-probabilityTheory" class="quarto-listing quarto-listing-container-grid">
 <div class="listing-actions-group">
-   <div class="input-group input-group-sm quarto-listing-sort">
-     <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
-     <select id="listing-probabilityTheory-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-probabilityTheory'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
-       <option value="" disabled="" selected="" hidden="">Order By</option>
-       <option value="index" data-direction="asc">Default</option>
-         <option value="listing-title-sort" data-direction="asc">
-          Question
-        </option>
-     </select>
-  </div>
+    <div class="input-group input-group-sm quarto-listing-filter">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input type="text" class="search form-control" placeholder="Filter">
+    </div>
 </div>
-
-<table class="quarto-listing-table table table-striped">
-<thead>
-<tr>
-<th>
-<a class="sort" data-sort="listing-title-sort" onclick="if (this.classList.contains('sort-asc')) { this.classList.add('sort-desc'); this.classList.remove('sort-asc') } else { this.classList.add('sort-asc'); this.classList.remove('sort-desc')} return false;">Question</a>
-</th>
-</tr>
-</thead>
-<tbody class="list">
-<tr data-index="0" data-listing-date-sort="1599602400000" data-listing-file-modified-sort="1691616915644" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-title-sort="How is linear regression connected to maximum likelihood?" data-listing-filename-sort="index.qmd">
-<td>
-<a href="./ml101/probability_theory/linear_regression_and_maximum_likelihood/index.html" class="title listing-title">How is linear regression connected to maximum likelihood?</a>
-</td>
-</tr>
-</tbody>
-
-</table>
+<div class="list grid quarto-listing-cols-1">
+<div class="g-col-1" data-index="0" data-listing-file-modified-sort="1691948616590" data-listing-reading-time-sort="5">
+<a href="./ml101/probability_theory/evidence_lower_bound/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+What is the ELBO?
+</h5>
+</div>
+</div>
+</a>
+</div>
+<div class="g-col-1" data-index="1" data-listing-file-modified-sort="1691962837408" data-listing-reading-time-sort="5">
+<a href="./ml101/probability_theory/score_function_estimator/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+What is a score function estimator (REINFORCE estimator)?
+</h5>
+</div>
+</div>
+</a>
+</div>
+<div class="g-col-1" data-index="2" data-listing-file-modified-sort="1691965759889" data-listing-reading-time-sort="3">
+<a href="./ml101/probability_theory/better_score_function_estimator/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+How can the variance of the score function estimator be decreased?
+</h5>
+</div>
+</div>
+</a>
+</div>
+<div class="g-col-1" data-index="3" data-listing-file-modified-sort="1691947571841" data-listing-reading-time-sort="2">
+<a href="./ml101/probability_theory/linear_regression_and_maximum_likelihood/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+How is linear regression connected to maximum likelihood?
+</h5>
+</div>
+</div>
+</a>
+</div>
+</div>
 <div class="listing-no-matching d-none">
 No matching items
 </div>
