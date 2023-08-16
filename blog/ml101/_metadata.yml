@@ -1,16 +1,21 @@
 execute:
   freeze: auto  # re-render only when source changes
-  cache: true
+  cache: true 
+  eval: true
+
+# engine: jupyter
+jupyter: "python3"
 
 toc: false
 
 # enable banner style title blocks (see https://quarto.org/docs/authoring/title-blocks.html)
 title-block-banner: true
 
-# format:
-#   html: 
-#     code-fold: true #show 
-#     highlight-style: github 
-#     code-block-bg: true
+format:
+  html: 
+    code-fold: show 
+    highlight-style: github 
+    code-block-bg: true
+
 
 highlight-style: github

@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://borea17.github.io/paper_summaries.html</loc>
-    <lastmod>2023-08-13T17:30:31.294Z</lastmod>
+    <lastmod>2023-08-13T22:52:05.892Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/paper_summaries/spatial_transformer/index.html</loc>
@@ -10,7 +10,7 @@
   </url>
   <url>
     <loc>https://borea17.github.io/index.html</loc>
-    <lastmod>2023-08-13T21:40:51.585Z</lastmod>
+    <lastmod>2023-08-16T16:44:00.331Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/paper_summaries/iwae/index.html</loc>
@@ -22,7 +22,7 @@
   </url>
   <url>
     <loc>https://borea17.github.io/ml101.html</loc>
-    <lastmod>2023-08-13T22:29:21.230Z</lastmod>
+    <lastmod>2023-08-16T23:31:46.659Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/ml101/probability_theory/linear_regression_and_maximum_likelihood/index.html</loc>
@@ -38,6 +38,14 @@
   </url>
   <url>
     <loc>https://borea17.github.io/ml101/probability_theory/better_score_function_estimator/index.html</loc>
-    <lastmod>2023-08-13T22:29:20.545Z</lastmod>
+    <lastmod>2023-08-13T22:30:46.946Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101/probability_theory/VAE_NLL_gradient_better_than_REINFORCE_estimator/index.html</loc>
+    <lastmod>2023-08-13T22:30:46.622Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101/probability_theory/pearson_vs_spearman_correlation/index.html</loc>
+    <lastmod>2023-08-16T23:31:45.995Z</lastmod>
   </url>
 </urlset>

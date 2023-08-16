@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>borea17 - ML101</title>
+<title>borea17 - Why does the NLL gradient in VAEs exhibit less variance than the REINFORCE estimator?</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,24 +23,22 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -60,78 +58,21 @@ ul.task-list li input[type="checkbox"] {
     "search-submit-button-title": "Submit"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-engineering .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-title',{ data: ['index'] },{ data: ['categories'] }],
-      
-      searchColumns: [],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-engineering'] = new List('listing-engineering', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-probabilityTheory .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-title',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-title","listing-author","listing-image","listing-description"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-probabilityTheory'] = new List('listing-probabilityTheory', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../../../styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">borea17</span>
     </a>
   </div>
@@ -142,11 +83,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./paper_summaries.html" rel="" target="">
+    <a class="nav-link" href="../../../paper_summaries.html" rel="" target="">
  <span class="menu-text">Paper Summaries</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./ml101.html" rel="" target="" aria-current="page">
+    <a class="nav-link" href="../../../ml101.html" rel="" target="">
  <span class="menu-text">ML101</span></a>
   </li>  
 </ul>
@@ -157,134 +98,74 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Why does the NLL gradient in VAEs exhibit less variance than the REINFORCE estimator?</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#probability-theory" id="toc-probability-theory" class="nav-link active" data-scroll-target="#probability-theory">Probability Theory</a></li>
-  <li><a href="#engineering" id="toc-engineering" class="nav-link" data-scroll-target="#engineering">Engineering</a></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">ML101</h1>
-</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
-<div class="quarto-title-meta">
 
-    
-  
-    
-  </div>
-  
-
-</header>
-
-<p>This is a loose collection of questions that I stumbled over during my studies.</p>
-<section id="probability-theory" class="level2">
-<h2 class="anchored" data-anchor-id="probability-theory">Probability Theory</h2>
-<div id="listing-probabilityTheory" class="quarto-listing quarto-listing-container-grid">
-<div class="listing-actions-group">
-    <div class="input-group input-group-sm quarto-listing-filter">
-      <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="search form-control" placeholder="Filter">
-    </div>
-</div>
-<div class="list grid quarto-listing-cols-1">
-<div class="g-col-1" data-index="0" data-listing-file-modified-sort="1691948616590" data-listing-reading-time-sort="5">
-<a href="./ml101/probability_theory/evidence_lower_bound/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-What is the ELBO?
-</h5>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="1" data-listing-file-modified-sort="1691962837408" data-listing-reading-time-sort="5">
-<a href="./ml101/probability_theory/score_function_estimator/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-What is a score function estimator (REINFORCE estimator)?
-</h5>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="2" data-listing-file-modified-sort="1691965790323" data-listing-reading-time-sort="3">
-<a href="./ml101/probability_theory/better_score_function_estimator/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-How can the variance of the score function estimator be decreased?
-</h5>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="3" data-listing-file-modified-sort="1691947571841" data-listing-reading-time-sort="2">
-<a href="./ml101/probability_theory/linear_regression_and_maximum_likelihood/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-How is linear regression connected to maximum likelihood?
-</h5>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="4" data-listing-file-modified-sort="1692228704651" data-listing-reading-time-sort="10">
-<a href="./ml101/probability_theory/pearson_vs_spearman_correlation/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-What is the difference between Pearson and Spearman correlation?
-</h5>
-</div>
-</div>
-</a>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div>
-</section>
-<section id="engineering" class="level2">
-<h2 class="anchored" data-anchor-id="engineering">Engineering</h2>
-<div id="listing-engineering" class="quarto-listing quarto-listing-container-table">
-<div class="listing-actions-group">
-</div>
-
-<table class="quarto-listing-table table table-striped">
-<thead>
-<tr>
-<th>
-Title
-</th>
-</tr>
-</thead>
-<tbody class="list">
-</tbody>
-
-</table>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div>
-
+<p>The <strong>standard VAE gradient</strong> and <strong>REINFORCE estimator</strong> (for NLL) are both <strong>unbiased estimators</strong> of the same gradient, however the <code>VAE update tends to have lower variance in practice because it makes use of the log-likelihood gradients with respect to the latent variables</code> <a href="https://arxiv.org/abs/1509.00519">(Burda et al.&nbsp;,2016)</a>.</p>
+<section id="explanation" class="level2">
+<h2 class="anchored" data-anchor-id="explanation">Explanation</h2>
+<p>Remind that the <strong>REINFORCE / <a href="https://borea17.github.io/ML_101/probability_theory/score_function_estimator">score-function estimator</a></strong> of the <strong>negative log-likelihood (NLL)</strong> in a <strong>variational autoencoder (VAE)</strong> is given by</p>
+<p><span class="math display">\[
+\begin{align}
+&amp;\nabla_{\boldsymbol{\phi}}
+\mathbb{E}_{q_\boldsymbol{\phi}\left(\textbf{z} | \textbf{x} \right)}
+\Big[
+\log p_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z} \right)
+\Big] =
+\mathbb{E}_{q_\boldsymbol{\phi}\left(\textbf{z} | \textbf{x} \right)}
+\Big[
+\log p_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z} \right)
+\nabla_{\boldsymbol{\phi}} q_\boldsymbol{\phi}\left(\textbf{z} | \textbf{x} \right)
+\Big]\\
+&amp;\approx \frac {1}{N} \sum_{i=1}^N \log p_{\boldsymbol{\theta}} \left(
+\textbf{x} | \textbf{z}^{(i)} \right)
+\nabla_{\boldsymbol{\phi}} q_\boldsymbol{\phi}\left(\textbf{z}^{(i)} |
+\textbf{x} \right)
+\quad \text{with} \quad \textbf{z}^{(i)} \sim q_\boldsymbol{\phi}\left(\textbf{z} | \textbf{x} \right).
+\end{align}
+\]</span></p>
+<p>The strength of the REINFORCE estimator is also its limitation: We do not need to compute a derivative w.r.t. to <span class="math inline">\(\log p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}^{(i)}\right)\)</span>. While this is a nice feature, it leads to high variances, because it is missing information.</p>
+<!-- It is actually a **random search in disguise**.  -->
+<p><a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>, <a href="https://arxiv.org/abs/1401.4082">Rezende et al.&nbsp;(2014)</a>, <a href="http://proceedings.mlr.press/v32/titsias14.html">Titsias and Lázaro-Gredilla (2014)</a> (independently) introduced the <em>reparameterization trick</em> which essentially consists of using auxiliary variables with fixed distributions <span class="math inline">\(\boldsymbol{\epsilon} \sim p(\boldsymbol{\epsilon})\)</span>, such that sampling <span class="math inline">\(\textbf{z} \sim q_\boldsymbol{\phi}\left(\textbf{z} | \textbf{x} \right)\)</span> can be written as a deterministic mapping <span class="math inline">\(\textbf{z} = g_{\boldsymbol{\phi}} (\textbf{x}, \boldsymbol{\epsilon})\)</span>. Therefore, the <strong>standard VAE gradient</strong> of the <strong>NLL</strong> looks as follows</p>
+<p><span class="math display">\[
+\begin{align}
+&amp; \nabla_{\boldsymbol{\phi}} \mathbb{E}_{p(\boldsymbol{\epsilon})} \Big[ \log
+p_{\boldsymbol{\theta}} \left( \textbf{x} | g_{\boldsymbol{\phi}} (\textbf{x},
+\boldsymbol{\epsilon}) \right) \Big] =
+\mathbb{E}_{p(\boldsymbol{\epsilon})} \Big[ \nabla_{\boldsymbol{\phi}} \log
+p_{\boldsymbol{\theta}} \left( \textbf{x} | g_{\boldsymbol{\phi}} (\textbf{x},
+\boldsymbol{\epsilon}) \right) \Big]\\
+&amp;\approx \frac {1}{N} \sum_{i=1}^{N} \nabla_{\boldsymbol{\phi}} \log p_{\boldsymbol{\theta}}
+\left(\textbf{x} | \textbf{z}^{(i)}_{\boldsymbol{\phi}} \right) \quad \text{with} \quad
+\textbf{z}^{(i)}_{\boldsymbol{\phi}} = g_{\boldsymbol{\phi}} \left(\textbf{x},
+\boldsymbol{\epsilon}^{(i)}\right) \quad \text{and} \quad
+\boldsymbol{\epsilon}^{(i)}\sim p(\boldsymbol{\epsilon})
+\end{align}
+\]</span></p>
+<p>Clearly, during <strong>backpropagation</strong> the VAE makes use of the log-likelihood gradients w.r.t the latent variables <span class="math inline">\(\log p_{\boldsymbol{\theta}}\left(\textbf{x}|\textbf{z} \right)\)</span> (i.e., propagates from the encoder to the end of the decoder) whereas the score-function estimator takes only the gradients from the encoder <span class="math inline">\(q_{\boldsymbol{\phi}}\left( \textbf{x} | \textbf{z} \right)\)</span> and uses the output of the decoder <span class="math inline">\(\log p_{\boldsymbol{\theta}}\left(\textbf{x}|\textbf{z} \right)\)</span> as a mere scalar.</p>
 
 
 </section>

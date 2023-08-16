@@ -458,3 +458,5 @@ $RECYCLE.BIN/
 
 # juypter cache
 .jupyter_cache/
+
+tmp
