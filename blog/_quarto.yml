@@ -1,27 +1,27 @@
 project:
-  type: website
+  type: "website"
   preview:
     port: 8080
-  output-dir: docs
+  output-dir: "docs"
 
 website:
   title: "borea17"
   site-url: "https://borea17.github.io/"
   page-navigation: true
-  favicon: logo.png
+  favicon: "logo.png"
 
 
   navbar:
     background: "#607d8b"
     search: true
     right:
-      - paper_summaries.qmd
-      - ml101.qmd
+      - "paper_summaries.qmd"
+      - "ml101.qmd"
 
 format:
   html:
-    theme: default
-    css: styles.css
+    theme: "default"
+    css: "styles.css"
     toc: true
 
 
