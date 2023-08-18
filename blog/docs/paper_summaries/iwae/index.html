@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.340">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="borea17">
+<meta name="dcterms.date" content="2021-01-10">
+
+<title>borea17 - Importance Weighted Autoencoders</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../logo.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">borea17</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../paper_summaries.html" rel="" target="">
+ <span class="menu-text">Paper Summaries</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../ml101.html" rel="" target="">
+ <span class="menu-text">ML101</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Importance Weighted Autoencoders</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/06_Importance_Weighted_Autoencoders.ipynb">View Source</a></li></ul></div></div>
+                                <div class="quarto-categories">
+                <div class="quarto-category">reimplementation</div>
+                <div class="quarto-category">VAE</div>
+                <div class="quarto-category">IWAE</div>
+                <div class="quarto-category">generative</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>borea17 </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">January 10, 2021</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#model-description" id="toc-model-description" class="nav-link active" data-scroll-target="#model-description">Model Description</a>
+  <ul class="collapse">
+  <li><a href="#high-level-overview" id="toc-high-level-overview" class="nav-link" data-scroll-target="#high-level-overview">High-Level Overview</a></li>
+  <li><a href="#derivation" id="toc-derivation" class="nav-link" data-scroll-target="#derivation">Derivation</a></li>
+  </ul></li>
+  <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a>
+  <ul class="collapse">
+  <li><a href="#dataset" id="toc-dataset" class="nav-link" data-scroll-target="#dataset">Dataset</a></li>
+  <li><a href="#model-implementation" id="toc-model-implementation" class="nav-link" data-scroll-target="#model-implementation">Model Implementation</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#visualizations" id="toc-visualizations" class="nav-link" data-scroll-target="#visualizations">Visualizations</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<!-- nextjournal_link: "https://nextjournal.com/borea17/attend-infer-repeat/" -->
+<p><a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a> introduce the <strong>Importance Weighted Autoencoder (IWAE)</strong> as a simple modification in the training of <a href="https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes">variational autoencoders</a> <strong>(VAEs)</strong>. Notably, they proved that this modification leads to a <strong>strictly tighter lower bound on the data log-likelihood</strong>. Furthermore, the standard VAE formulation is contained within the IWAE framework as a special case. In essence, the modification consists of using multiple samples from the <em>recognition network</em> / <em>encoder</em> and adapting the loss function with <em>importance-weighted sample losses</em>. In their experiments, they could emprically validate that employing IWAEs leads to improved test log-likelihoods and richer latent space representations compared to VAEs.</p>
+<section id="model-description" class="level2">
+<h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
+<p>An IWAE can be understood as a standard VAE in which multiple samples are drawn from the encoder distribution <span class="math inline">\(q_{\boldsymbol{\phi}} \Big( \textbf{z} | \textbf{x} \Big)\)</span> and then fed through the decoder <span class="math inline">\(p_{\boldsymbol{\theta}} \Big( \textbf{z} | \textbf{x} \Big)\)</span>. In principle, this modification has been already proposed in the original VAE paper by <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>. However, <a href="https://arxiv.org/abs/1509.00519">Burda et al. (2016)</a> additionally proposed to use a different objective function. The empirical objective function can be understood as the data log-likelihood <span class="math inline">\(\log p_{\boldsymbol{\theta}} (\textbf{x})\)</span> where the sampling distribution is exchanged to <span class="math inline">\(q_{\boldsymbol{\phi}} \Big( \textbf{z} | \textbf{x} \Big)\)</span> via the method of <em>importance sampling</em>.</p>
+<section id="high-level-overview" class="level3">
+<h3 class="anchored" data-anchor-id="high-level-overview">High-Level Overview</h3>
+<p>The IWAE framework builds upon a standard VAE architecture. There are two neural networks as approximations for the encoder <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right)\)</span> and the decoder distribution <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z} \right)\)</span>. More precisely, the networks estimate the parameters that parametrize these distributions. Typically, the latent distribution is assumed to be a Gaussian <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right) \sim \mathcal{N}\left( \boldsymbol{\mu}_{\text{E}}, \text{diag} \left( \boldsymbol{\sigma}^2_{\text{E}}\right) \right)\)</span> such that the encoder network estimates its the mean <span class="math inline">\(\boldsymbol{\mu}\_{\text{E}}\)</span> and variance<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math inline">\(\boldsymbol{\Sigma} = \text{diag} \left(\boldsymbol{\sigma}^2_{\text{E}}\right)\)</span>. To allow for backpropagation, we apply the reparametrization trick to the latent distribution which essentially consist of transforming samples from some (fixed) random distribution, e.g.&nbsp;<span class="math inline">\(\boldsymbol{\epsilon} \sim \mathcal{N} \left(\textbf{0}, \textbf{I} \right)\)</span>, into the desired distribution using a deterministic mapping.</p>
+<p>The main difference between a VAE and an IWAE lies in the objective function which is explained in more detail in the next section.</p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img src="./img/schematic_VAE.png" title="VAE/IWAE Architecture" class="img-fluid" alt="VAE/IWAE Architecture"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>VAE/IWAE Architecture</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="derivation" class="level3">
+<h3 class="anchored" data-anchor-id="derivation">Derivation</h3>
+<p>Let <span class="math inline">\(\textbf{X} = \{\textbf{x}^{(i)}\}_{i=1}^N\)</span> denote a dataset of <span class="math inline">\(N\)</span> i.i.d. samples where each observed datapoint <span class="math inline">\(\textbf{x}^{(i)}\)</span> is obtained by first sampling a latent vector <span class="math inline">\(\textbf{z}\)</span> from the prior <span class="math inline">\(p_{\boldsymbol{\theta}}(\textbf{z})\)</span> and then sampling <span class="math inline">\(\textbf{x}^{(i)}\)</span> itself from the scene model <span class="math inline">\(p_{\boldsymbol{\theta}} \Big( \textbf{x} | \textbf{z} \Big)\)</span>. Now we introduce an auxiliary distribution <span class="math inline">\(q_{\boldsymbol{\phi}} \Big( \textbf{z} | \textbf{x} \Big)\)</span> (with its own paramaters) as an approximation to the true, but unknown posterior <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{z} | \textbf{x} \right)\)</span>. Accordingly, the data likelihood of a one sample <span class="math inline">\(\textbf{x}^{(i)}\)</span> can be stated as follows</p>
+<p><span class="math display">\[
+p_{\boldsymbol{\theta}} (\textbf{x}^{(i)}) = \mathbb{E}_{\textbf{z} \sim
+p_{\boldsymbol{\theta}} \Big(\textbf{z} \Big)} \Big[
+p_{\boldsymbol{\theta}} \left( \textbf{z} | \textbf{x}^{(i)} \right) \Big] =
+\int p_{\boldsymbol{\theta}} (\textbf{z}) p_{\boldsymbol{\theta}} \left(
+\textbf{z} | \textbf{x}^{(i)} \right) d\textbf{z} =
+\int p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)} , \textbf{z} \right) d\textbf{z}
+\]</span></p>
+<p>Now, we use the simple trick of <em>importance sampling</em> to change the sampling distribution into the approximated posterior, i.e.,</p>
+<p><span class="math display">\[
+p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)}\right)
+= \int \frac {p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)} , \textbf{z}
+\right)} {q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)} \right)}
+q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)} \right) d\textbf{z}
+= \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left( \textbf{z} |
+\textbf{x}^{(i)} \right)}
+\left[ \frac {p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)} , \textbf{z}
+\right)} {q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)} \right)}
+\right]
+\]</span></p>
+<section id="vae-formulation" class="level4">
+<h4 class="anchored" data-anchor-id="vae-formulation">VAE Formulation</h4>
+<p>In the standard VAE approach, we use the <strong>evidence lower bound</strong> <a href="https://borea17.github.io/ML_101/probability_theory/evidence_lower_bound">(ELBO)</a> on <span class="math inline">\(\log p_{\boldsymbol{\theta}} \Big( \textbf{x}\Big)\)</span> as the objective function. This can be derived by applying Jensen’s Inequality on the data log-likelihood:</p>
+<p><span class="math display">\[
+\log p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} \right)
+= \log \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left( \textbf{z} |
+\textbf{x}^{(i)} \right)}
+\left[ \frac {p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)} , \textbf{z}
+\right)} {q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)} \right)}
+\right] \ge \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left( \textbf{z} |
+\textbf{x}^{(i)} \right)}
+\left[ \log \frac {p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)} , \textbf{z}
+\right)} {q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)} \right)}
+\right] = \mathcal{L}^{\text{ELBO}}
+\]</span></p>
+<p>Using simple algebra, this can be rearranged into</p>
+<p><span class="math display">\[
+\mathcal{L}^{\text{ELBO}}\left(\boldsymbol{\theta}, \boldsymbol{\phi}; \textbf{x}^{(i)} \right) =
+\underbrace{
+\mathbb{E}_{\textbf{z} \sim q_{\phi} \left( \textbf{z}| \textbf{x}^{(i)} \right)}
+\left[ \log p_{\boldsymbol{\theta}} \Big(\textbf{x}^{(i)} | \textbf{z} \Big)
+\right]}_{
+\text{Reconstruction Accuracy}}
+-
+\underbrace{
+D_{KL} \left( q_{\phi} \Big( \textbf{z} |
+\textbf{x}^{(i)} \Big) || p_{\boldsymbol{\theta}} \Big( \textbf{z} \Big) \right)
+}_{\text{Regularization}}
+\]</span></p>
+While the regularization term can usually be solved analytically, the reconstruction accuracy in its current formulation poses a problem for backpropagation: Gradients cannot backpropagate through a sampling operation. To circumvent this problem, the standard VAE formulation includes the reparametrization trick:
+<center>
+Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\phi}}\)</span> by using a deterministic mapping <span class="math inline">\(\textbf{z} = g_{\boldsymbol{\phi}} (\boldsymbol{\epsilon}, \textbf{x})\)</span> with the differential transformation <span class="math inline">\(g_{\boldsymbol{\phi}}\)</span> of an auxiliary noise variable <span class="math inline">\(\boldsymbol{\epsilon}\)</span> with <span class="math inline">\(\boldsymbol{\epsilon}\sim p(\boldsymbol{\epsilon})\)</span>.
+</center>
+<p><br> As a result, we can rewrite the EBLO as follows</p>
+<p><span class="math display">\[
+\mathcal{L}^{\text{ELBO}}\left(\boldsymbol{\theta}, \boldsymbol{\phi};
+\textbf{x}^{(i)} \right) =
+\mathbb{E}_{\boldsymbol{\epsilon} \sim p \left( \boldsymbol{\epsilon} \right)}
+\left[ \log p_{\boldsymbol{\theta}} \Big(\textbf{x}^{(i)} |
+g_{\boldsymbol{\phi}} \left( \boldsymbol{\epsilon}, \textbf{x}^{(i)} \right) \Big)
+\right] -
+D_{KL} \left( q_{\phi} \Big( \textbf{z} |
+\textbf{x}^{(i)} \Big) || p_{\boldsymbol{\theta}} \Big( \textbf{z} \Big) \right)
+\]</span></p>
+<p>Lastly, the expectation is approximated using Monte-Carlo integration, leading to the standard VAE objective</p>
+<p><span class="math display">\[
+\begin{align}
+  \widetilde{\mathcal{L}}^{\text{VAE}}_k \left(\boldsymbol{\theta},
+  \boldsymbol{\phi};
+  \textbf{x}^{(i)}\right) &amp;=
+  \frac {1}{k} \sum_{l=1}^{k} \log p_{\boldsymbol{\theta}}\left(
+  \textbf{x}^{(i)}| g_{\boldsymbol{\phi}}
+\left( \boldsymbol{\epsilon}^{(l)}, \textbf{x}^{(i)} \right)\right)
+  -D_{KL} \left(  q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)} \right),
+  p_{\boldsymbol{\theta}} (\textbf{z}) \right)\\
+  &amp;\text{with} \quad \boldsymbol{\epsilon}^{(l)} \sim p(\boldsymbol{\epsilon})
+\end{align}
+\]</span></p>
+<p>Note that commonly <span class="math inline">\(k=1\)</span> in VAEs as long as the minibatch size is large enough. As stated by <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>:</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Quote
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><em>We found that the number of samples per datapoint can be set to 1 as long as the minibatch size was large enough.</em></p>
+</div>
+</div>
+</section>
+<section id="iwae-formulation" class="level4">
+<h4 class="anchored" data-anchor-id="iwae-formulation">IWAE Formulation</h4>
+<p>Before we introduce the IWAE estimator, remind that the Monte-Carlo estimator of the data likelihood (when the sampling distribution is changed via importance sampling, see <a href="https://borea17.github.io/paper_summaries/iwae#derivation">Derivation</a>) is given by</p>
+<p><span class="math display">\[
+p_{\boldsymbol{\theta}} (\textbf{x} ) =
+\mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left( \textbf{z} |
+\textbf{x}^{(i)} \right)}
+\left[ \frac {p_{\boldsymbol{\theta}} \left(\textbf{x} , \textbf{z}
+\right)} {q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x} \right)}
+\right] \approx \frac {1}{k} \sum_{l=1}^{k}
+\frac {p_{\boldsymbol{\theta}} \left(\textbf{x} , \textbf{z}^{(l)}
+\right)} {q_{\boldsymbol{\phi}} \left( \textbf{z}^{(l)} | \textbf{x}
+\right)} \quad \text{with} \quad \textbf{z}^{(l)} \sim q_{\boldsymbol{\phi}} \left( \textbf{z} |
+\textbf{x}^{(i)} \right)
+\]</span></p>
+<p>As a result, the data log-likelihood estimator for one sample <span class="math inline">\(\textbf{x}^{(i)}\)</span> can be stated as follows</p>
+<p><span class="math display">\[
+\begin{align}
+\log p_{\boldsymbol{\theta}} (\textbf{x}^{(i)} ) &amp;\approx \log \left[ \frac {1}{k} \sum_{l=1}^{k}
+\frac {p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)} , \textbf{z}^{(i, l)}
+\right)} {q_{\boldsymbol{\phi}} \left( \textbf{z}^{(i, l)} | \textbf{x}^{(i)}
+\right)}\right] = \widetilde{\mathcal{L}}^{\text{IWAE}}_k \left( \boldsymbol{\theta},
+\boldsymbol{\phi}; \textbf{x}^{(i)} \right) \\
+&amp;\text{with} \quad \textbf{z}^{(i, l)} \sim q_{\boldsymbol{\phi}} \left( \textbf{z} |
+\textbf{x}^{(i)} \right)
+\end{align}
+\]</span></p>
+<p>which leads to an empirical estimate of the IWAE objective. However, <a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a> do not use the data log-likelihood in its plain form as the true IWAE objective. Instead they introduce the IWAE objective as follows</p>
+<p><span class="math display">\[
+\mathcal{L}^{\text{IWAE}}_k \left(\boldsymbol{\theta}, \boldsymbol{\phi};
+\textbf{x}^{(i)}\right)
+=  \mathbb{E}_{\textbf{z}^{(1)}, \dots,  \textbf{z}^{(k)} \sim q_{\phi} \left( \textbf{z}|
+\textbf{x}^{(i)} \right)}
+\left[
+\log \frac {1}{k}
+\sum_{l=1}^k
+\frac {p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)}, \textbf{z}^{(l)}\right)}
+{q_{\phi} \left( \textbf{z}^{(l)} | \textbf{x}^{(i)} \right)}
+\right]
+\]</span></p>
+<p>For notation purposes, they denote</p>
+<p><span class="math display">\[
+\text{(unnormalized) importance weights:} \quad
+{w}^{(i, l)} = \frac {p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)}, \textbf{z}^{(l)}\right)}
+{q_{\phi} \left( \textbf{z}^{(l)} | \textbf{x}^{(i)} \right)}
+\]</span></p>
+<p>By applying Jensen’s Inequality, we can see that in fact the (true) IWAE estimator is merely a lower-bound on the plain data log-likelihood</p>
+<p><span class="math display">\[
+\mathcal{L}^{\text{IWAE}}_k \left( \boldsymbol{\theta}, \boldsymbol{\phi};
+\textbf{x}^{(i)} \right)
+= \mathbb{E} \left[ \log \frac {1}{k} \sum_{l=1}^{k} {w}^{(i,
+l)}\right] \le \log \mathbb{E} \left[ \frac {1}{k} \sum_{l=1}^{k}
+{w}^{(i,l)} \right] = \log p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} \right)
+\]</span></p>
+<p>They could prove that with increasing <span class="math inline">\(k\)</span> the lower bound gets strictly tighter and approaches the true data log-likelihood in the limit of <span class="math inline">\(k \rightarrow \infty\)</span>. Note that since the empirical IWAE estimator <span class="math inline">\(\widetilde{\mathcal{L}}_k^{\text{IWAE}}\)</span> can be understood as a Monte-Carlo estimator on the true data log-likelihood, in the empirical case this property can simply be deduced from the properties of Monte-Carlo integration.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What is motivation of the true IWAE objective?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>A very well explanation is given by <a href="https://arxiv.org/abs/1808.09034">Domke and Sheldon (2018)</a>. Starting from the property</p>
+<p><span class="math display">\[
+p(\textbf{x}) = \mathbb{E} \Big[ w \Big] = \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left( \textbf{z} |
+\textbf{x}^{(i)} \right)}
+\left[ \frac {p_{\boldsymbol{\theta}} \left(\textbf{x} , \textbf{z}
+\right)} {q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x} \right)}
+\right]
+\]</span></p>
+<p>We derived the ELBO using Jensen’s inequality</p>
+<p><span class="math display">\[
+\log p(\textbf{x}) \ge \mathbb{E} \Big[ \log w \Big] = \text{ELBO} \Big[ q ||
+p \Big]
+\]</span></p>
+<p>Suppose that we could make <span class="math inline">\(w\)</span> more concentrated about its mean <span class="math inline">\(p(\textbf{x})\)</span>. Clearly, this would yield a tighter lower bound when applying Jensen’s Inequality.</p>
+<p>(rhetorical break)</p>
+<p>Can we make <span class="math inline">\(w\)</span> more concentrated about its mean? YES, WE CAN.</p>
+<p>For example using the sample average <span class="math inline">\(w_k = \frac {1}{k} \sum_{i=1}^k w^{(i)}\)</span>. This leads directly to the true IWAE objective</p>
+<p><span class="math display">\[
+\log p(\textbf{x})  \ge \mathbb{E} \Big[ \log w_k \Big] = \mathbb{E} \left[
+\log \frac {1}{k} \sum_{i=1}^{k} w^{(i)} \right] = \mathcal{L}^{\text{IWAE}}_k
+\]</span></p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+IWAE objective and plain log-likelihood lead to the same empirical estimate. How?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Here it gets interesting. A closer analysis on the IWAE bound by <a href="https://openreview.net/forum?id=HyZoi-WRb">Nowozin (2018)</a> revealed the following property</p>
+<p><span class="math display">\[
+\begin{align}
+&amp;\quad \mathcal{L}_k^{\text{IWAE}} = \log p(\textbf{x}) - \frac {1}{k} \frac
+{\mu_2}{2\mu^2} + \frac {1}{k^2} \left( \frac {\mu_3}{3\mu^3} - \frac
+{3\mu_2^2}{4\mu^4} \right) + \mathcal{O}(k^{-3})\\
+&amp;\text{with} \quad
+\mu = \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}}} \left[ \frac
+{p_{\boldsymbol{\theta}}\left( \textbf{x}, \textbf{z}
+\right)}{q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x} \right)} \right]
+\quad
+\mu_i = \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}}} \left[
+\left( \frac
+{p_{\boldsymbol{\theta}}\left( \textbf{x}, \textbf{z}
+\right)}{q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x} \right)}
+- \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}}} \left[ \frac
+{p_{\boldsymbol{\theta}}\left( \textbf{x}, \textbf{z}
+\right)}{q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x} \right)} \right]
+\right)^2 \right]
+\end{align}
+\]</span></p>
+<p>Thus, the true objective is a <strong>biased</strong> - in the order of <span class="math inline">\(\mathcal{O}\left(k^{-1}\right)\)</span> - and <strong>consistent</strong> estimator of the marginal log likelihood <span class="math inline">\(\log p(\textbf{x})\)</span>. The empirical estimator of the true IWAE objective is basically a special Monte-Carlo estimator (only one sample per <span class="math inline">\(k\)</span>) on the true IWAE objective. It is more or less luck that we can formulate the same empirical objective and interpret it differently as the Monte-Carlo estimator (with <span class="math inline">\(k\)</span> samples) on the data log-likelihood.</p>
+</div>
+</div>
+</div>
+<!-- What makes their formulation superior to estimating the true data
+ log-likelihood?
+
+- their formulation contains the ELBO as a special case ($k=1$)
+ -->
+<p>Let us take a closer look on how to compute gradients (fast) for the empirical estimate of the IWAE objective:</p>
+<p><span class="math display">\[
+\begin{align}
+\nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}}
+\widetilde{\mathcal{L}}_k^{\text{IWAE}} \left( \boldsymbol{\theta}, \boldsymbol{\phi};
+\textbf{x}^{(i)} \right) &amp;= \nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}}
+\log \frac {1}{k} \sum_{l=1}^k w^{(i,l)} \left( \textbf{x}^{(i)},
+\textbf{z}^{(i, l)}_{\boldsymbol{\phi}}, \boldsymbol{\theta} \right) \quad
+\text{with} \quad
+\textbf{z}^{(i, l)} \sim q_{\boldsymbol{\phi}} \left(\textbf{z} |
+\textbf{x}^{(i)} \right)\\
+&amp;\stackrel{\text{(*)}}{=}
+\sum_{l=1}^{k} \frac {w^{(i, l)}}{\sum_{m=1}^{k} w^{(i,
+m)}} \nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}} \log w^{(i,l)} =
+\sum_{l=1}^{k} \widetilde{w}^{(i, l)} \nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}} \log w^{(i,l)},
+\end{align}
+\]</span></p>
+<p>where we introduced the following notation</p>
+<p><span class="math display">\[
+\text{(normalized) importance weights:} \quad
+\widetilde{w}^{(i, l)} = \frac {w^{(i,l)}}{\sum_{m=1}^k w^{(i, m)}}
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="math inline">\((*)\)</span>: <strong>Gradient Derivation</strong>:
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><span class="math display">\[
+\begin{align}
+\frac {\partial \left[ \log \frac {1}{k} \sum_i^{k} w_i \left( \boldsymbol{\theta}
+\right) \right]}{\partial \boldsymbol{\theta}} &amp;\stackrel{\text{chain rule}}{=}  \frac {\partial
+\log a}{\partial a} \sum_{i}^{k} \frac {\partial a}{\partial w_i} \frac
+{\partial w_i}{\partial \boldsymbol{\theta}} \quad \text{with}
+\quad a = \frac {1}{k} \sum_{i}^k w_i (\boldsymbol{\theta})\\
+&amp;= \frac {k}{\sum_l^k w_l} \sum_{i}^{k}\frac {1}{k} \frac {\partial
+w_i (\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = \frac {1}{\sum_l^k
+w_l} \sum_{i}^{k} \frac {\partial
+w_i (\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}
+\end{align}
+\]</span></p>
+<p>Lastly, we use the following identity</p>
+<p><span class="math display">\[
+\frac {\partial w_i (\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} = w_i
+(\boldsymbol{\theta}) \cdot
+\frac {\partial \log w_i (\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}
+\stackrel{\text{chain rule}}{=} w_i (\boldsymbol{\theta}) \cdot \frac {1}{w_i
+(\boldsymbol{\theta})} \cdot
+\frac {\partial w_i (\boldsymbol{\theta})}{\partial \boldsymbol{\theta}} =
+\frac {\partial w_i (\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}
+\]</span></p>
+</div>
+</div>
+</div>
+<p>Similar to VAEs, this formulation poses a problem for backpropagation due to the sampling operation. We use the same reparametrization trick to circumvent this problem and obtain a low variance update rule:</p>
+<p><span class="math display">\[
+\begin{align}
+\nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}}
+\widetilde{\mathcal{L}}_k^{\text{IWAE}} &amp;=
+\sum_{l=1}^{k} \widetilde{w}^{(i, l)} \nabla_{\boldsymbol{\phi},
+\boldsymbol{\theta}} \log w^{(i,l)} \left( \textbf{x}^{(i)},
+\textbf{z}_{\boldsymbol{\phi}}^{(i,l)}, \boldsymbol{\theta} \right)
+\quad \text{with} \quad
+\textbf{z}^{(i,l)} \sim q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}^{(i)} \right)\\
+&amp;= \sum_{l=1}^k \widetilde{w}^{(i,l)} \nabla_{\boldsymbol{\phi},
+\boldsymbol{\theta}} \log w^{(i,l)} \left(\textbf{x}^{(i)},
+g_{\boldsymbol{\phi}} \left( \textbf{x}^{(i)},
+\boldsymbol{\epsilon}^{(l)}\right), \textbf{x}^{(i)} \right), \quad \quad
+\boldsymbol{\epsilon} \sim p(\boldsymbol{\epsilon})
+\end{align}
+\]</span></p>
+<p>To make things clearer for the implementation, let us unpack the log</p>
+<p><span class="math display">\[
+\log w^{(i,l)} = \log \frac {p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)}, \textbf{z}^{(l)}\right)}
+{q_{\boldsymbol{\phi}} \left( \textbf{z}^{(l)} | \textbf{x}^{(i)} \right)} = \underbrace{\log
+p_{\boldsymbol{\theta}} \left (\textbf{x}^{(i)} | \textbf{z}^{(l)}
+\right)}_{\text{NLL}} + \log p_{\boldsymbol{\theta}} \left( \textbf{z}^{(l)}
+\right) - \log q_{\boldsymbol{\phi}} \left( \textbf{z}^{(l)} | \textbf{x}^{(i)} \right)
+\]</span></p>
+<p>Before, we are going to implement this formulation, let us look whether we can separate out the KL divergence for the true IWAE objective of <a href="https://arxiv.org/abs/1509.00519">Burda et al. (2016)</a>. Therefore, we state the update for the true objective:</p>
+<p><span class="math display">\[
+\begin{align}
+\nabla_{\boldsymbol{\phi},
+\boldsymbol{\theta}}
+\mathcal{L}_k^{\text{IWAE}} &amp;=
+\nabla_{\boldsymbol{\phi},
+\boldsymbol{\theta}}
+\mathbb{E}_{\textbf{z}^{(1)}, \dots, \textbf{z}^{(l)}} \left[ \log \frac {1}{k}
+\sum_{l=1}^{k} w^{(l)} \left( \textbf{x},
+\textbf{z}^{(l)}_{\boldsymbol{\phi}}, \boldsymbol{\theta} \right) \right]\\
+&amp;=
+\mathbb{E}_{\textbf{z}^{(1)}, \dots, \textbf{z}^{(l)}} \left[
+\sum_{l=1}^{k} \widetilde{w}_i
+\nabla_{\boldsymbol{\phi},
+\boldsymbol{\theta}}
+\log w^{(l)} \left( \textbf{x}, \textbf{z}_{\boldsymbol{\phi}}^{(l)}, \boldsymbol{\theta} \right) \right]\\
+&amp;=\sum_{l=1}^{k} \widetilde{w}_i \mathbb{E}_{\textbf{z}^{(l)}} \left[
+\nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}} \log w^{(l)} \left( \textbf{x},
+\textbf{z}_{\boldsymbol{\phi}}^{(l)}, \boldsymbol{\theta} \right)
+\right]\\
+&amp;\neq \sum_{l=1}^{k} \widetilde{w}_i
+\nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}}
+\mathbb{E}_{\textbf{z}^{(l)}} \left[
+\log w^{(l)} \left( \textbf{x},
+\textbf{z}_{\boldsymbol{\phi}}^{(l)}, \boldsymbol{\theta} \right)
+\right]
+\end{align}
+\]</span></p>
+<p>Unfortunately, we cannot simply move the gradient outside the expectation. If we could, we could simply rearrange the terms inside the expectation as in the standard VAE case.</p>
+<hr>
+<p>Let us look, what would happen, if we were to describe the true IWAE estimator as the data log-likelihood <span class="math inline">\(\log p \left( \textbf{x} \right)\)</span> in which the sampling distribution is exchanged via importance sampling:</p>
+<p><span class="math display">\[
+\begin{align}
+\nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}} \log p \left( \textbf{x}^{(i)} \right) &amp;=
+\nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}} \log \mathbb{E}_{\textbf{z} \sim
+q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)}\right)} \left[ w
+(\textbf{x}^{(i)}, \textbf{z}, \boldsymbol{\theta})\right]\\
+&amp;\neq
+\nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}}  \mathbb{E}_{\textbf{z} \sim
+q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)}\right)} \left[ \log w
+(\textbf{x}^{(i)}, \textbf{z}, \boldsymbol{\theta})\right]
+\end{align}
+\]</span></p>
+<p>Here, we also cannot separate the KL divergence out, since we cannot simply move the log inside the expectation.</p>
+</section>
+</section>
+</section>
+<section id="implementation" class="level2">
+<h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
+<p>Let’s put this into practice and compare the standard VAE with an IWAE. We are going to perform a very similar experiment to the density estimation experiment by <a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a>, i.e., we are going to train both a VAE and IWAE with different number of samples <span class="math inline">\(k\in \{1, 10\}\)</span> on the binarized MNIST dataset.</p>
+<section id="dataset" class="level3">
+<h3 class="anchored" data-anchor-id="dataset">Dataset</h3>
+<p>Let’s first build a binarized version of the MNIST dataset. As noted by <a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a>, <code>the generative modeling literature is inconsistent about the method of binarization</code>. We employ the same procedure as <a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a>: <code>binary-valued observations are sampled with expectations equal to the real values in the training set</code>:</p>
+<div class="cell" data-execution_count="1">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.distributions <span class="im">as</span> dists</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision <span class="im">import</span> datasets, transforms</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Binarized_MNIST(datasets.MNIST):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, root, train, transform<span class="op">=</span><span class="va">None</span>, target_transform<span class="op">=</span><span class="va">None</span>, download<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(Binarized_MNIST, <span class="va">self</span>).<span class="fu">__init__</span>(root, train, transform, target_transform, download)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, idx):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        img, target <span class="op">=</span> <span class="bu">super</span>().<span class="fu">__getitem__</span>(idx)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dists.Bernoulli(img).sample().<span class="bu">type</span>(torch.float32)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img src="./img/binarized_MNIST.png" title="Binarized MNIST Dataset" class="img-fluid" alt="Binarized MNIST Dataset"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Binarized MNIST Dataset</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="model-implementation" class="level3">
+<h3 class="anchored" data-anchor-id="model-implementation">Model Implementation</h3>
+<ul>
+<li><p><strong>VAE Implementation</strong></p>
+<p>The VAE implementation is straightforward. For later evaluation, I added <code>create_latent_traversal</code> and <code>compute_marginal_log_likelihood</code>. The ladder computes the marginal log-likelihood <span class="math inline">\(\log p(\textbf{x})\)</span> in which the sampling distribution is exchanged to the approximated posterior <span class="math inline">\(q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}\right )\)</span> using the standard Monte-Carlo estimator, i.e.,</p>
+<p><span class="math display">\[
+  \log p(\textbf{x}) = \mathbb{E}_{z\sim q_{\boldsymbol{\phi}}} \left[ \frac
+  {p_{\boldsymbol{\theta}} \left(\textbf{x}, \textbf{z}\right)}
+  {q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x} \right)} \right]
+  \approx \log \left[ \frac {1}{k} \sum_{l=1}^k w^{(l)} \right] =
+  \mathcal{L}^{\text{IWAE}}_k (\textbf{x})
+\]</span></p>
+<p>Remind that this formulation equals the empirical IWAE estimator. However, we can only compute the (unnormalized) logarithmic importance weights</p>
+<p><span class="math display">\[
+\log w^{(i,l)} = \log \frac {p_{\boldsymbol{\theta}} \left(\textbf{x}^{(i)}, \textbf{z}^{(l)}\right)}
+{q_{\boldsymbol{\phi}} \left( \textbf{z}^{(l)} | \textbf{x}^{(i)} \right)} = \log
+p_{\boldsymbol{\theta}} \left (\textbf{x}^{(i)} | \textbf{z}^{(l)}
+\right) + \log p_{\boldsymbol{\theta}} \left( \textbf{z}^{(l)}
+\right) - \log q_{\boldsymbol{\phi}} \left( \textbf{z}^{(l)} | \textbf{x}^{(i)} \right)
+\]</span></p>
+<p>Accordingly, we compute the marginal log-likelihood as follows</p>
+<p><span class="math display">\[
+\begin{align}
+\widetilde{\mathcal{L}}^{\text{IWAE}}_k \left( \boldsymbol{\theta},
+\boldsymbol{\phi}; \textbf{x}^{(i)} \right) &amp;= \underbrace{\log 1}_{=0} - \log
+k + \log \left( \sum_{i=1}^k w^{(i,l)} \right) \\
+&amp;= -\log k + \underbrace{\log \left( \sum_{i=1}^k \exp \big[ \log w^{(i, l)} \big] \right)}_{=\text{torch.logsumexp}}
+\end{align}
+\]</span></p></li>
+</ul>
+<div class="cell" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>MNIST_SIZE <span class="op">=</span> <span class="dv">28</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>HIDDEN_DIM <span class="op">=</span> <span class="dv">400</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>LATENT_DIM <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VAE(nn.Module):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, k):</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(VAE, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.k <span class="op">=</span> k</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.encoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            nn.Flatten(),</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            nn.Linear(MNIST_SIZE<span class="op">**</span><span class="dv">2</span>, HIDDEN_DIM),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>            nn.Linear(HIDDEN_DIM, HIDDEN_DIM),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>            nn.Linear(HIDDEN_DIM, <span class="dv">2</span><span class="op">*</span>LATENT_DIM)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.decoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            nn.Linear(LATENT_DIM, HIDDEN_DIM),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>            nn.Linear(HIDDEN_DIM, HIDDEN_DIM),</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>            nn.Linear(HIDDEN_DIM, MNIST_SIZE<span class="op">**</span><span class="dv">2</span>),</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>            nn.Sigmoid()</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> compute_loss(<span class="va">self</span>, x, k<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> k:</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>            k <span class="op">=</span> <span class="va">self</span>.k</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, mu_z, log_var_z] <span class="op">=</span> <span class="va">self</span>.forward(x, k)</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        <span class="co"># upsample x</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        x_s <span class="op">=</span> x.unsqueeze(<span class="dv">1</span>).repeat(<span class="dv">1</span>, k, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute negative log-likelihood</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>        NLL <span class="op">=</span> <span class="op">-</span>dists.Bernoulli(x_tilde).log_prob(x_s).<span class="bu">sum</span>(axis<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)).mean()</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># copmute kl divergence</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>        KL_Div <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span><span class="op">*</span>(<span class="dv">1</span> <span class="op">+</span> log_var_z <span class="op">-</span> mu_z.<span class="bu">pow</span>(<span class="dv">2</span>) <span class="op">-</span> log_var_z.exp()).<span class="bu">sum</span>(<span class="dv">1</span>).mean()</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute loss</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> NLL <span class="op">+</span> KL_Div</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> loss</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x, k<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""feed image (x) through VAE</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="co">        Args:</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="co">            x (torch tensor): input [batch, img_channels, img_dim, img_dim]</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns:</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="co">            x_tilde (torch tensor): [batch, k, img_channels, img_dim, img_dim]</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="co">            z (torch tensor): latent space samples [batch, k, LATENT_DIM]</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="co">            mu_z (torch tensor): mean latent space [batch, LATENT_DIM]</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="co">            log_var_z (torch tensor): log var latent space [batch, LATENT_DIM]</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> k:</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>            k <span class="op">=</span> <span class="va">self</span>.k</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        z, mu_z, log_var_z <span class="op">=</span> <span class="va">self</span>.encode(x, k)</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> <span class="va">self</span>.decode(z, k)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [x_tilde, z, mu_z, log_var_z]</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> encode(<span class="va">self</span>, x, k):</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""computes the approximated posterior distribution parameters and</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a><span class="co">        samples from this distribution</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="co">        Args:</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a><span class="co">            x (torch tensor): input [batch, img_channels, img_dim, img_dim]</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns:</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="co">            z (torch tensor): latent space samples [batch, k, LATENT_DIM]</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="co">            mu_E (torch tensor): mean latent space [batch, LATENT_DIM]</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="co">            log_var_E (torch tensor): log var latent space [batch, LATENT_DIM]</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get encoder distribution parameters</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>        out_encoder <span class="op">=</span> <span class="va">self</span>.encoder(x)</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>        mu_E, log_var_E <span class="op">=</span> torch.chunk(out_encoder, <span class="dv">2</span>, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>        <span class="co"># increase shape for sampling [batch, samples, latent_dim]</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>        mu_E_ups <span class="op">=</span> mu_E.unsqueeze(<span class="dv">1</span>).repeat(<span class="dv">1</span>, k, <span class="dv">1</span>)</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>        log_var_E_ups <span class="op">=</span> log_var_E.unsqueeze(<span class="dv">1</span>).repeat(<span class="dv">1</span>, k, <span class="dv">1</span>)</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>        <span class="co"># sample noise variable for each batch and sample</span></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>        epsilon <span class="op">=</span> torch.randn_like(log_var_E_ups)</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get latent variable by reparametrization trick</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>        z <span class="op">=</span> mu_E_ups <span class="op">+</span> torch.exp(<span class="fl">0.5</span><span class="op">*</span>log_var_E_ups) <span class="op">*</span> epsilon</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> z, mu_E, log_var_E</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> decode(<span class="va">self</span>, z, k):</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""computes the Bernoulli mean of p(x|z)</span></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a><span class="co">        note that linear automatically parallelizes computation</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a><span class="co">        Args:</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a><span class="co">            z (torch tensor): latent space samples [batch, k, LATENT_DIM]</span></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns:</span></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a><span class="co">            x_tilde (torch tensor): [batch, k, img_channels, img_dim, img_dim]</span></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get decoder distribution parameters</span></span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> <span class="va">self</span>.decoder(z)  <span class="co"># [batch*samples, MNIST_SIZE**2]</span></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>        <span class="co"># reshape into [batch, samples, 1, MNIST_SIZE, MNIST_SIZE] (input shape)</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> x_tilde.view(<span class="op">-</span><span class="dv">1</span>, k, <span class="dv">1</span>, MNIST_SIZE, MNIST_SIZE)</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_tilde</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> create_latent_traversal(<span class="va">self</span>, image_batch, n_pert, pert_min_max<span class="op">=</span><span class="dv">2</span>, n_latents<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>        device <span class="op">=</span> image_batch.device</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>        <span class="co"># initialize images of latent traversal</span></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>        images <span class="op">=</span> torch.zeros(n_latents, n_pert, <span class="op">*</span>image_batch.shape[<span class="dv">1</span>::])</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>        <span class="co"># select the latent_dims with lowest variance (most informative)</span></span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, mu_z, log_var_z] <span class="op">=</span> <span class="va">self</span>.forward(image_batch)</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>        i_lats <span class="op">=</span> log_var_z.mean(axis<span class="op">=</span><span class="dv">0</span>).sort()[<span class="dv">1</span>][:n_latents]</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>        <span class="co"># sweep for latent traversal</span></span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>        sweep <span class="op">=</span> np.linspace(<span class="op">-</span>pert_min_max, pert_min_max, n_pert)</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>        <span class="co"># take first image and encode</span></span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>        [z, mu_E, log_var_E] <span class="op">=</span> <span class="va">self</span>.encode(image_batch[<span class="dv">0</span>:<span class="dv">1</span>], k<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> latent_dim, i_lat <span class="kw">in</span> <span class="bu">enumerate</span>(i_lats):</span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> pertubation_dim, z_replaced <span class="kw">in</span> <span class="bu">enumerate</span>(sweep):</span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>                z_new <span class="op">=</span> z.detach().clone()</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>                z_new[<span class="dv">0</span>][<span class="dv">0</span>][i_lat] <span class="op">=</span> z_replaced</span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>                img_rec <span class="op">=</span> <span class="va">self</span>.decode(z_new.to(device), k<span class="op">=</span><span class="dv">1</span>).squeeze(<span class="dv">0</span>)</span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>                img_rec <span class="op">=</span> img_rec[<span class="dv">0</span>].clamp(<span class="dv">0</span>, <span class="dv">1</span>).cpu()</span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>                images[latent_dim][pertubation_dim] <span class="op">=</span> img_rec</span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> images</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> compute_marginal_log_likelihood(<span class="va">self</span>, x, k<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""computes the marginal log-likelihood in which the sampling</span></span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a><span class="co">        distribution is exchanged to q_{\phi} (z|x),</span></span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a><span class="co">        this function can also be used for the IWAE loss computation</span></span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a><span class="co">        Args:</span></span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a><span class="co">            x (torch tensor): images [batch, img_channels, img_dim, img_dim]</span></span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns:</span></span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a><span class="co">            log_marginal_likelihood (torch tensor): scalar</span></span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a><span class="co">            log_w (torch tensor): unnormalized log importance weights [batch, k]</span></span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> k:</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>            k <span class="op">=</span> <span class="va">self</span>.k</span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, mu_z, log_var_z] <span class="op">=</span> <span class="va">self</span>.forward(x, k)</span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>        <span class="co"># upsample mu_z, std_z, x_s</span></span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>        mu_z_s <span class="op">=</span> mu_z.unsqueeze(<span class="dv">1</span>).repeat(<span class="dv">1</span>, k, <span class="dv">1</span>)</span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>        std_z_s <span class="op">=</span> (<span class="fl">0.5</span> <span class="op">*</span> log_var_z).exp().unsqueeze(<span class="dv">1</span>).repeat(<span class="dv">1</span>, k, <span class="dv">1</span>)</span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>        x_s <span class="op">=</span> x.unsqueeze(<span class="dv">1</span>).repeat(<span class="dv">1</span>, k, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute logarithmic unnormalized importance weights [batch, k]</span></span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>        log_p_x_g_z <span class="op">=</span> dists.Bernoulli(x_tilde).log_prob(x_s).<span class="bu">sum</span>(axis<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>))</span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>        log_prior_z <span class="op">=</span> dists.Normal(<span class="dv">0</span>, <span class="dv">1</span>).log_prob(z).<span class="bu">sum</span>(<span class="dv">2</span>)</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>        log_q_z_g_x <span class="op">=</span> dists.Normal(mu_z_s, std_z_s).log_prob(z).<span class="bu">sum</span>(<span class="dv">2</span>)</span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>        log_w <span class="op">=</span> log_p_x_g_z <span class="op">+</span> log_prior_z <span class="op">-</span> log_q_z_g_x</span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute marginal log-likelihood</span></span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>        log_marginal_likelihood <span class="op">=</span> (torch.logsumexp(log_w, <span class="dv">1</span>) <span class="op">-</span>  np.log(k)).mean()</span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> log_marginal_likelihood, log_w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<ul>
+<li><p><strong>IWAE Implementation</strong></p>
+<p>For the <code>IWAE</code> class implementation, we only need to adapt the loss computation. Everything else can be inherited from the <code>VAE</code> class. In fact, we can simply use <code>compute_marginal_log_likelihood</code> as the loss function computation.</p>
+<p>For the interested reader, it might be interesting to understand the original implementation. Therefore, I added to other modes of loss function calculation which are based on the idea of <strong>importance-weighted sample losses</strong>.</p>
+<p>As shown in the derivation, we can derive the gradient to be a linear combination of importance-weighted sample losses, i.e.,</p>
+<p><span class="math display">\[
+\begin{align}
+\nabla_{\boldsymbol{\phi}, \boldsymbol{\theta}}
+\widetilde{\mathcal{L}}_k^{\text{IWAE}} &amp;=
+\sum_{l=1}^{k} \widetilde{w}^{(i, l)} \nabla_{\boldsymbol{\phi},
+\boldsymbol{\theta}} \log w^{(i,l)} \left( \textbf{x}^{(i)},
+\textbf{z}_{\boldsymbol{\phi}}^{(i,l)}, \boldsymbol{\theta} \right)
+\end{align}
+\]</span></p>
+<p>However, computing the normalized importance weights <span class="math inline">\(\widetilde{w}^{(i,l)}\)</span> from the unnormalized logarithmic importance weights <span class="math inline">\(\log w^{(i,l)}\)</span> turns out to be problematic. To understand why, let’s look how the normalized importance weights are defined</p>
+<p><span class="math display">\[
+\widetilde{w}^{(i,l)} = \frac {w^{(i, l)} } {\sum_{l=1}^k w^{(i, l)}}
+\]</span></p>
+<p>Note that <span class="math inline">\(\log w^{(i, l)} \in [-\infty, 0]\)</span> may be some big negative number. Simply taken the logs into the exp function and summing them up, is a bad idea for two reasons. Firstly, we might expect some rounding errors. Secondly, dividing by some really small number will likely produce <code>nans</code>. To circumvent this problem, there are two possible strategies:</p>
+<ol type="1">
+<li><p><em>Original Implementation</em>: While looking through the original implementation, I found that they simply shift the unnormalized logarithmic importance weights, i.e.,</p>
+<p><span class="math display">\[
+\log s^{(i, l)} = \log w^{(i,l)} - \underbrace{\max_{l \in [1, k]} \log w^{(i,l)}}_{=a}
+\]</span></p>
+<p>Then, the normalized importance weights can simply be calculated as follows</p>
+<p><span class="math display">\[
+\widetilde{w}^{(i,l)} = \frac {\exp \left( \log s^{(i, l)} \right)} {
+\sum_{l=1}^k \exp \left( \log s^{(i,l)} \right)} = \frac { \frac {\exp \left( \log
+w^{(i, l)} \right)}{\exp a} } {\sum_{l=1}^k \frac {\exp \left( \log
+w^{(i, l)} \right)}{\exp a} }
+\]</span></p>
+<p>The idea behind this approach is to increase numerical stability by shifting the logarithmic unnormalized importance weights into a range where less numerical issues occur (effectively simply increasing them).</p></li>
+<li><p><em>Use LogSumExp</em>: Another common trick is to firstly calculate the normalized importance weights in log units. Then, we get</p>
+<p><span class="math display">\[
+   \log \widetilde{w}^{(i, l)} = \log \frac {w^{(i,l)}}{\sum_{l=1}^k
+   w^{(i,l)}} = \log w^{(i, l)} - \underbrace{\log \sum_{l=1}^k \exp \left( w^{(i,l)} \right)}_{=\text{torch.logsumexp}}
+\]</span></p></li>
+</ol></li>
+</ul>
+<div class="cell" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IWAE(VAE):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, k):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(IWAE, <span class="va">self</span>).<span class="fu">__init__</span>(k)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> compute_loss(<span class="va">self</span>, x, k<span class="op">=</span><span class="va">None</span>, mode<span class="op">=</span><span class="st">'fast'</span>):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> k:</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            k <span class="op">=</span> <span class="va">self</span>.k</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute unnormalized importance weights in log_units</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        log_likelihood, log_w <span class="op">=</span> <span class="va">self</span>.compute_marginal_log_likelihood(x, k)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># loss computation (several ways possible)</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> mode <span class="op">==</span> <span class="st">'original'</span>:</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>            <span class="co">####################### ORIGINAL IMPLEMENTAION #######################</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>            <span class="co"># numerical stability (found in original implementation)</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>            log_w_minus_max <span class="op">=</span> log_w <span class="op">-</span> log_w.<span class="bu">max</span>(<span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)[<span class="dv">0</span>]</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>            <span class="co"># compute normalized importance weights (no gradient)</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>            w <span class="op">=</span> log_w_minus_max.exp()</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>            w_tilde <span class="op">=</span> (w <span class="op">/</span> w.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)).detach()</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>            <span class="co"># compute loss (negative IWAE objective)</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> <span class="op">-</span>(w_tilde <span class="op">*</span> log_w).<span class="bu">sum</span>(<span class="dv">1</span>).mean()</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> mode <span class="op">==</span> <span class="st">'normalized weights'</span>:</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>            <span class="co">######################## LOG-NORMALIZED TRICK ########################</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>            <span class="co"># copmute normalized importance weights (no gradient)</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>            log_w_tilde <span class="op">=</span> log_w <span class="op">-</span> torch.logsumexp(log_w, dim<span class="op">=</span><span class="dv">1</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>            w_tilde <span class="op">=</span> log_w_tilde.exp().detach()</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>            <span class="co"># compute loss (negative IWAE objective)</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> <span class="op">-</span>(w_tilde <span class="op">*</span> log_w).<span class="bu">sum</span>(<span class="dv">1</span>).mean()</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> mode <span class="op">==</span> <span class="st">'fast'</span>:</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>            <span class="co">########################## SIMPLE AND FAST ###########################</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> <span class="op">-</span>log_likelihood</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> loss</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<ul>
+<li><strong>Training Procedure</strong></li>
+</ul>
+<div class="cell" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> livelossplot <span class="im">import</span> PlotLosses</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>BATCH_SIZE <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>LEARNING_RATE <span class="op">=</span> <span class="fl">1e-4</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>WEIGHT_DECAY <span class="op">=</span> <span class="fl">1e-6</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(dataset, vae_model, iwae_model, num_epochs):</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'Device: </span><span class="sc">{}</span><span class="st">'</span>.<span class="bu">format</span>(device))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    data_loader <span class="op">=</span> DataLoader(dataset, batch_size<span class="op">=</span>BATCH_SIZE, shuffle<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                             num_workers<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    vae_model.to(device)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    iwae_model.to(device)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    optimizer_vae <span class="op">=</span> torch.optim.Adam(vae_model.parameters(), lr<span class="op">=</span>LEARNING_RATE,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                                     weight_decay<span class="op">=</span>WEIGHT_DECAY)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    optimizer_iwae <span class="op">=</span> torch.optim.Adam(iwae_model.parameters(), lr<span class="op">=</span>LEARNING_RATE,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                                     weight_decay<span class="op">=</span>WEIGHT_DECAY)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    losses_plot <span class="op">=</span> PlotLosses(groups<span class="op">=</span>{<span class="st">'Loss'</span>: [<span class="st">'VAE (ELBO)'</span>, <span class="st">'IWAE (NLL)'</span>]})</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, num_epochs <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        avg_NLL_VAE, avg_NLL_IWAE <span class="op">=</span> <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> x <span class="kw">in</span> data_loader:</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> x.to(device)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>            <span class="co"># IWAE update</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>            optimizer_iwae.zero_grad()</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> iwae_model.compute_loss(x)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>            optimizer_iwae.step()</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>            avg_NLL_IWAE <span class="op">+=</span> loss.item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>            <span class="co"># VAE update</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>            optimizer_vae.zero_grad()</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>            loss<span class="op">=</span> vae_model.compute_loss(x)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>            optimizer_vae.step()</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>            avg_NLL_VAE <span class="op">+=</span> loss.item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        <span class="co"># plot current losses</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        losses_plot.update({<span class="st">'VAE (ELBO)'</span>: avg_NLL_VAE, <span class="st">'IWAE (NLL)'</span>: avg_NLL_IWAE},</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>                           current_step<span class="op">=</span>epoch)</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        losses_plot.send()</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    trained_vae, trained_iwae <span class="op">=</span> vae_model, iwae_model</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> trained_vae, trained_iwae</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">Results</h3>
+<p>Let’s train both models for <span class="math inline">\(k\in \{ 1, 10 \}\)</span>:</p>
+<div class="cell" data-execution_count="5">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>train_ds <span class="op">=</span> datasets.MNIST(<span class="st">'./data'</span>, train<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                          download<span class="op">=</span><span class="va">True</span>, transform<span class="op">=</span>transforms.ToTensor())</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>num_epochs <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>list_of_ks <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">10</span>]</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> list_of_ks:</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    vae_model <span class="op">=</span> VAE(k)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    iwae_model <span class="op">=</span> IWAE(k)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    trained_vae, trained_iwae <span class="op">=</span> train(train_ds, vae_model, iwae_model, num_epochs)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    torch.save(trained_vae, <span class="ss">f'./results/trained_vae_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">.pth'</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    torch.save(trained_iwae, <span class="ss">f'./results/trained_iwae_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">.pth'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><span class="math inline">\(\textbf{k=1}\)</span> <img src="./img/k_1.png" title="Training k=1" class="img-fluid" alt="Training k=1"> <span class="math inline">\(\textbf{k=10}\)</span> <img src="./img/k_10.png" title="Training k=10" class="img-fluid" alt="Training k=10"></p>
+<p>Note that during training, we compared the <strong>loss of the VAE (ELBO)</strong> with the <strong>loss of the IWAE (empirical estimate of marginal log-likelihood)</strong>. Clearly, for <span class="math inline">\(k=1\)</span> these losses are nearly equal (as expected). For <span class="math inline">\(k=10\)</span>, the difference is much greater (also expected). Now let’s compare the marginal log-likelihood on the test samples. Since the marginal log-likelihood estimator gets more accurate with increasing <span class="math inline">\(k\)</span>, we set <span class="math inline">\(k=200\)</span> for the evaluation on the test set:</p>
+<div class="cell" data-execution_count="6">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> prettytable <span class="im">import</span> PrettyTable</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compute_test_log_likelihood(test_dataset, trained_vae, trained_iwae, k<span class="op">=</span><span class="dv">200</span>):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    data_loader <span class="op">=</span> DataLoader(test_dataset, batch_size<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                             shuffle<span class="op">=</span><span class="va">True</span>, num_workers<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    trained_vae.to(device)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    trained_iwae.to(device)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    avg_marginal_ll_VAE <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    avg_marginal_ll_IWAE <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> x <span class="kw">in</span> data_loader:</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        marginal_ll, _ <span class="op">=</span> trained_vae.compute_marginal_log_likelihood(x.to(device), k)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        avg_marginal_ll_VAE <span class="op">+=</span> marginal_ll.item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        marginal_ll, _ <span class="op">=</span> trained_iwae.compute_marginal_log_likelihood(x.to(device), k)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        avg_marginal_ll_IWAE <span class="op">+=</span> marginal_ll.item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> avg_marginal_ll_VAE, avg_marginal_ll_IWAE</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>out_table <span class="op">=</span> PrettyTable([<span class="st">"k"</span>, <span class="st">"VAE"</span>, <span class="st">"IWAE"</span>])</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>test_ds <span class="op">=</span> Binarized_MNIST(<span class="st">'./data'</span>, train<span class="op">=</span><span class="va">False</span>, download<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>                                  transform<span class="op">=</span>transforms.ToTensor())</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> list_of_ks:</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># load models</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    trained_vae <span class="op">=</span> torch.load(<span class="ss">f'./results/trained_vae_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">.pth'</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    trained_iwae <span class="op">=</span> torch.load(<span class="ss">f'./results/trained_iwae_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">.pth'</span>)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute average marginal log-likelihood on test dataset</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    ll_VAE, ll_IWAE <span class="op">=</span> compute_test_log_likelihood(test_ds, trained_vae, trained_iwae)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    out_table.add_row([k, np.<span class="bu">round</span>(ll_VAE, <span class="dv">2</span>), np.<span class="bu">round</span>(ll_IWAE, <span class="dv">2</span>)])</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(out_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./img/table.png" title="Results NLL" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Results NLL</figcaption>
+</figure>
+</div>
+<p>Similar to the paper, the IWAE benefits from an increased <span class="math inline">\(k\)</span> whereas the VAE performs nearly equal.</p>
+</section>
+<section id="visualizations" class="level3">
+<h3 class="anchored" data-anchor-id="visualizations">Visualizations</h3>
+<p>Lastly, let’s make some nice plots. Note that the differences are very subtle and it’s not very helpful to make an argument based on the following visualization. They mainly serve as a verification that both models do something useful.</p>
+<ul>
+<li><strong>Reconstructions</strong></li>
+</ul>
+<div class="cell" data-execution_count="7">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.gridspec <span class="im">import</span> GridSpec</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_reconstructions(vae_model, iwae_model, dataset, SEED<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    np.random.seed(SEED)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    vae_model.to(device)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    iwae_model.to(device)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    n_samples <span class="op">=</span> <span class="dv">7</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    i_samples <span class="op">=</span> np.random.choice(<span class="bu">range</span>(<span class="bu">len</span>(dataset)), n_samples, replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    plt.suptitle(<span class="st">"Reconstructions"</span>, fontsize<span class="op">=</span><span class="dv">16</span>, y<span class="op">=</span><span class="dv">1</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> counter, i_sample <span class="kw">in</span> <span class="bu">enumerate</span>(i_samples):</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        orig_img <span class="op">=</span> dataset[i_sample]</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># plot original img</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> plt.subplot(<span class="dv">3</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        plt.imshow(orig_img[<span class="dv">0</span>], vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>, cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>            ax.annotate(<span class="st">"input"</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">"axes fraction"</span>,</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>                        va<span class="op">=</span><span class="st">"center"</span>, ha<span class="op">=</span><span class="st">"right"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># plot img reconstruction VAE</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, mu_z, log_var_z] <span class="op">=</span> vae_model(orig_img.unsqueeze(<span class="dv">0</span>).to(device))</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> plt.subplot(<span class="dv">3</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter <span class="op">+</span> n_samples)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> x_tilde.squeeze(<span class="dv">0</span>)[<span class="dv">0</span>].detach().cpu().numpy()</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        plt.imshow(x_tilde[<span class="dv">0</span>], vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>, cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>            ax.annotate(<span class="st">"VAE recons"</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">"axes fraction"</span>,</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>                        va<span class="op">=</span><span class="st">"center"</span>, ha<span class="op">=</span><span class="st">"right"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># plot img reconstruction IWAE</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, mu_z, log_var_z] <span class="op">=</span> iwae_model(orig_img.unsqueeze(<span class="dv">0</span>).to(device))</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> plt.subplot(<span class="dv">3</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>n_samples)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> x_tilde.squeeze(<span class="dv">0</span>)[<span class="dv">0</span>].detach().cpu().numpy()</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>        plt.imshow(x_tilde[<span class="dv">0</span>], vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>, cmap<span class="op">=</span><span class="st">'gray'</span>)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>            ax.annotate(<span class="st">"IWAE recons"</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">"axes fraction"</span>,</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>                        va<span class="op">=</span><span class="st">"center"</span>, ha<span class="op">=</span><span class="st">"right"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>trained_vae <span class="op">=</span> torch.load(<span class="ss">f'./results/trained_vae_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">.pth'</span>)</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>trained_iwae <span class="op">=</span> torch.load(<span class="ss">f'./results/trained_iwae_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">.pth'</span>)</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>plot_reconstructions(trained_vae, trained_iwae , test_ds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./img/reconstructions.png" title="Reconstructions k=10" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Reconstructions k=10</figcaption>
+</figure>
+</div>
+<ul>
+<li><strong>Latent Traversals</strong></li>
+</ul>
+<div class="cell" data-execution_count="8">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_latent_traversal(vae_model, iwae_model, dataset, SEED<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    np.random.seed(SEED)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    vae_model.to(device)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    iwae_model.to(device)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    n_samples <span class="op">=</span> <span class="dv">128</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    i_samples <span class="op">=</span> np.random.choice(<span class="bu">range</span>(<span class="bu">len</span>(dataset)), n_samples, replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    img_batch <span class="op">=</span> torch.cat([dataset[i].unsqueeze(<span class="dv">0</span>) <span class="cf">for</span> i <span class="kw">in</span> i_samples], <span class="dv">0</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    img_batch <span class="op">=</span> img_batch.to(device)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate latent traversals</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    n_pert, pert_min_max, n_lats <span class="op">=</span> <span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">5</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    img_trav_vae <span class="op">=</span> vae_model.create_latent_traversal(img_batch, n_pert, pert_min_max, n_lats)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    img_trav_iwae <span class="op">=</span> iwae_model.create_latent_traversal(img_batch, n_pert, pert_min_max, n_lats)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">7</span>))</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    n_rows, n_cols <span class="op">=</span> n_lats <span class="op">+</span> <span class="dv">1</span>, <span class="dv">2</span><span class="op">*</span>n_pert <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    gs <span class="op">=</span> GridSpec(n_rows, n_cols <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    plt.suptitle(<span class="st">"Latent Traversals"</span>, fontsize<span class="op">=</span><span class="dv">16</span>, y<span class="op">=</span><span class="dv">1</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row_index <span class="kw">in</span> <span class="bu">range</span>(n_lats):</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> col_index <span class="kw">in</span> <span class="bu">range</span>(n_pert):</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>            img_rec_VAE <span class="op">=</span> img_trav_vae[row_index][col_index]</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>            img_rec_IWAE <span class="op">=</span> img_trav_iwae[row_index][col_index]</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>            ax <span class="op">=</span> plt.subplot(gs[row_index, col_index])</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>            plt.imshow(img_rec_VAE[<span class="dv">0</span>].detach(), cmap<span class="op">=</span><span class="st">'gray'</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>            plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> row_index <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> col_index <span class="op">==</span> <span class="bu">int</span>(n_pert<span class="op">//</span><span class="dv">2</span>):</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>                plt.title(<span class="st">'VAE'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, y<span class="op">=</span><span class="fl">1.1</span>)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>            ax <span class="op">=</span> plt.subplot(gs[row_index, col_index <span class="op">+</span> n_pert <span class="op">+</span> <span class="dv">1</span>])</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>            plt.imshow(img_rec_IWAE[<span class="dv">0</span>].detach(), cmap<span class="op">=</span><span class="st">'gray'</span>, vmin<span class="op">=</span><span class="dv">0</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>            plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> row_index <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> col_index <span class="op">==</span> <span class="bu">int</span>(n_pert<span class="op">//</span><span class="dv">2</span>):</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>                plt.title(<span class="st">'IWAE'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, y<span class="op">=</span><span class="fl">1.1</span>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># add pertubation magnitude</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax <span class="kw">in</span> [plt.subplot(gs[n_lats, <span class="dv">0</span>:<span class="dv">5</span>]), plt.subplot(gs[n_lats, <span class="dv">6</span>:<span class="dv">11</span>])]:</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>        ax.annotate(<span class="st">"pertubation magnitude"</span>, xy<span class="op">=</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>), xycoords<span class="op">=</span><span class="st">"axes fraction"</span>,</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>                    va<span class="op">=</span><span class="st">"center"</span>, ha<span class="op">=</span><span class="st">"center"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>        ax.set_frame_on(<span class="va">False</span>)</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>        ax.axes.set_xlim([<span class="op">-</span><span class="fl">1.15</span> <span class="op">*</span> pert_min_max, <span class="fl">1.15</span> <span class="op">*</span> pert_min_max])</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>        ax.xaxis.set_ticks([<span class="op">-</span>pert_min_max, <span class="dv">0</span>, pert_min_max])</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>        ax.xaxis.set_ticks_position(<span class="st">"top"</span>)</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>        ax.xaxis.set_tick_params(direction<span class="op">=</span><span class="st">"inout"</span>, pad<span class="op">=-</span><span class="dv">16</span>)</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>        ax.get_yaxis().set_ticks([])</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># add latent coordinate traversed annotation</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> plt.subplot(gs[<span class="dv">0</span>:n_rows<span class="op">-</span><span class="dv">1</span>, n_cols])</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    ax.annotate(<span class="st">"latent coordinate traversed"</span>, xy<span class="op">=</span>(<span class="fl">0.4</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">"axes fraction"</span>,</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>                    va<span class="op">=</span><span class="st">"center"</span>, ha<span class="op">=</span><span class="st">"center"</span>, fontsize<span class="op">=</span><span class="dv">10</span>, rotation<span class="op">=</span><span class="dv">90</span>)</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>trained_vae <span class="op">=</span> torch.load(<span class="ss">f'./results/trained_vae_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">.pth'</span>)</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>trained_iwae <span class="op">=</span> torch.load(<span class="ss">f'./results/trained_iwae_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">.pth'</span>)</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>plot_latent_traversal(trained_vae, trained_iwae , test_ds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./img/latent_traversal.png" title="Latent Traversal k=10" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Latent Traversal k=10</figcaption>
+</figure>
+</div>
+<hr>
+
+
+</section>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Since the variance <span class="math inline">\(\text{diag} \left(\boldsymbol{\sigma}^2_{\text{E}}\right)\)</span> needs to be greater than 0, we typically set the output to the variance in logarithmic units.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
