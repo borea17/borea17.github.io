@@ -54,86 +54,88 @@ So _what does that mean in plain words_? Suppose that $\text{Cov}\left(\textbf{X
 value for the other variable ($y_i > \mu_{\textbf{Y}})$. Thus, **covariance encodes information
 about the direction of the joint distribution**.
 
-There is **no upper or lower bound for covariance** which can be seen by simply scaling one 
-distribution. Note that scaling would also result in an increased variance within the scaled 
+**Covariance is unbounded** which can be seen by simply scaling one distribution. 
+Note that scaling would also result in an increased variance within the scaled 
 distribution.
 
-Expectation is a linear operation, thus it follows that the **covariance gives some estimate about
-the linear dependence between two random variables**.
+**Covariance gives some estimate about the linear dependence between two random variables**,
+i.e., its sign indicates whether two variables are positively or negatively correlated. As 
+covariance is unbounded, it's value doesn't help us in estimating the strength of the linear
+relationship.
 
-Let's visualize some examples to get a better intuition:
-
-```{python}
-#| code-fold: true
-
-import numpy as np
-import matplotlib.pyplot as plt
-import plotly as pl
-from plotly.subplots import make_subplots
-
-np.random.seed(42)
-
-def generate_samples_with_fixed_covariance( 
-        n_samples: int, covariance: float, variances: list[float]
-    ) -> tuple[np.ndarray, np.ndarray]:
-    """Generate two one dimesional vectors of length `n_samples` with approx. `covariance`."""
-    cov_matrix = [[variances[0], covariance], [covariance, variances[1]]]
-    M = np.random.multivariate_normal(mean=[0, 0], cov=cov_matrix, size=n_samples)
-    X, Y = M[:, 0], M[:, 1]
-    return X, Y
-
-def plot_distribution(X: np.ndarray, Y: np.ndarray) -> pl.graph_objects.scatter:
-    return pl.graph_objects.Scatter(
-        x=X, 
-        y=Y, 
-        mode="markers", 
-        marker=dict(color="rgba(152, 0, 0, .8)")
-    )
-
-
-
-# number of samples for each distribution
-n_samples = 1000
-# set covariances that shall be generated
-covariances = [0, 1, 5, 9]
-# make variance greater than covariances to ensure positive-semidefinite cov_matrix
-variances = [10, 10] 
-# store results in dict
-results_dict = {}
-# iterate over different fixed covariances
-for cov in covariances:
-    # generate samples with fixed covariance
-    X, Y = generate_samples_with_fixed_covariance(
-        n_samples=n_samples, 
-        covariance=cov, 
-        variances=variances
-    )
-    # estimate true covariance
-    sample_cov = np.cov(X, Y)[0][1]
-    # store result
-    results_dict[cov] = {
-        "X": X, 
-        "Y": Y, 
-        "title": f"Set Cov(X,Y) = {cov},<br>Sample Cov={sample_cov:.2f}"
-    }
-# generate plots
-fig = make_subplots(
-    rows=1, 
-    cols=len(results_dict), 
-    subplot_titles=[result["title"] for result in results_dict.values()]
-)
-for i, result in enumerate(results_dict.values()):
-    scatter_plot = plot_distribution(X=result["X"], Y=result["Y"])
-    fig.add_trace(scatter_plot,row=1, col=i+1)
-fig.update_traces(mode='markers', marker_line_width=1, marker_size=5)
-fig.update_layout(
-    height=350, 
-    width=750, 
-    title_text="<b>Visualization of Different Covariances</b>", 
-    showlegend=False,
-)
-fig.show()
-```
+<!-- Let's visualize some examples to get a better intuition: -->
+<!---->
+<!-- ```{python} -->
+<!-- #| code-fold: true -->
+<!---->
+<!-- import numpy as np -->
+<!-- import matplotlib.pyplot as plt -->
+<!-- import plotly as pl -->
+<!-- from plotly.subplots import make_subplots -->
+<!---->
+<!-- np.random.seed(42) -->
+<!---->
+<!-- def generate_samples_with_fixed_covariance(  -->
+<!--         n_samples: int, covariance: float, variances: list[float] -->
+<!--     ) -> tuple[np.ndarray, np.ndarray]: -->
+<!--     """Generate two one dimesional vectors of length `n_samples` with approx. `covariance`.""" -->
+<!--     cov_matrix = [[variances[0], covariance], [covariance, variances[1]]] -->
+<!--     M = np.random.multivariate_normal(mean=[0, 0], cov=cov_matrix, size=n_samples) -->
+<!--     X, Y = M[:, 0], M[:, 1] -->
+<!--     return X, Y -->
+<!---->
+<!-- def plot_distribution(X: np.ndarray, Y: np.ndarray) -> pl.graph_objects.scatter: -->
+<!--     return pl.graph_objects.Scatter( -->
+<!--         x=X,  -->
+<!--         y=Y,  -->
+<!--         mode="markers",  -->
+<!--         marker=dict(color="rgba(152, 0, 0, .8)") -->
+<!--     ) -->
+<!---->
+<!---->
+<!---->
+<!-- # number of samples for each distribution -->
+<!-- n_samples = 1000 -->
+<!-- # set covariances that shall be generated -->
+<!-- covariances = [0, 1, 5, 9] -->
+<!-- # make variance greater than covariances to ensure positive-semidefinite cov_matrix -->
+<!-- variances = [10, 10]  -->
+<!-- # store results in dict -->
+<!-- results_dict = {} -->
+<!-- # iterate over different fixed covariances -->
+<!-- for cov in covariances: -->
+<!--     # generate samples with fixed covariance -->
+<!--     X, Y = generate_samples_with_fixed_covariance( -->
+<!--         n_samples=n_samples,  -->
+<!--         covariance=cov,  -->
+<!--         variances=variances -->
+<!--     ) -->
+<!--     # estimate true covariance -->
+<!--     sample_cov = np.cov(X, Y)[0][1] -->
+<!--     # store result -->
+<!--     results_dict[cov] = { -->
+<!--         "X": X,  -->
+<!--         "Y": Y,  -->
+<!--         "title": f"Set Cov(X,Y) = {cov},<br>Sample Cov={sample_cov:.2f}" -->
+<!--     } -->
+<!-- # generate plots -->
+<!-- fig = make_subplots( -->
+<!--     rows=1,  -->
+<!--     cols=len(results_dict),  -->
+<!--     subplot_titles=[result["title"] for result in results_dict.values()] -->
+<!-- ) -->
+<!-- for i, result in enumerate(results_dict.values()): -->
+<!--     scatter_plot = plot_distribution(X=result["X"], Y=result["Y"]) -->
+<!--     fig.add_trace(scatter_plot,row=1, col=i+1) -->
+<!-- fig.update_traces(mode='markers', marker_line_width=1, marker_size=5) -->
+<!-- fig.update_layout( -->
+<!--     height=350,  -->
+<!--     width=750,  -->
+<!--     title_text="<b>Visualization of Different Covariances</b>",  -->
+<!--     showlegend=False, -->
+<!-- ) -->
+<!-- fig.show() -->
+<!-- ``` -->
 
 ### Where does it come from?
 
@@ -143,17 +145,15 @@ Thus, one might think of covariance being **originally defined only for a multiv
 [^1]: This statement is not true. I couldn't find who and when introduced the term **covariance**, but it is very likely 
   that it wasn't in the context of a multivariate Gaussian. However, seeing it that way may help to put covariance into context (IMHO).
 
-If you looked into the generation of the visualization above, you saw that we generated the different plots 
-via fixing the covariance $\text{Cov}(\textbf{X}, \textbf{Y})$ and then sampling from a 
-multivariate normal distribution $\mathcal{N}\big(\boldsymbol{\mu}, \boldsymbol{\Sigma}\big)$
+<!-- If you looked into the generation of the visualization above, you saw that we generated the different plots  -->
+<!-- via fixing the covariance $\text{Cov}(\textbf{X}, \textbf{Y})$ and then sampling from a  -->
+<!-- multivariate normal distribution $\mathcal{N}\big(\boldsymbol{\mu}, \boldsymbol{\Sigma}\big)$ -->
 
-In fact, we weren't only fixing $\text{Cov}(\textbf{X}, \textbf{Y})$, but rather the
-**distributional parameters** of $\mathcal{N}\big(\boldsymbol{\mu}, \boldsymbol{\Sigma}\big)$
+Let's take a closer look at the **distributional parameters** of $\mathcal{N}\big(\boldsymbol{\mu}, \boldsymbol{\Sigma}\big)$
 
-* _mean vector_ $\boldsymbol{\mu}$ representing the **center of the distribution** which we set to 
-  $\boldsymbol{\mu} = \begin{bmatrix} 0 & 0\end{bmatrix}^{\text{T}}$,
-* _covariance matrix_ $\boldsymbol{\Sigma}$ representing the **shape of the distribution**. It's entries are defined 
-  as follows
+* _mean vector_ $\boldsymbol{\mu}$ represents the **center of the distribution**.
+* _covariance matrix_ $\boldsymbol{\Sigma}$ represents the **shape of the distribution**.  
+  It's entries are defined as follows
 
   $$
     \Sigma_{ij} =  \text{Cov} \big(\textbf{X}_i, \textbf{X}_j \big),
@@ -177,19 +177,24 @@ In fact, we weren't only fixing $\text{Cov}(\textbf{X}, \textbf{Y})$, but rather
 The following interactive demo should give a more intuitive understanding how the covariance 
 matrix and mean vector impact the resulting distribution.
 
-### Interactive Visualization
+### Interactive Visualization of Multivariate Gaussian
+
+
 ```{ojs}
 //| panel: input 
-//| layout-nrow: 2
 
 viewof param = Inputs.form(
 [
-  Inputs.range([-2, 2], {label: tex`\mu_{\textbf{X}}`, step: 0.1}),
-  Inputs.range([-2, 2], {label: tex`\mu_{\textbf{Y}}`, step: 0.1}),
+  Inputs.range([-4, 4], {label: tex`\mu_{\textbf{X}}`, step: 0.1}),
+  Inputs.range([-4, 4], {label: tex`\mu_{\textbf{Y}}`, step: 0.1}),
   Inputs.range([1, 2], {label: tex`\text{Cov}\big(\textbf{X}, \textbf{X}\big)`, step: 0.1}),
   Inputs.range([0, 1], {label: tex`\text{Cov}\big(\textbf{X}, \textbf{Y}\big)`, step: 0.1}),
   Inputs.range([1, 2], {label: tex`\text{Cov}\big(\textbf{Y}, \textbf{Y}\big)`, step: 0.1}),
 ])
+```
+
+```{ojs}
+math = require("mathjs")
 
 meanVector = [param[0],param[1]]
 covarianceMatrix = [
@@ -197,9 +202,23 @@ covarianceMatrix = [
   [param[3], param[4]]
 ]
 
-tex`{
-\quad
-\boldsymbol{\mu} = 
+// compute eigenvalues and eigenvectors of covarianceMatrix
+math_ans = math.eigs(covarianceMatrix)
+// vectors are sorted ascending (we want descending)
+first_eigenvector = math.column(math_ans.vectors, 1)
+second_eigenvector = math.column(math_ans.vectors, 0)
+
+eigenvectors = [
+  { "x": first_eigenvector[0][0], "y": first_eigenvector[1][0]},
+  { "x": second_eigenvector[0][0], "y": second_eigenvector[1][0]}
+]
+eigenvalues = math_ans.values.reverse()
+
+tex`
+{
+\begin{aligned}
+\quad \quad
+&\boldsymbol{\mu} = 
 \begin{pmatrix} 
   ${meanVector[0]} \\ 
   ${meanVector[1]} 
@@ -208,13 +227,28 @@ tex`{
 \begin{pmatrix} 
   ${covarianceMatrix[0][0]} & ${covarianceMatrix[0][1]} \\ 
   ${covarianceMatrix[1][0]} & ${covarianceMatrix[1][1]} 
+\end{pmatrix},\\
+&\text{Eigenvalues} \quad \lambda_1 = ${eigenvalues[0].toPrecision(2)}
+\quad \lambda_2 = ${eigenvalues[1].toPrecision(2)}
+\\
+&\text{Eigenvectors} \quad \textbf{v}_1 = 
+\begin{pmatrix}
+  ${eigenvectors[0]["x"].toPrecision(2)}\\
+  ${eigenvectors[0]["y"].toPrecision(2)}
 \end{pmatrix}
+\quad
+\textbf{v}_2 = 
+\begin{pmatrix}
+  ${eigenvectors[1]["x"].toPrecision(2)}\\
+  ${eigenvectors[1]["y"].toPrecision(2)}
+\end{pmatrix}
+\end{aligned}
 }
 `
+
 ```
 
 ```{ojs}
-math = require("mathjs")
 d3 = require("d3")
 import {boxMuller} from "@sw1227/box-muller-transform"
 import {choleskyDecomposition} from "@sw1227/cholesky-decomposition"
@@ -247,6 +281,18 @@ function multivariateNormal(mean, covArray) {
   };
 }
 
+scale = 2
+eigenVecLine1 = [
+  {"x": meanVector[0], "y": meanVector[1], "text": ""},
+  {"x": meanVector[0] + scale*eigenvalues[0]*eigenvectors[0]["x"], "y": meanVector[1] + scale*eigenvalues[0]*eigenvectors[0]["y"], 
+   "text": "v1"},
+]
+eigenVecLine2 = [
+  {"x": meanVector[0], "y": meanVector[1], "text": ""},
+  {"x": meanVector[0] + scale*eigenvalues[1]*eigenvectors[1]["x"], "y": meanVector[1] + scale*eigenvalues[1]*eigenvectors[1]["y"], 
+   "text": "v1"},
+]
+
 // adapted from: https://observablehq.com/@observablehq/building-scatterplots-using-plot
 Plot.plot({
   grid: true, // by default Plot has "grid: false", to show a grid we set grid to 'true'
@@ -255,7 +301,6 @@ Plot.plot({
     Plot.ruleY([0]),
     Plot.ruleX([0]),
     
-    // plot eigenvector starting from mean
 
     Plot.dot(multivariateNormal(meanVector, covarianceMatrix).sample(1000), 
              {x: "x",
@@ -263,7 +308,11 @@ Plot.plot({
               fill: 50,
               r: 2.5,
               stroke: "black"
-             })
+             }),
+    //https://observablehq.com/@observablehq/plot-connected-scatterplot
+    Plot.line(eigenVecLine1, {x: "x", y:"y", marker: false, curve: "catmull-rom", stroke: "red"}),
+    Plot.line(eigenVecLine2, {x: "x", y:"y", marker: false, curve: "catmull-rom", stroke: "orange"}),
+    <!-- Plot.text(eigenVecLine1, {x: "x", y:"y", marker: false, curve: "catmull-rom", color: "red", text: "text", dy: -8}), -->
   ],
   color: {
     scheme: "Blues",  
@@ -279,27 +328,10 @@ Plot.plot({
     label: "Y",
     ticks: d3.range(-10, 10, 2), // equivalent of np.arange
   },
+  width: 550,
+  height: 550
 })
 ```
-
-<!-- NewPlot = import("https://esm.sh/@observablehq/plot")  -->
-<!-- NewPlot -->
-
-
-<!-- import { Matrix, Distribution } from "@ml-matrix" -->
-<!---->
-<!-- distributionParams = { -->
-<!--   const dist = new Distribution.MultivariateNormal(meanVector, covarianceMatrix); -->
-<!-- } -->
-
-<!-- import { MultivariateNormal } from "./multivariate-normal.js" -->
-<!---->
-<!-- MultivariateNormal(meanVector, covarianceMatrix) -->
-
-<!-- ```{ojs} -->
-<!-- //| fig-cap: "Interactive Visualization of a Multivariate Gaussian" -->
-<!---->
-<!-- ``` -->
 
 ### Useful  Properties
 
@@ -341,14 +373,11 @@ $$
 :::
 
 
-::: {.callout-tip collapse=false}
-### Pearson Correlation Intuition 
+<!-- ::: {.callout-tip collapse=false} -->
+<!-- ### Pearson Correlation Intuition  -->
 <!-- When the covariance is normalized, one obtains the Pearson correlation coefficient, which gives the goodness of the fit for the best possible linear function describing the relation between the variables. In this sense covariance is a linear gauge of dependence. -->
 
 
-### When is it misleading?
-
-:::
 <!-- **Correlation**, also known as **Pearson's correlation coeffecient**, is the **normalized version of -->
 <!-- the covariance**, therefore measures by its magnitude the strength of the linear correlation between -->
 <!-- $\textbf{X}$ and $\textbf{Y}$. -->
@@ -358,5 +387,6 @@ $$
 <!-- | **Pearson Correlation Coefficient Examples**. Taken from [wikipedia](https://en.wikipedia.org/wiki/Correlation#/media/File:Correlation_examples2.svg).<br> Note `the figure in the center has a slope of 0 but in that case the correlation coefficient is undefined because the variance of Y is zero`. | -->
 <!---->
 <!---->
+<!-- ### When is it misleading? -->
+
 <!-- ::: -->
-<!-- ### Spearman Correlation Coefficient -->

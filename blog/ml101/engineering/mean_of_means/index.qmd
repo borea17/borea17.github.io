@@ -1,0 +1,35 @@
+---
+title: "How can the average loss be calculated with batch means?"
+---
+
+Assuming equal batch sizes $b$, the overall mean equals the mean of 
+batch means.
+
+::: {.callout-tip collapse=true}
+## Derivation
+
+\begin{align*}
+\mu = \frac {1}{N} \sum_{i=1}^N x_i&= \frac {1}{N} \left(\sum_{i=1}^b x_i + \sum_{i=b+1}^{b+b} x_i + \dots + \sum_{i=(N-1) \cdot b + 1}^{N} x_i \right)\\&= \frac {b}{N} \left( \frac {1}{b} \left(
+\sum_{i=1}^b x_i + \sum_{i=b+1}^{b+b} x_i + \dots + \sum_{i=(N-1) \cdot b + 1}^{N} x_i 
+\right)\right)\\
+&= \frac {1}{N/b} \left( \mu_{1,b} + \mu_{b+1, b+b} + \dots + \mu_{N-b+1,N} \right)\\
+&= \frac {1}{k} \sum_{i=1}^{k} \mu_{ib+1, (i+1)b}
+\end{align*}
+:::
+
+::: {.callout-tip collapse=true}
+## Why is this helpful 
+
+Consider the following case, where we have a dataset $\textbf{X} =
+\{ \textbf{x}_i \}_{i=1}^N$ consisting of $N$ samples
+$\textbf{x}_i$. Instead of iterating over each sample independently,
+we decide stream minibatches of size $b$ (as this often leads to a
+stabilized training). Now the question arises, what is the average
+loss? E.g., can we simply take the average of the batch losses to
+compute the average of the epoch ? 
+
+The answer is YES (at least if the batch sizes are always equal). Even 
+if the last batch size doesn't match, we get a pretty good estimate.
+:::
+
+

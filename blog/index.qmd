@@ -1,7 +1,13 @@
 ---
-title: "mysite"
+title: "Markus Norden"
+about:
+  template: "jolla"
+  image: "profile.jpg"
+  links:
+      - icon: github
+        text: Github
+        href: https://github.com/borea17
 ---
 
-This is a Quarto website.
+Machine Learning Engineer at SST
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.

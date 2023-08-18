@@ -3,10 +3,11 @@ title: ML101
 listing: 
   - id: "engineering"
     contents: "ml101/engineering"
-    type: "table"
+    type: "grid"
+    grid-columns: 1
     fields: ["title"] # reading-time, date
-    filter-ui: false
-    table-striped: true
+    filter-ui: true 
+    sort: "false" # can also sort on more than one field
   - id: "probabilityTheory"
     contents: "ml101/probability_theory"
     type: "grid"
