@@ -1,7 +1,7 @@
 # options specified here will apply to all posts in this folder
 
 execute:
-  freeze: auto  # re-render only when source changes
+  freeze: "auto"  # re-render only when source changes
   cache: true
 
 # enable banner style title blocks (see https://quarto.org/docs/authoring/title-blocks.html)
@@ -15,4 +15,4 @@ title-block-banner: true
 
 author: "borea17"
 
-highlight-style: github
+highlight-style: "github"
