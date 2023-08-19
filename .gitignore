@@ -461,4 +461,6 @@ $RECYCLE.BIN/
 
 /_site/
 
+*.txt
+
 tmp

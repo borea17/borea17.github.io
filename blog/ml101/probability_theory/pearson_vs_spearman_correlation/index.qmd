@@ -145,10 +145,6 @@ Thus, one might think of covariance being **originally defined only for a multiv
 [^1]: This statement is not true. I couldn't find who and when introduced the term **covariance**, but it is very likely 
   that it wasn't in the context of a multivariate Gaussian. However, seeing it that way may help to put covariance into context (IMHO).
 
-<!-- If you looked into the generation of the visualization above, you saw that we generated the different plots  -->
-<!-- via fixing the covariance $\text{Cov}(\textbf{X}, \textbf{Y})$ and then sampling from a  -->
-<!-- multivariate normal distribution $\mathcal{N}\big(\boldsymbol{\mu}, \boldsymbol{\Sigma}\big)$ -->
-
 Let's take a closer look at the **distributional parameters** of $\mathcal{N}\big(\boldsymbol{\mu}, \boldsymbol{\Sigma}\big)$
 
 * _mean vector_ $\boldsymbol{\mu}$ represents the **center of the distribution**.
@@ -187,9 +183,9 @@ viewof param = Inputs.form(
 [
   Inputs.range([-4, 4], {label: tex`\mu_{\textbf{X}}`, step: 0.1}),
   Inputs.range([-4, 4], {label: tex`\mu_{\textbf{Y}}`, step: 0.1}),
-  Inputs.range([1, 2], {label: tex`\text{Cov}\big(\textbf{X}, \textbf{X}\big)`, step: 0.1}),
+  Inputs.range([1, 2], {label: tex`\text{Var}\big(\textbf{X}\big)`, step: 0.1}),
   Inputs.range([0, 1], {label: tex`\text{Cov}\big(\textbf{X}, \textbf{Y}\big)`, step: 0.1}),
-  Inputs.range([1, 2], {label: tex`\text{Cov}\big(\textbf{Y}, \textbf{Y}\big)`, step: 0.1}),
+  Inputs.range([1, 2], {label: tex`\text{Var}\big(\textbf{Y}\big)`, step: 0.1}),
 ])
 ```
 
@@ -227,26 +223,28 @@ tex`
 \begin{pmatrix} 
   ${covarianceMatrix[0][0]} & ${covarianceMatrix[0][1]} \\ 
   ${covarianceMatrix[1][0]} & ${covarianceMatrix[1][1]} 
-\end{pmatrix},\\
-&\text{Eigenvalues} \quad \lambda_1 = ${eigenvalues[0].toPrecision(2)}
-\quad \lambda_2 = ${eigenvalues[1].toPrecision(2)}
-\\
-&\text{Eigenvectors} \quad \textbf{v}_1 = 
-\begin{pmatrix}
-  ${eigenvectors[0]["x"].toPrecision(2)}\\
-  ${eigenvectors[0]["y"].toPrecision(2)}
-\end{pmatrix}
-\quad
-\textbf{v}_2 = 
-\begin{pmatrix}
-  ${eigenvectors[1]["x"].toPrecision(2)}\\
-  ${eigenvectors[1]["y"].toPrecision(2)}
 \end{pmatrix}
 \end{aligned}
 }
 `
 
 ```
+
+<!-- ,\\ -->
+<!-- &\text{Eigenvalues} \quad \lambda_1 = ${eigenvalues[0].toPrecision(2)} -->
+<!-- \quad \lambda_2 = ${eigenvalues[1].toPrecision(2)} -->
+<!-- \\ -->
+<!-- &\text{Eigenvectors} \quad \textbf{v}_1 =  -->
+<!-- \begin{pmatrix} -->
+<!--   ${eigenvectors[0]["x"].toPrecision(2)}\\ -->
+<!--   ${eigenvectors[0]["y"].toPrecision(2)} -->
+<!-- \end{pmatrix} -->
+<!-- \quad -->
+<!-- \textbf{v}_2 =  -->
+<!-- \begin{pmatrix} -->
+<!--   ${eigenvectors[1]["x"].toPrecision(2)}\\ -->
+<!--   ${eigenvectors[1]["y"].toPrecision(2)} -->
+<!-- \end{pmatrix} -->
 
 ```{ojs}
 d3 = require("d3")
@@ -332,6 +330,10 @@ Plot.plot({
   height: 550
 })
 ```
+
+Note that the <span style="color:red;">red</span> and <span style="color:orange;">orange</span> lines 
+represent the eigenvectors of the covariance matrix. Interestingly, these vectors also 
+represent the principal components of the distribution.
 
 ### Useful  Properties
 
