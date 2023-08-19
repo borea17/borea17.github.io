@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.340">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>borea17 - What is the ELBO?</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../logo.png" rel="icon" type="image/png">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">borea17</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../paper_summaries.html" rel="" target="">
+ <span class="menu-text">Paper Summaries</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../ml101.html" rel="" target="">
+ <span class="menu-text">ML101</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">What is the ELBO?</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<p>Consider the following case: Let <span class="math inline">\(\textbf{X} = \{\textbf{x}^{(i)}\}_{i=1}^N\)</span> denote a dataset consisting of <span class="math inline">\(N\)</span> i.i.d. samples where each observed datapoint <span class="math inline">\(\textbf{x}^{(i)}\)</span> is generated from a process in which firstly a latent (hidden) variable <span class="math inline">\(\textbf{z}^{(i)}\)</span> is sampled from a prior distribution <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z})\)</span> and then <span class="math inline">\(\textbf{x}^{(i)}\)</span> is sampled from a conditional distribution <span class="math inline">\(p_{\boldsymbol{\theta}} \left(\textbf{x} | \textbf{z}^{(i)}\right)\)</span>.</p>
+<p>The <strong>evidence lower bound (ELBO)</strong> <span class="math inline">\(\mathcal{L} \left(  \boldsymbol{\theta}, \boldsymbol{\phi}; \textbf{x}^{(i)}\right)\)</span> (or <strong>variational lower bound</strong>) which is</p>
+<p><span class="math display">\[
+  \mathcal{L} \left( \boldsymbol{\theta}, \boldsymbol{\phi};
+  \textbf{x}^{(i)} \right) = - D_{KL} \left( q_{\boldsymbol{\phi}}
+  \left( \textbf{z} | \textbf{x}^{(i)} \right) ||
+  p_{\boldsymbol{\theta}} (\textbf{z})\right) +
+  \mathbb{E}_{q_{\boldsymbol{\phi}}
+  \left(\textbf{z}|\textbf{x}^{(i)}\right)} \left[ \log
+  p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} | \textbf{z}\right) \right],
+\]</span></p>
+<p><strong>defines a lower bound on the log-evidence</strong> <span class="math inline">\(\log p_{\boldsymbol{\theta}}(\textbf{x}^{(i)})\)</span> <strong>given a variational approximation</strong> <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}^{(i)} \right)\)</span> <strong>of the true posterior</strong> <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{z} | \textbf{x}^{(i)}\right)\)</span>, i.e.,</p>
+<p><span class="math display">\[
+\begin{align}
+  0 &amp;\ge \log p_{\boldsymbol{\theta}} (\textbf{x}^{(i)}) = \underbrace{D_{KL} \left(
+  q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)} \right)
+  ||
+  p_{\boldsymbol{\theta}} \left( \textbf{z} |
+  \textbf{x}^{(i)}\right)\right)}_{\ge 0} + \mathcal{L} \left(
+  \boldsymbol{\theta}, \boldsymbol{\phi}; \textbf{x}^{(i)}\right),\\
+  &amp;\Rightarrow \mathcal{L} \left( \boldsymbol{\theta}, \boldsymbol{\phi} \right) \le \log p_{\boldsymbol{\theta}} (\textbf{x}^{(i)}),
+\end{align}
+\]</span> where <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z})\)</span> is a prior on the latent distribution. Note that true posterior <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{z} | \textbf{x}^{(i)}\right)\)</span> (which is often unknown) does not appear in the ELBO!</p>
+<p>Variational Bayesian methods are a very popular framework in machine learning, since they allow to cast statistical inference problems into optimization problems. E.g., the inference problem of determining the true posterior distribution <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{z} | \textbf{x}^{(i)}\right)\)</span> can be cast into an optimization problem by maximizing the ELBO using/introducing a variational approximation <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right)\)</span> and a latent prior <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{z})\)</span>. This is the main idea of <a href="https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes">variational auto-encoders (VAEs)</a> by <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Derivation - Version 1: Optimization Problem
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Let’s start with the optimization problem:</p>
+<p><span class="math display">\[
+  \min_{\boldsymbol{\phi}} D_{KL} \left[ q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right) || p_{\boldsymbol{\theta}} \left( \textbf{z} |
+\textbf{x}\right) \right],
+\]</span></p>
+<p>i.e., we are aiming to find the parameters <span class="math inline">\(\boldsymbol{\phi}\)</span> such that the true probability distributions are as similiar as possible (have minimal KL divergence, just ignore the fact that the KL divergence is not symmetric). Actually, we cannot compute this quantity since we do not have access to the true posterior (if we had, we wouldn’t need to introduce a variational approximation).</p>
+<p>However, we can rewrite the KL divergence as follows</p>
+<p><span class="math display">\[
+\begin{align}
+D_{KL} \left[ q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right) || p_{\boldsymbol{\theta}} \left( \textbf{z} |
+\textbf{x}\right) \right] &amp;= \int_\textbf{z}
+q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right) \log \frac
+{q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right)} {p_{\boldsymbol{\theta}} \left( \textbf{z} |
+\textbf{x}\right)} d\textbf{z}\\
+&amp;= \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left(\textbf{z}
+| \textbf{x} \right)}
+\left[\log q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right) - \log p_{\boldsymbol{\theta}} \left( \textbf{z} |
+\textbf{x}\right) \right]
+\end{align}
+\]</span></p>
+<p>Remember Bayes rule:</p>
+<p><span class="math display">\[
+p_{\boldsymbol{\theta}} \left( \textbf{z} |
+\textbf{x}\right) = \frac {p_{\boldsymbol{\theta}} \left( \textbf{x} |
+\textbf{z}\right) p_{\boldsymbol{\theta}} \left( \textbf{z} \right)  }
+{p_{\boldsymbol{\theta}} \left(\textbf{x}\right)}
+\]</span></p>
+<p>Let’s put this into the above equation (and use the logarithm rules)</p>
+<p><span class="math display">\[
+\begin{align}
+D_{KL} \left[ q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right) || p_{\boldsymbol{\theta}} \left( \textbf{z} |
+\textbf{x}\right) \right] &amp; =  \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left(\textbf{z}
+| \textbf{x} \right)}
+\left[ \log q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}
+\right) - \left(\log  p_{\boldsymbol{\theta}} \left( \textbf{x} |
+\textbf{z} \right) + \log p_{\boldsymbol{\theta}} \left( \textbf{z} \right)
+- \log p_{\boldsymbol{\theta}} \left(\textbf{x}\right)
+\right)\right] \\
+&amp;=\mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left(\textbf{z}
+| \textbf{x} \right)}
+\left[ \log q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}
+\right) - \log  p_{\boldsymbol{\theta}} \left( \textbf{x} |
+\textbf{z} \right) - \log p_{\boldsymbol{\theta}} \left( \textbf{z} \right)
+\right] + \log p_{\boldsymbol{\theta}} \left(\textbf{x}\right)
+\end{align}
+\]</span></p>
+<p>That already looks suspiciously close to what we acutally want to show. Let’s put the log evidence term on one side and the rest on the other side to better see what we have</p>
+<p><span class="math display">\[
+\begin{align}
+\log p_{\boldsymbol{\theta}} \left(\textbf{x}\right) &amp;=  D_{KL} \left[ q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right) || p_{\boldsymbol{\theta}} \left( \textbf{z} |
+\textbf{x}\right) \right] \\
+&amp;\quad - \underbrace{\mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left(\textbf{z}
+| \textbf{x} \right)}
+\left[ \log q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}
+\right) - \log  p_{\boldsymbol{\theta}} \left( \textbf{x} |
+\textbf{z} \right) - \log p_{\boldsymbol{\theta}} \left( \textbf{z} \right)
+\right] + \log p_{\boldsymbol{\theta}} \left(\textbf{x}\right)}_{- \mathcal{L}}
+\end{align}
+\]</span></p>
+<p>Some final rewritings</p>
+<p><span class="math display">\[
+\begin{align}
+\mathcal{L} &amp;= - \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left(\textbf{z}
+| \textbf{x} \right)}
+\left[ \log q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}
+\right) - \log  p_{\boldsymbol{\theta}} \left( \textbf{x} |
+\textbf{z} \right) - \log p_{\boldsymbol{\theta}} \left( \textbf{z} \right)
+\right] \\
+&amp;= -\mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left(\textbf{z}
+| \textbf{x} \right)}
+\left[ \log q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x}
+\right) - \log p_{\boldsymbol{\theta}} \left( \textbf{z} \right)
+\right] + \mathbb{E}_{\textbf{z} \sim q_{\boldsymbol{\phi}} \left(\textbf{z}
+| \textbf{x} \right)} \left[ \log  p_{\boldsymbol{\theta}} \left( \textbf{x} |
+\textbf{z} \right)\right]\\
+&amp;= - D_{KL} \left( q_{\boldsymbol{\phi}}
+  \left( \textbf{z} | \textbf{x} \right) ||
+  p_{\boldsymbol{\theta}} (\textbf{z})\right) +
+  \mathbb{E}_{q_{\boldsymbol{\phi}}
+  \left(\textbf{z}|\textbf{x}\right)} \left[ \log
+  p_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z}\right) \right]
+\end{align}
+\]</span></p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Derivation - Version 2: Jensen’s Inequality
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Taking Jensen’s inequality is a different path to arrive at the variational lower bound on the log-likelihood.</p>
+<blockquote class="blockquote">
+<p><strong>Jensen’s Inequality</strong>: Let <span class="math inline">\(X\)</span> be a random variable and <span class="math inline">\(\varphi\)</span> a concave function, then</p>
+<p><span class="math display">\[
+\varphi \Big(\mathbb{E} \left[ X \right] \Big) \ge \mathbb{E} \Big[ \varphi
+\left( X \right) \Big]
+\]</span></p>
+</blockquote>
+<p>Let’s simply state the marginal likelihood of <span class="math inline">\(\textbf{x}\)</span> and include our variatonal approximation of the true posterior:</p>
+<p><span class="math display">\[
+p_{\boldsymbol{\theta}}(\textbf{x})
+=  \int p_{\boldsymbol{\theta}} (\textbf{x}, \textbf{z}) d\textbf{z}
+= \int q_{\phi} \left( \textbf{z}| \textbf{x} \right)
+\frac {p_{\boldsymbol{\theta}} (\textbf{x}, \textbf{z})}
+{q_{\phi} \left( \textbf{z} | \textbf{x} \right)} d\textbf{z} =
+\mathbb{E}_{\textbf{z} \sim q_{\phi} \left( \textbf{z}| \textbf{x} \right)}
+\left[
+\frac {p_{\boldsymbol{\theta}} (\textbf{x}, \textbf{z})}
+{q_{\phi} \left( \textbf{z} | \textbf{x} \right)} \right]
+\]</span></p>
+<p>Applying logarithm (concave function) and Jensen’s inequality, we arrive at</p>
+<p><span class="math display">\[
+\log p_{\boldsymbol{\theta}}(\textbf{x}) = \log
+\mathbb{E}_{\textbf{z} \sim q_{\phi} \left( \textbf{z}| \textbf{x} \right)}
+\left[
+\frac {p_{\boldsymbol{\theta}} (\textbf{x}, \textbf{z})}
+{q_{\phi} \left( \textbf{z} | \textbf{x} \right)} \right] \ge
+\mathbb{E}_{\textbf{z} \sim q_{\phi} \left( \textbf{z}| \textbf{x} \right)}
+\left[ \log
+\frac {p_{\boldsymbol{\theta}} (\textbf{x}, \textbf{z})}
+{q_{\phi} \left( \textbf{z} | \textbf{x} \right)}
+\right] = \mathcal{L}
+\]</span></p>
+<p>Some final rewritings</p>
+<p><span class="math display">\[
+\begin{align*}
+\mathcal{L} &amp;=
+\mathbb{E}_{\textbf{z} \sim q_{\phi} \left( \textbf{z}| \textbf{x} \right)}
+\left[ \log
+p_{\boldsymbol{\theta}} (\textbf{z} )  + \log p_{\boldsymbol{\theta}}
+(\textbf{x} | \textbf{z} )  - \log q_{\phi} \left( \textbf{z} | \textbf{x}
+\right) \right] \\
+&amp;=
+-\mathbb{E}_{\textbf{z} \sim q_{\phi} \left( \textbf{z}| \textbf{x} \right)}
+\left[ \log q_{\phi} \left( \textbf{z} | \textbf{x}
+\right) - \log
+p_{\boldsymbol{\theta}} (\textbf{z} )\right]
++
+\mathbb{E}_{\textbf{z} \sim q_{\phi} \left( \textbf{z}| \textbf{x} \right)}
+\left[
+\log
+p_{\boldsymbol{\theta}} (\textbf{x} | \textbf{z} )
+\right]\\
+&amp;= - D_{KL} \left( q_{\boldsymbol{\phi}}
+  \left( \textbf{z} | \textbf{x} \right) ||
+  p_{\boldsymbol{\theta}} (\textbf{z})\right) +
+  \mathbb{E}_{q_{\boldsymbol{\phi}}
+  \left(\textbf{z}|\textbf{x}\right)} \left[ \log
+  p_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z}\right) \right]
+\end{align*}
+\]</span></p>
+</div>
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

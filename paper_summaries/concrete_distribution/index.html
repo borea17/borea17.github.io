@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.340">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="borea17">
+<meta name="dcterms.date" content="2021-02-21">
+
+<title>borea17 - The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../logo.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">borea17</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../paper_summaries.html" rel="" target="">
+ <span class="menu-text">Paper Summaries</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../ml101.html" rel="" target="">
+ <span class="menu-text">ML101</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">The Concrete Distribution: A Continuous Relaxation of Discrete Random Variables</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/borea17/Notebooks/blob/master/07_Concrete_Distribution.ipynb">View Source</a></li></ul></div></div>
+                                <div class="quarto-categories">
+                <div class="quarto-category">reimplementation</div>
+                <div class="quarto-category">VAE</div>
+                <div class="quarto-category">D-VAE</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>borea17 </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">February 21, 2021</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#model-description" id="toc-model-description" class="nav-link active" data-scroll-target="#model-description">Model Description</a>
+  <ul class="collapse">
+  <li><a href="#gumbel-max-trick" id="toc-gumbel-max-trick" class="nav-link" data-scroll-target="#gumbel-max-trick">Gumbel-Max Trick</a></li>
+  <li><a href="#gumbel-softmax-trick" id="toc-gumbel-softmax-trick" class="nav-link" data-scroll-target="#gumbel-softmax-trick">Gumbel-Softmax Trick</a></li>
+  <li><a href="#concrete-distribution" id="toc-concrete-distribution" class="nav-link" data-scroll-target="#concrete-distribution">Concrete Distribution</a></li>
+  <li><a href="#discrete-latent-vae" id="toc-discrete-latent-vae" class="nav-link" data-scroll-target="#discrete-latent-vae">Discrete-Latent VAE</a></li>
+  </ul></li>
+  <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a>
+  <ul class="collapse">
+  <li><a href="#data-generation" id="toc-data-generation" class="nav-link" data-scroll-target="#data-generation">Data Generation</a></li>
+  <li><a href="#model-implementation" id="toc-model-implementation" class="nav-link" data-scroll-target="#model-implementation">Model Implementation</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#visualizations" id="toc-visualizations" class="nav-link" data-scroll-target="#visualizations">Visualizations</a></li>
+  </ul></li>
+  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<p><a href="https://arxiv.org/abs/1611.00712">Maddison et al.&nbsp;(2016)</a> introduce <strong>CON</strong>tinuous relaxations of dis<strong>CRETE</strong> (<strong>concrete</strong>) random variables as an approximation to discrete variables. The <strong>Concrete distribution</strong> is motivated by the fact that backpropagation through discrete random variables is not directly possible. While for continuous random variables, the <strong>reparametrization trick</strong> is applicable to allow gradients to flow through a sampling operation, this does not work for discrete variables due to the discontinuous operations associated to their sampling. The <strong>concrete distribution</strong> allows for a simple reparametrization through which gradients can propagate such that a low-variance biased gradient estimator of the discrete path can be obtained.</p>
+<section id="model-description" class="level2">
+<h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
+<p>The <strong>Concrete distribution</strong> builds upon the (very old) <strong>Gumbel-Max trick</strong> that allows for a reparametrization of a categorical distribution into a deterministic function over the distribution parameters and an auxiliary noise distribution. The problem within this reparameterization is that it relies on an <span class="math inline">\(\text{argmax}\)</span>-operation such that backpropagation remains out of reach. Therefore, <a href="https://arxiv.org/abs/1611.00712">Maddison et al.&nbsp;(2016)</a> propose to use the <span class="math inline">\(\text{softmax}\)</span>-operation as a continuous relaxation of the <span class="math inline">\(\text{argmax}\)</span>. This idea has been concurrently developed at the same time by <a href="https://arxiv.org/abs/1611.01144">Jang et al. (2016)</a> who called it the <strong>Gumbel-Softmax trick</strong>.</p>
+<section id="gumbel-max-trick" class="level3">
+<h3 class="anchored" data-anchor-id="gumbel-max-trick">Gumbel-Max Trick</h3>
+<p>The Gumbel-Max trick basically refactors sampling of a deterministic random variable into a component-wise addition of the discrete distribution parameters and an auxiliary noise followed by <span class="math inline">\(\text{argmax}\)</span>, i.e.,</p>
+<p><span class="math display">\[
+\begin{align}
+\text{Sampling }&amp;z \sim \text{Cat} \left(\alpha_1, \dots, \alpha_N \right)
+\text{ can equally expressed as } z = \arg\max_{k} \Big(\log\alpha_k + G_k\Big)\\
+&amp;\text{with } G_k \sim \text{Gumbel Distribution}\left(\mu=0, \beta=1 \right)
+\end{align}
+\]</span></p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img src="./img/Gumble_Max.png" title="Gumble Max" class="img-fluid" alt="Gumble Max"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Computational Graph Gumbel-Max Trick</strong>. Taken from <a href="https://arxiv.org/abs/1611.00712">Maddison et al.&nbsp;(2016)</a>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Derivation</strong>: Let’s take a closer look on how and why that works. Firstly, we show that samples from <span class="math inline">\(\text{Cat} \left(\alpha_1, \dots, \alpha_N \right)\)</span> are equally distributed to</p>
+<p><span class="math display">\[
+z = \arg \min_{k} \frac {\epsilon_k}{\alpha_k} \quad \text{with} \quad
+\epsilon_k \sim \text{Exp}\left( 1 \right)
+\]</span></p>
+<p>Therefore, we observe that each term inside the <span class="math inline">\(\text{argmin}\)</span> is independent exponentially distributed with (<a href="https://math.stackexchange.com/a/85578">easy proof</a>)</p>
+<p><span class="math display">\[
+\frac {\epsilon_k}{\alpha_k} \sim  \text{Exp} \Big( \alpha_k \Big)
+\]</span></p>
+<p>The next step is to show that the index of the variable which achieves the minimum is distributed according to the categorical distribution (<a href="https://en.wikipedia.org/wiki/Exponential_distribution#Distribution_of_the_minimum_of_exponential_random_variables">easy proof</a>)</p>
+<p><span class="math display">\[
+\arg \min_{k} \frac {\epsilon_k}{\alpha_k} = P \left( k | z_k = \min \{ z_1, \dots, z_N \} \right) = \frac
+{\alpha_k}{\sum_{i=1}^N \alpha_i}
+\]</span></p>
+<p>A nice feature of this formulation is that the categorical distribution parameters <span class="math inline">\(\{\alpha_i\}_{i=1}^N\)</span> do not need to be normalized before reparameterization as normalization is ensured by the factorization itself. Lastly, we simply reformulate this mapping by applying the log and multiplying by minus 1</p>
+<p><span class="math display">\[
+z = \arg \min_{k} \frac {\epsilon_k}{\alpha_k} =\arg \min_k \Big(\log \epsilon_k -
+\log \alpha_k \Big) = \arg \max_k \Big(\log \alpha_k  - \log \epsilon_k\Big)
+\]</span></p>
+<p>This looks already very close to the <strong>Gumbel-Max trick</strong> defined above. Remind that to generate exponential distributed random variables, we can simply transform uniformly distributed samples of the unit interval as follows</p>
+<p><span class="math display">\[
+\epsilon_k = -\log u_k \quad \text{with} \quad u_k \sim
+\text{Uniform Distribution} \Big(0, 1\Big)
+\]</span></p>
+<p>Thus, we get that</p>
+<p><span class="math display">\[
+- \log \epsilon_k = - \log \Big( - \log u_k \Big) = G_k \sim
+\text{Gumbel Distribution} \Big( \mu=0, \beta=1 \Big)
+\]</span></p>
+</section>
+<section id="gumbel-softmax-trick" class="level3">
+<h3 class="anchored" data-anchor-id="gumbel-softmax-trick">Gumbel-Softmax Trick</h3>
+<p>The problem in the <strong>Gumbel-Max trick</strong> is the <span class="math inline">\(\text{argmax}\)</span>-operation as the derivative of <span class="math inline">\(\text{argmax}\)</span> is 0 everywhere except at the boundary of state changes, where it is undefined. Thus, <a href="https://arxiv.org/abs/1611.00712">Maddison et al. (2016)</a> use the temperature-valued <span class="math inline">\(\text{Softmax}\)</span> as a continuous relaxation of the <span class="math inline">\(\text{argmax}\)</span> computation such that</p>
+<p><span class="math display">\[
+\begin{align}
+\text{Sampling }&amp;z \sim \text{Cat} \left(\alpha_1, \dots, \alpha_N \right)
+\text{ is relaxed cont. to } z_k = \frac {\exp \left( \frac {\log \alpha_k + G_k}{\lambda} \right)}
+{\sum_{i=1}^N \exp \left( \frac {\log \alpha_i + G_i}{\lambda} \right)}\\
+&amp;\text{with } G_k \sim \text{Gumbel Distribution}\left(\mu=0, \beta=1 \right)
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(\lambda \in [0, \infty[\)</span> is the temperature and <span class="math inline">\(\alpha_k \in [0, \infty[\)</span> are the categorical distribution parameters. The temperature can be understood as a hyperparameter that controls the <em>sharpness</em> of the <span class="math inline">\(\text{softmax}\)</span>, i.e., how much the <em>winner-takes-all</em> dynamics of the softmax is taken:</p>
+<ul>
+<li><span class="math inline">\(\lambda \rightarrow 0\)</span>: <span class="math inline">\(\text{softmax}\)</span> smoothly approaches discrete <span class="math inline">\(\text{argmax}\)</span> computation</li>
+<li><span class="math inline">\(\lambda \rightarrow \infty\)</span>: <span class="math inline">\(\text{softmax}\)</span> leads to uniform distribution.</li>
+</ul>
+<p>Note that the samples <span class="math inline">\(z_k\)</span> obtained by this reparameterization follow a new family of distributions, the <strong>Concrete distribution</strong>. Thus, <span class="math inline">\(z_k\)</span> are called <strong>Concrete random variables</strong>.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img src="./img/Gumble_Softmax.png" title="Gumble Softmax" class="img-fluid" alt="Gumble Softmax"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Computational Graph Gumbel-Softmax Trick</strong>. Taken from <a href="https://arxiv.org/abs/1611.00712">Maddison et al.&nbsp;(2016)</a>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Intuition</strong>: To better understand the relationship between the <em>Concrete</em> distribution and the <em>discrete categorical</em> distribution, let’s look on an exemplary result. Remind that the <span class="math inline">\(\text{argmax}\)</span> operation for a <span class="math inline">\(n\)</span>-dimensional categorical distribution returns states on the vertices of the simplex</p>
+<p><span class="math display">\[
+\boldsymbol{\Delta}^{n-1} = \left\{ \textbf{x}\in \{0, 1\}^n \mid \sum_{k=1}^n x_k = 1 \right\}
+\]</span></p>
+<p>Concrete random variables are relaxed to return states in the interior of the simplex</p>
+<p><span class="math display">\[
+\widetilde{\boldsymbol{\Delta}}^{n-1} = \left\{ \textbf{x}\in [0, 1]^n \mid \sum_{k=1}^n x_k = 1 \right\}
+\]</span></p>
+<p>The image below shows how the distribution of concrete random variables changes for an exemplary discrete categorical distribution <span class="math inline">\((\alpha_1, \alpha_2, \alpha_3) = (2, 0.5, 1)\)</span> and different temperatures <span class="math inline">\(\lambda\)</span>.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/simplex.png" title="Relationship between Concrete and Discrete Variables" class="img-fluid" alt="Relationship between Concrete and Discrete Variables"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Relationship between Concrete and Discrete Variables</strong>: A discrete distribution with unnormalized probabilities <span class="math inline">\((\alpha_1, \alpha_2, \alpha_3) = (2, 0.5, 1)\)</span> and three corresponding <strong>Concrete densities</strong> at increasing temperatures <span class="math inline">\(\lambda\)</span>.<br> Taken from <a href="https://arxiv.org/abs/1611.00712">Maddison et al.&nbsp;(2016)</a>.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="concrete-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="concrete-distribution">Concrete Distribution</h3>
+<p>While the Gumbel-Softmax trick defines how to obtain samples from a <strong>Concrete distribution</strong>, <a href="https://arxiv.org/abs/1611.00712">Maddison et al.&nbsp;(2016)</a> provide a definition of its density and prove some nice properties:</p>
+<p><strong>Definition</strong>: The <strong>Concrete distribution</strong> <span class="math inline">\(\text{X} \sim \text{Concrete}(\boldsymbol{\alpha}, \lambda)\)</span> with temperature <span class="math inline">\(\lambda \in [0, \infty[\)</span> and location <span class="math inline">\(\boldsymbol{\alpha} = \begin{bmatrix} \alpha_1 &amp; \dots &amp; \alpha_n \end{bmatrix} \in [0, \infty]^{n}\)</span> has a density</p>
+<p><span class="math display">\[
+  p_{\boldsymbol{\alpha}, \lambda} (\textbf{x}) = (n-1)! \lambda^{n-1} \prod_{k=1}^n
+  \left( \frac {\alpha_k x_k^{-\lambda - 1}} {\sum_{i=1}^n \alpha_i x_i^{-\lambda}} \right)
+\]</span></p>
+<p><strong>Nice Properties and their Implications</strong>:</p>
+<ol type="1">
+<li><p><em>Reparametrization</em>: Instead of sampling directly from the Concrete distribution, one can obtain samples by the following deterministic (<span class="math inline">\(d\)</span>) reparametrization</p>
+<p><span class="math display">\[
+X_k \stackrel{d}{=} \frac {\exp \left( \frac {\log \alpha_k + G_k}{\lambda} \right)}
+{\sum_{i=1}^N \exp \left( \frac {\log \alpha_i + G_i}{\lambda} \right)} \quad
+\text{with} \quad G_k \sim \text{Gumbel}(0, 1)
+\]</span></p>
+<p>This property ensures that we can easily compute unbiased low-variance gradients w.r.t. the location parameters <span class="math inline">\(\boldsymbol{\alpha}\)</span> of the Concrete distribution.</p></li>
+<li><p><em>Rounding</em>: Rounding a Concrete random variable results in the discrete random variable whose distribution is described by the logits <span class="math inline">\(\log \alpha_k\)</span></p>
+<p><span class="math display">\[
+P (\text{X}_k &gt; \text{X}_i \text{ for } i\neq k) = \frac {\alpha_k}{\sum_{i=1}^n \alpha_i}
+\]</span></p>
+<p>This property again indicates the close relationship between concrete and discrete distributions.</p></li>
+<li><p><em>Convex eventually</em>:</p>
+<p><span class="math display">\[
+\text{If } \lambda \le \frac {1}{n-1}, \text{ then } p_{\boldsymbol{\alpha},
+\lambda} \text{ is log-convex in } x
+\]</span></p>
+<p>This property basically tells us if <span class="math inline">\(\lambda\)</span> is small enough, there are no modes in the interior of the probability simplex.</p></li>
+</ol>
+</section>
+<section id="discrete-latent-vae" class="level3">
+<h3 class="anchored" data-anchor-id="discrete-latent-vae">Discrete-Latent VAE</h3>
+<p>One use-case of the <strong>Concrete distribution</strong> and its reparameterization is the training of an variational autoencoder (VAE) with a discrete latent space. The main idea is to use the Concrete distribution during training and use discrete sampled latent variables at test-time. An obvious limitation of this approach is that during training non-discrete samples are returned such that our model needs to be able to handle continuous variables<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Let’s dive into the <strong>discrete-latent VAE</strong> described by <a href="https://arxiv.org/abs/1611.00712">Maddison et al. (2016)</a>.</p>
+<p>We assume that we have a dataset <span class="math inline">\(\textbf{X} = \{\textbf{x}^{(i)}\}_{i=1}^N\)</span> of <span class="math inline">\(N\)</span> i.i.d. samples <span class="math inline">\(\textbf{x}^{(i)}\)</span> which were generated by the following process:</p>
+<ol type="1">
+<li>We sample a <em>one-hot</em> latent vector <span class="math inline">\(\textbf{d}\in\{0, 1\}^{K}\)</span> from a categorical prior distribution <span class="math inline">\(P_{\boldsymbol{a}} (\textbf{d})\)</span>.</li>
+<li>We use our sample <span class="math inline">\(\textbf{d}^{(i)}\)</span> and put it into the <strong>scene model</strong> <span class="math inline">\(p_{\boldsymbol{\theta}}(\textbf{x}|\textbf{d})\)</span> from which we sample to generate the observed image <span class="math inline">\(\textbf{x}^{(i)}\)</span>.</li>
+</ol>
+<p>As a result, the marginal likelihood of an image can be stated as follows</p>
+<p><span class="math display">\[
+p_{\boldsymbol{\theta}, \boldsymbol{a}} (\textbf{x}) = \mathbb{E}_{\textbf{d}
+\sim P_{\boldsymbol{a}}(\textbf{d})} \Big[ p_{\boldsymbol{\theta}} (\textbf{x} |
+\textbf{d}) \Big] = \sum P_{\boldsymbol{a}} \left(\textbf{d}^{(i)} \right) p_{\boldsymbol{\theta}} \left( \textbf{x} |
+\textbf{d}^{(i)} \right),
+\]</span></p>
+<p>where the sum is over all possible <span class="math inline">\(K\)</span> dimensional one-hot vectors. In order to recover this generative process, we introduce a variational approximation <span class="math inline">\(Q_{\boldsymbol{\phi}} (\textbf{d}|\textbf{x})\)</span> of the true, but unknown posterior. Now we exchange the sampling distribution towards this approximation</p>
+<p><span class="math display">\[
+p_{\boldsymbol{\theta}, \boldsymbol{a}} (\textbf{x}) = \sum
+\frac {p_{\boldsymbol{\theta}, \boldsymbol{a}} \left(\textbf{x}, \textbf{d}^{(i)}
+\right)}{Q_{\boldsymbol{\phi}} \left(\textbf{d}^{(i)} | \textbf{x}\right)}
+Q_{\boldsymbol{\phi}} \left(\textbf{d}^{(i)} | \textbf{x}\right) =
+\mathbb{E}_{\textbf{d} \sim  Q_{\boldsymbol{\phi}} \left(\textbf{d} |
+\textbf{x}\right)} \left[ \frac {p_{\boldsymbol{\theta}, \boldsymbol{a}} \left(\textbf{x}, \textbf{d}
+\right)}{Q_{\boldsymbol{\phi}} \left(\textbf{d} | \textbf{x}\right)} \right]
+\]</span></p>
+<p>Lastly, applying Jensen’s inequality on the log-likelihood leads to the evidence lower bound (ELBO) objective of VAEs</p>
+<p><span class="math display">\[
+\log p_{\boldsymbol{\theta}, \boldsymbol{a}} (\textbf{x}) =
+\log \left(
+\mathbb{E}_{\textbf{d} \sim  Q_{\boldsymbol{\phi}} \left(\textbf{d} |
+\textbf{x}\right)} \left[ \frac {p_{\boldsymbol{\theta}, \boldsymbol{a}} \left(\textbf{x}, \textbf{d}
+\right)}{Q_{\boldsymbol{\phi}} \left(\textbf{d} | \textbf{x}\right)} \right]\right)
+\ge
+\mathbb{E}_{\textbf{d} \sim  Q_{\boldsymbol{\phi}} \left(\textbf{d} |
+\textbf{x}\right)} \left[ \log  \frac {p_{\boldsymbol{\theta}, \boldsymbol{a}} \left(\textbf{x}, \textbf{d}
+\right)}{Q_{\boldsymbol{\phi}} \left(\textbf{d} | \textbf{x}\right)} \right]
+= \mathcal{L}^{\text{ELBO}}
+\]</span></p>
+<p>While we are able to compute this objective, we cannot simply optimize it using standard automatic differentiation (AD) due to the discrete sampling operations. The <strong>concrete distribution comes to rescue</strong>: <a href="https://arxiv.org/abs/1611.00712">Maddison et al. (2016)</a> propose to relax the terms <span class="math inline">\(P_{\boldsymbol{a}}(\textbf{d})\)</span> and <span class="math inline">\(Q_{\boldsymbol{\phi}}(\textbf{d}|\textbf{x})\)</span> using concrete distributions instead, leading to the relaxed objective</p>
+<p><span class="math display">\[
+\mathcal{L}^{\text{ELBO}}=
+\mathbb{E}_{\textbf{d} \sim  Q_{\boldsymbol{\phi}} \left(\textbf{d} |
+\textbf{x}\right)} \left[ \log  \frac {p_{\boldsymbol{\theta}} \left(\textbf{x}| \textbf{d}
+\right) P_{\boldsymbol{a}} (\textbf{d}) }{Q_{\boldsymbol{\phi}} \left(\textbf{d} | \textbf{x}\right)} \right]
+\stackrel{\text{relax}}{\rightarrow}
+\mathbb{E}_{\textbf{z} \sim  q_{\boldsymbol{\phi}, \lambda_1} \left(\textbf{z} |
+\textbf{x}\right)} \left[ \log  \frac {p_{\boldsymbol{\theta}} \left(\textbf{x}| \textbf{z}
+\right) p_{\boldsymbol{a}, \lambda_2} (\textbf{z}) }{q_{\boldsymbol{\phi}, \lambda_1} \left(\textbf{z} | \textbf{x}\right)} \right]
+\]</span></p>
+<p>Then, during training we optimize the relaxed objective while during test time we evaluate the original objective including discrete sampling operations. The really neat thing here is that switching between the two modes works out of the box: we only need to switch between the <span class="math inline">\(\text{softmax}\)</span> and <span class="math inline">\(\text{argmax}\)</span> operations.</p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img src="./img/discrete_VAE.png" title="Discrete-Latent VAE Architecture" class="img-fluid" alt="Discrete-Latent VAE Architecture"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Discrete-Latent VAE Architecture</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Things to beware of</strong>: <a href="https://arxiv.org/abs/1611.00712">Maddison et al. (2016)</a> noted that <code>naively implementing [the relaxed objective] will result in numerical issues</code>. Therefore, they give some implementation hints in Appendix C:</p>
+<ul>
+<li><p><strong>Log-Probabilties of Concrete Variables can suffer from underflow</strong>: Let’s investigate why this might happen. The log-likelihood of a concrete variable <span class="math inline">\(\textbf{z}\)</span> is given by</p>
+<p><span class="math display">\[
+\begin{align}
+  \log p_{\boldsymbol{\alpha}, \lambda} (\textbf{z}) =&amp; \log \Big((K-1)! \Big) + (K-1) \log \lambda
+  + \left(\sum_{i=1}^K  \log \alpha_i + (-\lambda - 1) \log  z_i \right) \\
+   &amp;- K \log \left(\sum_{i=1}^K \exp\left( \log \alpha_i - \lambda \log z_i\right)\right)
+\end{align}
+\]</span></p>
+<p>Now let’s remind that concrete variables are pushing towards one-hot vectors (when <span class="math inline">\(\lambda\)</span> is set accordingly), i.e., due to rounding/underflow we might get some <span class="math inline">\(z_i=0\)</span>. This is problematic, since the <span class="math inline">\(\log\)</span> is not defined in this case.</p>
+<p>To circumvent this, <a href="https://arxiv.org/abs/1611.00712">Maddison et al.&nbsp;(2016)</a> propose to work with Concrete random variables in log-space, i.e., to use the following reparameterization</p>
+<p><span class="math display">\[
+y_i = \frac {\log \alpha_i + G_i}{\lambda} - \log \left( \sum_{i=1}^K \exp
+\left( \frac {\log \alpha_i + G_i}{\lambda} \right) \right)
+\quad G_i \sim \text{Gumbel}(0, 1)
+\]</span></p>
+<p>The resulting random variable <span class="math inline">\(\textbf{y}\in\mathbb{R}^K\)</span> has the property that <span class="math inline">\(\exp(Y) \sim \text{Concrete}\left(\boldsymbol{\alpha}, \lambda \right)\)</span>, therefore they denote <span class="math inline">\(Y\)</span> as an <span class="math inline">\(\text{ExpConcrete}\left(\boldsymbol{\alpha}, \lambda\right)\)</span>. Accordingly, the log-likelihood <span class="math inline">\(\log \kappa_{\boldsymbol{\alpha}, \lambda}\)</span> of a variable ExpConcrete variable <span class="math inline">\(\textbf{y}\)</span> is given by</p>
+<p><span class="math display">\[
+\begin{align}
+  \log p_{\boldsymbol{\alpha}, \lambda} (\textbf{y}) =&amp; \log \Big((K-1)! \Big) + (K-1) \log \lambda
+  + \left(\sum_{i=1}^K  \log \alpha_i + (\lambda - 1) y_i \right) \\
+   &amp;- n \log \left(\sum_{i=1}^n \exp\left( \log \alpha_i - \lambda y_i\right)\right)
+\end{align}
+\]</span></p>
+<p>This reparameterization does not change our approach due to the fact that the KL terms of a variational loss are invariant under invertible transformations, i.e., since <span class="math inline">\(\exp\)</span> is invertible, the KL divergence between two <span class="math inline">\(\text{ExpConcrete}\)</span> is the same the KL divergence between two <span class="math inline">\(\text{Concrete}\)</span> distributions.</p></li>
+<li><p><strong>Working with <span class="math inline">\(\text{ExpConcrete}\)</span> random variables</strong>: Remind the relaxed objective</p>
+<p><span class="math display">\[
+\mathcal{L}^{\text{ELBO}}_{rel} =
+\mathbb{E}_{\textbf{z} \sim  q_{\boldsymbol{\phi}, \lambda_1} \left(\textbf{z} |
+\textbf{x}\right)} \left[
+\log p_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z}\right) + \log
+\frac{
+p_{\boldsymbol{a}, \lambda_2} (\textbf{z})
+} {q_{\boldsymbol{\phi},
+\lambda_1} \left(\textbf{z} | \textbf{x}\right)}
+\right]
+\]</span></p>
+<p>Now let’s exchange the <span class="math inline">\(\text{Concrete}\)</span> by <span class="math inline">\(\text{ExpConcrete}\)</span> distributions</p>
+<p><span class="math display">\[
+\mathcal{L}^{\text{ELBO}}_{rel} =
+\mathbb{E}_{\textbf{y} \sim  \kappa_{\boldsymbol{\phi}, \lambda_1} \left(\textbf{z} |
+\textbf{x}\right)} \left[
+\log p_{\boldsymbol{\theta}} \left( \textbf{x} | \exp(\textbf{y})\right) + \log
+\frac{
+\rho_{\boldsymbol{a}, \lambda_2} (\textbf{y})
+} {\kappa_{\boldsymbol{\phi},
+\lambda_1} \left(\textbf{z} | \textbf{y}\right)}
+\right],
+\]</span></p>
+<p>where <span class="math inline">\(\rho_{\boldsymbol{a}, \lambda_2} (\textbf{y})\)</span> is the density of an <span class="math inline">\(\text{ExpConcrete}\)</span> corresponding to the <span class="math inline">\(\text{Concrete}\)</span> distribution <span class="math inline">\(p_{\boldsymbol{a}, \lambda_2} (\textbf{z})\)</span>. Thus, during the implementation we will simply use <span class="math inline">\(\text{ExpConcrete}\)</span> random variables <span class="math inline">\(\textbf{y}\)</span> as random variables and then perform an <span class="math inline">\(\exp\)</span> computation before putting them through the decoder.</p></li>
+<li><p><strong>Choosing the temperature</strong> <span class="math inline">\(\lambda\)</span>: <a href="https://arxiv.org/abs/1611.00712">Maddison et al. (2016)</a> note that the success of the training heavily depends on the choice of temperature. It is rather intuitive that the relaxed nodes should not be able to represent precise real valued mode in the interior of the probability simplex, since otherwise the model is designed to fail. In other words, the only modes of the concrete distributions should be at the vertices of the probability simplex. Fortunately, <a href="https://arxiv.org/abs/1611.00712">Maddison et al. (2016)</a> proved that</p>
+<p><span class="math display">\[
+\text{If } \lambda \le \frac {1}{n-1}, \text{ then } p_{\boldsymbol{\alpha},
+\lambda} \text{ is log-convex in } x
+\]</span></p>
+<p>In other words, if we keep <span class="math inline">\(\lambda \le \frac {1}{n-1}\)</span>, there are no modes in the interior. However, <a href="https://arxiv.org/abs/1611.00712">Maddison et al. (2016)</a> note that in practice, this upper-bound on <span class="math inline">\(\lambda\)</span> might be too tight, e.g., they found for <span class="math inline">\(n=4\)</span> that <span class="math inline">\(\lambda=1\)</span> was the best temperature and in <span class="math inline">\(n=8\)</span>, <span class="math inline">\(\lambda=\frac {2}{3}\)</span>. As a result, they recommend to rather explore <span class="math inline">\(\lambda\)</span> as tuneable hyperparameters.</p>
+<p>Last note about the temperature <span class="math inline">\(\lambda\)</span>: They found that choosing different temperatures <span class="math inline">\(\lambda_1\)</span> and <span class="math inline">\(\lambda_2\)</span> for the posterior <span class="math inline">\(\kappa_{\boldsymbol{\alpha}, \lambda_1}\)</span> and prior <span class="math inline">\(\rho_{\boldsymbol{a}, \lambda_2}\)</span> could dramatically improve the results.</p></li>
+</ul>
+</section>
+</section>
+<section id="implementation" class="level2">
+<h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
+<p>Let’s showcase how the <strong>discrete-latent VAE</strong> performs in comparison to the <strong>standard VAE</strong> (with Gaussian latents). For the sake of simplicity, I am going to create a very (VERY) simple dataset that should mimick the <strong>generative process</strong> we assume in the discrete-latent VAE, i.e., there are <span class="math inline">\(K\)</span> one-hot vectors <span class="math inline">\(\textbf{d}\)</span> and a Gaussian distribution <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{x} | \textbf{d})\)</span>.</p>
+<section id="data-generation" class="level3">
+<h3 class="anchored" data-anchor-id="data-generation">Data Generation</h3>
+<p>The dataset is made of three (<span class="math inline">\(K=3\)</span>) distinct shapes each is assigned a distinct color such that in fact there are only three images in the dataset <span class="math inline">\(\textbf{X}=\{\textbf{x}_i\}_{i=1}^3\)</span>. Therefore, the Gaussian distribution <span class="math inline">\(p_{\boldsymbol{\theta}} (\textbf{x} | \textbf{d})\)</span> has an infinitely small variance. To allow for minibatches during training and to make the epochs larger than one iteration, we upsample the three images by repeating each image <span class="math inline">\(1000\)</span> times in the dataset:</p>
+<div class="cell" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torchvision.transforms <span class="im">as</span> transforms</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image, ImageDraw</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> TensorDataset</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> OneHotEncoder</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_img(shape, color, img_size):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Generate an RGB image from the provided latent factors</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">        shape (string): can only be 'circle', 'square', 'triangle'</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">        color (string): color name or rgb string</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">        img_size (int): describing the image size (img_size, img_size)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">        size (int): size of shape</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">        torch tensor [3, img_size, img_size]</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># blank image</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    img <span class="op">=</span> Image.new(<span class="st">'RGB'</span>, (img_size, img_size), color<span class="op">=</span><span class="st">'black'</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># center coordinates</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    center <span class="op">=</span> img_size<span class="op">//</span><span class="dv">2</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># define coordinates</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    x_0, y_0 <span class="op">=</span> center <span class="op">-</span> size<span class="op">//</span><span class="dv">2</span>, center <span class="op">-</span> size<span class="op">//</span><span class="dv">2</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    x_1, y_1 <span class="op">=</span> center <span class="op">+</span> size<span class="op">//</span><span class="dv">2</span>, center <span class="op">+</span> size<span class="op">//</span><span class="dv">2</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># draw shapes</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    img1 <span class="op">=</span> ImageDraw.Draw(img)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> shape <span class="op">==</span> <span class="st">'square'</span>:</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        img1.rectangle([(x_0, y_0), (x_1, y_1)], fill<span class="op">=</span>color)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> shape <span class="op">==</span> <span class="st">'circle'</span>:</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        img1.ellipse([(x_0, y_0), (x_1, y_1)], fill<span class="op">=</span>color)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> shape <span class="op">==</span> <span class="st">'triangle'</span>:</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        y_0, y_1 <span class="op">=</span> center <span class="op">+</span> size<span class="op">//</span><span class="dv">3</span>,  center <span class="op">-</span> size<span class="op">//</span><span class="dv">3</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        img1.polygon([(x_0, y_0), (x_1, y_0), (center, y_1)], fill<span class="op">=</span>color)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> transforms.ToTensor()(img)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_dataset(n_samples_per_class, colors, shapes, sizes, img_size):</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    data, labels <span class="op">=</span> [], []</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (n_samples, color, shape, size) <span class="kw">in</span> <span class="bu">zip</span>(n_samples_per_class,colors,shapes,sizes):</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>        img <span class="op">=</span> generate_img(shape, color, img_size, size)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>        data.append(img.unsqueeze(<span class="dv">0</span>).repeat(n_samples, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>        labels.extend(n_samples<span class="op">*</span>[shape])</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># cast data to tensor [sum(n_samples_per_class), 3, img_size, img_size]</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> torch.vstack(data).<span class="bu">type</span>(torch.float32)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create one-hot encoded labels</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    labels <span class="op">=</span> OneHotEncoder().fit_transform(np.array(labels).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)).toarray()</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make tensor dataset</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> TensorDataset(data, torch.from_numpy(labels))</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dataset</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>IMG_SIZE <span class="op">=</span> <span class="dv">32</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>N_SAMPLES_PER_CLASS <span class="op">=</span> [<span class="dv">1000</span>, <span class="dv">1000</span>, <span class="dv">1000</span>]</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>SHAPES <span class="op">=</span> [<span class="st">'square'</span>, <span class="st">'circle'</span>, <span class="st">'triangle'</span>]</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>COLORS <span class="op">=</span> [<span class="st">'red'</span>, <span class="st">'green'</span>, <span class="st">'blue'</span>]</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>SIZES <span class="op">=</span> [<span class="dv">12</span>, <span class="dv">14</span>, <span class="dv">20</span>]</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> generate_dataset(N_SAMPLES_PER_CLASS,COLORS, SHAPES, SIZES, IMG_SIZE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><img src="./img/dataset.png" title="Dataset" class="img-fluid" alt="Dataset"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Dataset</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="model-implementation" class="level3">
+<h3 class="anchored" data-anchor-id="model-implementation">Model Implementation</h3>
+<ul>
+<li><strong>Standard VAE</strong></li>
+</ul>
+<div class="cell" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.distributions <span class="im">as</span> dists</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>HIDDEN_DIM <span class="op">=</span> <span class="dv">200</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>LATENT_DIM <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>FIXED_VAR <span class="op">=</span> <span class="fl">0.1</span><span class="op">**</span><span class="dv">2</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VAE(nn.Module):</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(VAE, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.encoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>            nn.Flatten(),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            nn.Linear((IMG_SIZE<span class="op">**</span><span class="dv">2</span>)<span class="op">*</span><span class="dv">3</span>, HIDDEN_DIM),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            nn.Linear(HIDDEN_DIM, <span class="dv">2</span><span class="op">*</span>LATENT_DIM)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.decoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>            nn.Linear(LATENT_DIM, HIDDEN_DIM),</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            nn.Linear(HIDDEN_DIM, (IMG_SIZE<span class="op">**</span><span class="dv">2</span>)<span class="op">*</span><span class="dv">3</span>),</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> compute_loss(<span class="va">self</span>, x):</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, mu_z, log_var_z] <span class="op">=</span> <span class="va">self</span>.forward(x)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute negative log-likelihood</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        NLL <span class="op">=</span> <span class="op">-</span>dists.Normal(x_tilde, FIXED_VAR).log_prob(x).<span class="bu">sum</span>(axis<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)).mean()</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># copmute kl divergence</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        KL_Div <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span><span class="op">*</span>(<span class="dv">1</span> <span class="op">+</span> log_var_z <span class="op">-</span> mu_z.<span class="bu">pow</span>(<span class="dv">2</span>) <span class="op">-</span> log_var_z.exp()).<span class="bu">sum</span>(<span class="dv">1</span>).mean()</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute loss</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> NLL <span class="op">+</span> KL_Div</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> loss, NLL, KL_Div</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""feed image (x) through VAE</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co">        Args:</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="co">            x (torch tensor): input [batch, img_channels, img_dim, img_dim]</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns:</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="co">            x_tilde (torch tensor): [batch, img_channels, img_dim, img_dim]</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="co">            z (torch tensor): latent space samples [batch, LATENT_DIM]</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co">            mu_z (torch tensor): mean latent space [batch, LATENT_DIM]</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="co">            log_var_z (torch tensor): log var latent space [batch, LATENT_DIM]</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>        z, mu_z, log_var_z <span class="op">=</span> <span class="va">self</span>.encode(x)</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> <span class="va">self</span>.decode(z)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [x_tilde, z, mu_z, log_var_z]</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> encode(<span class="va">self</span>, x):</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""computes the approximated posterior distribution parameters and</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="co">        samples from this distribution</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="co">        Args:</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="co">            x (torch tensor): input [batch, img_channels, img_dim, img_dim]</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns:</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a><span class="co">            z (torch tensor): latent space samples [batch, LATENT_DIM]</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a><span class="co">            mu_E (torch tensor): mean latent space [batch, LATENT_DIM]</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="co">            log_var_E (torch tensor): log var latent space [batch, LATENT_DIM]</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get encoder distribution parameters</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>        out_encoder <span class="op">=</span> <span class="va">self</span>.encoder(x)</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>        mu_E, log_var_E <span class="op">=</span> torch.chunk(out_encoder, <span class="dv">2</span>, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>        <span class="co"># sample noise variable for each batch and sample</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>        epsilon <span class="op">=</span> torch.randn_like(log_var_E)</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get latent variable by reparametrization trick</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>        z <span class="op">=</span> mu_E <span class="op">+</span> torch.exp(<span class="fl">0.5</span><span class="op">*</span>log_var_E) <span class="op">*</span> epsilon</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> z, mu_E, log_var_E</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> decode(<span class="va">self</span>, z):</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""computes the Gaussian mean of p(x|z)</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="co">        Args:</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a><span class="co">            z (torch tensor): latent space samples [batch, LATENT_DIM]</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns:</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a><span class="co">            x_tilde (torch tensor): [batch, img_channels, img_dim, img_dim]</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get decoder distribution parameters</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> <span class="va">self</span>.decoder(z).view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">3</span>, IMG_SIZE, IMG_SIZE)</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_tilde</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> create_latent_traversal(<span class="va">self</span>, image_batch, n_pert, pert_min_max<span class="op">=</span><span class="dv">2</span>, n_latents<span class="op">=</span><span class="dv">3</span>):</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>        device <span class="op">=</span> image_batch.device</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>        <span class="co"># initialize images of latent traversal</span></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>        images <span class="op">=</span> torch.zeros(n_latents, n_pert, <span class="op">*</span>image_batch.shape[<span class="dv">1</span>::])</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>        <span class="co"># select the latent_dims with lowest variance (most informative)</span></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, mu_z, log_var_z] <span class="op">=</span> <span class="va">self</span>.forward(image_batch)</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>        i_lats <span class="op">=</span> log_var_z.mean(axis<span class="op">=</span><span class="dv">0</span>).sort()[<span class="dv">1</span>][:n_latents]</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>        <span class="co"># sweep for latent traversal</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>        sweep <span class="op">=</span> np.linspace(<span class="op">-</span>pert_min_max, pert_min_max, n_pert)</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>        <span class="co"># take first image and encode</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>        [z, mu_E, log_var_E] <span class="op">=</span> <span class="va">self</span>.encode(image_batch[<span class="dv">0</span>:<span class="dv">1</span>])</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> latent_dim, i_lat <span class="kw">in</span> <span class="bu">enumerate</span>(i_lats):</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> pertubation_dim, z_replaced <span class="kw">in</span> <span class="bu">enumerate</span>(sweep):</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>                <span class="co"># copy z and pertubate latent__dim i_lat</span></span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>                z_new <span class="op">=</span> z.detach().clone()</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>                z_new[<span class="dv">0</span>][i_lat] <span class="op">=</span> z_replaced</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>                img_rec <span class="op">=</span> <span class="va">self</span>.decode(z_new.to(device)).squeeze(<span class="dv">0</span>).cpu()</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>                images[latent_dim][pertubation_dim] <span class="op">=</span> img_rec</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> images</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<ul>
+<li><p><strong>Discrete-Latent VAE</strong>:</p>
+<p>Luckily, <a href="https://pytorch.org/docs/stable/distributions.html">Pytorch distributions</a> have already implemented the <strong>concrete distribution</strong> which even takes care of using the <span class="math inline">\(\text{ExpConcrete}\)</span> for the computation of the log probability, see <a href="https://pytorch.org/docs/stable/_modules/torch/distributions/relaxed_categorical.html#RelaxedOneHotCategorical">source code</a>.</p>
+<p>As suggested by <a href="https://arxiv.org/abs/1611.00712">Maddison et al.&nbsp;(2016)</a>, we set <span class="math inline">\(\lambda_1 = \frac{2}{3}\)</span>. Setting <span class="math inline">\(\lambda_2 = 2\)</span> seemed to improve stability, however I did not take time to really tune these hyperparameters (which is just not necessary due to the simplicity of the task).</p></li>
+</ul>
+<div class="cell" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>LAMBDA_1 <span class="op">=</span> torch.tensor([<span class="dv">2</span><span class="op">/</span><span class="dv">3</span>])</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>LAMBDA_2 <span class="op">=</span> torch.tensor([<span class="fl">2.</span>])</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>PRIOR_PROBS <span class="op">=</span> <span class="dv">1</span><span class="op">/</span>LATENT_DIM<span class="op">*</span>torch.ones(LATENT_DIM)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DiscreteVAE(nn.Module):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(DiscreteVAE, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.encoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            nn.Flatten(),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>            nn.Linear((IMG_SIZE<span class="op">**</span><span class="dv">2</span>)<span class="op">*</span><span class="dv">3</span>, HIDDEN_DIM),</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>            nn.Linear(HIDDEN_DIM, LATENT_DIM)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.decoder <span class="op">=</span> nn.Sequential(</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>            nn.Linear(LATENT_DIM, HIDDEN_DIM),</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>            nn.Linear(HIDDEN_DIM, (IMG_SIZE<span class="op">**</span><span class="dv">2</span>)<span class="op">*</span><span class="dv">3</span>),</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.register_buffer(<span class="st">"LAMBDA_1"</span>, LAMBDA_1)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.register_buffer(<span class="st">"LAMBDA_2"</span>, LAMBDA_2)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.register_buffer(<span class="st">"PRIOR_PROBS"</span>, PRIOR_PROBS)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> compute_loss(<span class="va">self</span>, x):</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, latent_dist] <span class="op">=</span> <span class="va">self</span>.forward(x, <span class="st">"Train"</span>)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute negative log-likelihood</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        NLL <span class="op">=</span> <span class="op">-</span>dists.Normal(x_tilde, FIXED_VAR).log_prob(x).<span class="bu">sum</span>(axis<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)).mean()</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># copmute kl divergence</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        PRIOR_DIST <span class="op">=</span> dists.RelaxedOneHotCategorical(<span class="va">self</span>.LAMBDA_2, <span class="va">self</span>.PRIOR_PROBS)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        KL_Div <span class="op">=</span>  (latent_dist.log_prob(z) <span class="op">-</span> PRIOR_DIST.log_prob(z)).mean()</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute loss</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> NLL <span class="op">+</span> KL_Div</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> loss, NLL, KL_Div</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x, mode<span class="op">=</span><span class="st">"Train"</span>):</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>        latent_dist, z <span class="op">=</span> <span class="va">self</span>.encode(x, mode)</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> <span class="va">self</span>.decode(z)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [x_tilde, z, latent_dist]</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> encode(<span class="va">self</span>, x, mode<span class="op">=</span><span class="st">"Train"</span>):</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""computes the approximated posterior distribution parameters and</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="co">        returns the distribution (torch distribution) and a sample from that</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="co">        distribution</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="co">        Args:</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="co">            x (torch tensor): input [batch, img_channels, img_dim, img_dim]</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns:</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="co">            dist (torch distribution): latent distribution</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get encoder distribution parameters</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>        log_alpha <span class="op">=</span> <span class="va">self</span>.encoder(x)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>        probs <span class="op">=</span> log_alpha.exp()</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> mode <span class="op">==</span> <span class="st">"Train"</span>:</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>            <span class="co"># concrete distribution</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>            latent_dist <span class="op">=</span> dists.RelaxedOneHotCategorical(<span class="va">self</span>.LAMBDA_1, probs)</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>            z <span class="op">=</span> latent_dist.rsample()</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> [latent_dist, z]</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> mode <span class="op">==</span> <span class="st">"Test"</span>:</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>            <span class="co"># discrete distribution</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>            latent_dist <span class="op">=</span> dists.OneHotCategorical(probs)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>            d <span class="op">=</span> latent_dist.sample()</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> [latent_dist, d]</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> create_latent_traversal(<span class="va">self</span>):</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""in the discrete case there are only LATENT_DIM possible latent states"""</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>        <span class="co"># initialize images of latent traversal</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>        images <span class="op">=</span> torch.zeros(LATENT_DIM, <span class="dv">3</span>, IMG_SIZE, IMG_SIZE)</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>        latent_samples <span class="op">=</span> torch.zeros(LATENT_DIM, LATENT_DIM)</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i_lat <span class="kw">in</span> <span class="bu">range</span>(LATENT_DIM):</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>            d <span class="op">=</span> torch.zeros(<span class="dv">1</span>, LATENT_DIM).to(<span class="va">self</span>.LAMBDA_1.device)</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>            d[<span class="dv">0</span>][i_lat] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>            images[i_lat] <span class="op">=</span> <span class="va">self</span>.decode(d).squeeze(<span class="dv">0</span>)</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>            latent_samples[i_lat] <span class="op">=</span> d</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> images, latent_samples</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> decode(<span class="va">self</span>, z):</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""computes the Gaussian mean of p(x|z)</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a><span class="co">        Args:</span></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a><span class="co">            z (torch tensor): latent space samples [batch, LATENT_DIM]</span></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns:</span></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a><span class="co">            x_tilde (torch tensor): [batch, img_channels, img_dim, img_dim]</span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get decoder distribution parameters</span></span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> <span class="va">self</span>.decoder(z).view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">3</span>, IMG_SIZE, IMG_SIZE)</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_tilde</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<ul>
+<li><strong>Training Procedure</strong></li>
+</ul>
+<div class="cell" data-execution_count="5">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> livelossplot <span class="im">import</span> PlotLosses</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>BATCH_SIZE <span class="op">=</span> <span class="dv">128</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>LEARNING_RATE <span class="op">=</span> <span class="fl">1e-3</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>WEIGHT_DECAY <span class="op">=</span> <span class="fl">1e-6</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(dataset, std_vae, discrete_vae, num_epochs):</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'Device: </span><span class="sc">{}</span><span class="st">'</span>.<span class="bu">format</span>(device))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    data_loader <span class="op">=</span> DataLoader(dataset, batch_size<span class="op">=</span>BATCH_SIZE, shuffle<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                             num_workers<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    std_vae.to(device)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    discrete_vae.to(device)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    optimizer_std_vae <span class="op">=</span> torch.optim.Adam(std_vae.parameters(), lr<span class="op">=</span>LEARNING_RATE,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                                         weight_decay<span class="op">=</span>WEIGHT_DECAY)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    optimizer_dis_vae <span class="op">=</span> torch.optim.Adam(discrete_vae.parameters(), lr<span class="op">=</span>LEARNING_RATE,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                                         weight_decay<span class="op">=</span>WEIGHT_DECAY)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    losses_plot <span class="op">=</span> PlotLosses(groups<span class="op">=</span>{<span class="st">'KL Div'</span>: [<span class="st">'STD-VAE KL'</span>, <span class="st">'Discrete-VAE KL'</span>],</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">'NLL'</span>: [<span class="st">'STD-VAE NLL'</span>, <span class="st">'Discrete-VAE NLL'</span>]})</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, num_epochs <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        avg_KL_STD_VAE, avg_NLL_STD_VAE <span class="op">=</span> <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        avg_KL_DIS_VAE, avg_NLL_DIS_VAE <span class="op">=</span> <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> (x, label) <span class="kw">in</span> data_loader:</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> x.to(device)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>            <span class="co"># standard vae update</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>            optimizer_std_vae.zero_grad()</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>            loss, NLL, KL_Div  <span class="op">=</span> std_vae.compute_loss(x)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>            optimizer_std_vae.step()</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>            avg_KL_STD_VAE <span class="op">+=</span> KL_Div.item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>            avg_NLL_STD_VAE <span class="op">+=</span> NLL.item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>            <span class="co"># discrete vae update</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>            optimizer_dis_vae.zero_grad()</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>            loss, NLL, KL_Div  <span class="op">=</span> discrete_vae.compute_loss(x)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>            loss.backward()</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>            optimizer_dis_vae.step()</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>            avg_KL_DIS_VAE <span class="op">+=</span> KL_Div.item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>            avg_NLL_DIS_VAE <span class="op">+=</span> NLL.item() <span class="op">/</span> <span class="bu">len</span>(data_loader)</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># plot current losses</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        losses_plot.update({<span class="st">'STD-VAE KL'</span>: avg_KL_STD_VAE, <span class="st">'STD-VAE NLL'</span>: avg_NLL_STD_VAE,</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>                            <span class="st">'Discrete-VAE KL'</span>: avg_KL_DIS_VAE,</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>                            <span class="st">'Discrete-VAE NLL'</span>: avg_NLL_DIS_VAE}, current_step<span class="op">=</span>epoch)</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        losses_plot.send()</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    trained_std_vae, trained_discrete_vae <span class="op">=</span> std_vae, discrete_vae</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> trained_std_vae, trained_discrete_vae</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">Results</h3>
+<p>Let’s train both models for some seconds:</p>
+<div class="cell" data-execution_count="6">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>num_epochs <span class="op">=</span> <span class="dv">15</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>std_vae <span class="op">=</span> VAE()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>discrete_vae <span class="op">=</span> DiscreteVAE()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>trained_std_vae, trained_discrete_vae <span class="op">=</span> train(dataset, std_vae, discrete_vae, num_epochs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./img/training.png" title="Training" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Training</figcaption>
+</figure>
+</div>
+<p>Both models seem to be able to create descent reconstructions (really low NLL). From here on out, we will only run the <strong>discrete-latent VAE</strong> in test-mode, i.e., with a categorical latent distribution.</p>
+</section>
+<section id="visualizations" class="level3">
+<h3 class="anchored" data-anchor-id="visualizations">Visualizations</h3>
+<ul>
+<li><strong>Reconstructions</strong>: Let’s verify that both models are able to create good reconstructions.</li>
+</ul>
+<div class="cell" data-execution_count="7">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_reconstructions(std_vae, discrete_vae, dataset, SEED<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    np.random.seed(SEED)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    std_vae.to(device)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    discrete_vae.to(device)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    n_samples <span class="op">=</span> <span class="dv">7</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    i_samples <span class="op">=</span> np.random.choice(<span class="bu">range</span>(<span class="bu">len</span>(dataset)), n_samples, replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    plt.suptitle(<span class="st">"Reconstructions"</span>, fontsize<span class="op">=</span><span class="dv">16</span>, y<span class="op">=</span><span class="dv">1</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> counter, i_sample <span class="kw">in</span> <span class="bu">enumerate</span>(i_samples):</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        orig_img <span class="op">=</span> dataset[i_sample][<span class="dv">0</span>]</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># plot original img</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> plt.subplot(<span class="dv">3</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        plt.imshow(transforms.ToPILImage()(orig_img))</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>            ax.annotate(<span class="st">"input"</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">"axes fraction"</span>,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>                        va<span class="op">=</span><span class="st">"center"</span>, ha<span class="op">=</span><span class="st">"right"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># plot img reconstruction STD VAE</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, mu_z, log_var_z] <span class="op">=</span> std_vae(orig_img.unsqueeze(<span class="dv">0</span>).to(device))</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> plt.subplot(<span class="dv">3</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter <span class="op">+</span> n_samples)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> x_tilde[<span class="dv">0</span>].detach().cpu()</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        plt.imshow(transforms.ToPILImage()(x_tilde))</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>            ax.annotate(<span class="st">"STD VAE recons"</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">"axes fraction"</span>,</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>                        va<span class="op">=</span><span class="st">"center"</span>, ha<span class="op">=</span><span class="st">"right"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># plot img reconstruction IWAE</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        [x_tilde, z, dist] <span class="op">=</span> discrete_vae(orig_img.unsqueeze(<span class="dv">0</span>).to(device), <span class="st">"Test"</span>)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> plt.subplot(<span class="dv">3</span>, n_samples, <span class="dv">1</span> <span class="op">+</span> counter <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>n_samples)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        x_tilde <span class="op">=</span> x_tilde[<span class="dv">0</span>].detach().cpu()</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        plt.imshow(transforms.ToPILImage()(x_tilde))</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>        plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>            ax.annotate(<span class="st">"Discrete VAE recons"</span>, xy<span class="op">=</span>(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.5</span>), xycoords<span class="op">=</span><span class="st">"axes fraction"</span>,</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>                        va<span class="op">=</span><span class="st">"center"</span>, ha<span class="op">=</span><span class="st">"right"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>plot_reconstructions(trained_std_vae, trained_discrete_vae, dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./img/recons.png" title="Reconstructions" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Reconstructions</figcaption>
+</figure>
+</div>
+<p>Interestingly, the <strong>standard VAE</strong> does not always create valid reconstructions. This is due to the sampling from a Gaussian in the latent space, i.e., the decoder might see some <span class="math inline">\(\textbf{z}\)</span> it has not yet seen and then creates some weird reconstruction.</p>
+<ul>
+<li><p><strong>Latent Traversal</strong>: Let’s traverse the latent dimension to see what the model has learnt. Note that for the <strong>standard VAE</strong> the latent space is continuous and therefore infinitely many latent sample exist. As usual, we will only show an limited amount by pertubating each latent dimension between -1 and +1 (while holding the other dimensions constant).</p>
+<p>For the <strong>discrete-latent VAE</strong>, there are only <span class="math inline">\(K\)</span> possible latent states.</p></li>
+</ul>
+<div class="cell" data-execution_count="8">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_latent_traversal(std_vae, discrete_vae, dataset, SEED<span class="op">=</span><span class="dv">1</span>):    </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    np.random.seed(SEED)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    device <span class="op">=</span> <span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    std_vae.to(device)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    discrete_vae.to(device)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    n_samples <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    i_samples <span class="op">=</span> np.random.choice(<span class="bu">range</span>(<span class="bu">len</span>(dataset)), n_samples, replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    img_batch <span class="op">=</span> torch.cat([dataset[i][<span class="dv">0</span>].unsqueeze(<span class="dv">0</span>) <span class="cf">for</span> i <span class="kw">in</span> i_samples], <span class="dv">0</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    img_batch <span class="op">=</span> img_batch.to(device)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate latent traversals</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    n_pert, pert_min_max, n_lats <span class="op">=</span> <span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">3</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    img_trav_vae <span class="op">=</span> std_vae.create_latent_traversal(img_batch, n_pert, pert_min_max, n_lats)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    img_discrete_vae, latent_samples <span class="op">=</span> discrete_vae.create_latent_traversal()</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    n_rows, n_cols <span class="op">=</span> n_lats <span class="op">+</span> <span class="dv">1</span>, <span class="dv">2</span><span class="op">*</span>n_pert <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    gs <span class="op">=</span> GridSpec(n_rows, n_cols)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    plt.suptitle(<span class="st">"Latent Traversals"</span>, fontsize<span class="op">=</span><span class="dv">16</span>, y<span class="op">=</span><span class="dv">1</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row_index <span class="kw">in</span> <span class="bu">range</span>(n_lats):</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> col_index <span class="kw">in</span> <span class="bu">range</span>(n_pert):</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>            img_rec_VAE <span class="op">=</span> img_trav_vae[row_index][col_index]</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>            ax <span class="op">=</span> plt.subplot(gs[row_index, col_index])</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>            plt.imshow(transforms.ToPILImage()(img_rec_VAE))</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>            plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> row_index <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> col_index <span class="op">==</span> <span class="bu">int</span>(n_pert<span class="op">//</span><span class="dv">2</span>):</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>                plt.title(<span class="st">'STD VAE'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, y<span class="op">=</span><span class="fl">1.1</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>            ax <span class="op">=</span> plt.subplot(gs[row_index, col_index <span class="op">+</span> n_pert <span class="op">+</span> <span class="dv">1</span>])</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> col_index <span class="op">==</span> <span class="dv">2</span>:</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>                plt.imshow(transforms.ToPILImage()(img_discrete_vae[row_index]))</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> col_index <span class="op">==</span> <span class="dv">3</span>:</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>                d <span class="op">=</span> latent_samples[row_index].<span class="bu">type</span>(torch.uint8).tolist()</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>                ax.annotate(<span class="ss">f"d = </span><span class="sc">{</span>d<span class="sc">}</span><span class="ss">"</span>, xy<span class="op">=</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>))</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>            plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> row_index <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> col_index <span class="op">==</span> <span class="bu">int</span>(n_pert<span class="op">//</span><span class="dv">2</span>):</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>                plt.title(<span class="st">'Discrete VAE'</span>, fontsize<span class="op">=</span><span class="dv">14</span>, y<span class="op">=</span><span class="fl">1.1</span>)</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># add pertubation magnitude</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax <span class="kw">in</span> [plt.subplot(gs[n_lats, <span class="dv">0</span>:<span class="dv">5</span>])]:</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>        ax.annotate(<span class="st">"pertubation magnitude"</span>, xy<span class="op">=</span>(<span class="fl">0.5</span>, <span class="fl">0.6</span>), xycoords<span class="op">=</span><span class="st">"axes fraction"</span>,</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>                    va<span class="op">=</span><span class="st">"center"</span>, ha<span class="op">=</span><span class="st">"center"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>        ax.set_frame_on(<span class="va">False</span>)</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>        ax.axes.set_xlim([<span class="op">-</span><span class="fl">1.15</span> <span class="op">*</span> pert_min_max, <span class="fl">1.15</span> <span class="op">*</span> pert_min_max])</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>        ax.xaxis.set_ticks([<span class="op">-</span>pert_min_max, <span class="dv">0</span>, pert_min_max])</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>        ax.xaxis.set_ticks_position(<span class="st">"top"</span>)</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>        ax.xaxis.set_tick_params(direction<span class="op">=</span><span class="st">"inout"</span>, pad<span class="op">=-</span><span class="dv">16</span>)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>        ax.get_yaxis().set_ticks([])</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>plot_latent_traversal(trained_std_vae, trained_discrete_vae, dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./img/latent_trav.png" title="Latent Traversal" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Latent Traversal</figcaption>
+</figure>
+</div>
+<p>Well, this looks nice for the <strong>discrete VAE</strong> and really confusing for the <strong>Standard VAE</strong>.</p>
+</section>
+</section>
+<section id="acknowledgements" class="level2">
+<h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
+<p>The lecture on <a href="https://www.youtube.com/watch?v=-KzvHc16HlM">discrete latent variables</a> by Artem Sobolev as well as the <a href="https://www.youtube.com/watch?v=JFgXEbgcT7g">NIPS presentation</a> by Eric Jang were really helpful resources.</p>
+<hr>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>While continuous variables do not pose a problem for standard VAEs with neural networks as approximations, it should be noted that there are numerous cases in which we cannot operate with continuous variables, e.g., when the (discrete) variable is used as a decision variable.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

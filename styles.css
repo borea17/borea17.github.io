@@ -1,0 +1,12 @@
+/* css styles */
+
+th:first-child {
+  border: 10px solid #bfbfbf;
+  text-align: center;
+  border-bottom: 10px solid #bfbfbf;
+}
+
+.toc {
+  /* border: 1px solid $border-color; */
+  background-color: #ffffff;
+}
