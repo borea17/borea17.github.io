@@ -1,95 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://borea17.github.io/ml101.html</loc>
-    <lastmod>2023-08-19T16:39:18.150Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/paper_summaries/schema_networks/index.html</loc>
-    <lastmod>2023-08-19T16:39:15.746Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/paper_summaries/spatial_broadcast_decoder/index.html</loc>
-    <lastmod>2023-08-19T16:39:13.742Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/paper_summaries/spatial_transformer/index.html</loc>
-    <lastmod>2023-08-19T16:39:11.345Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/paper_summaries/air/index.html</loc>
-    <lastmod>2023-08-19T16:39:08.517Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/paper_summaries/multi-object_network/index.html</loc>
-    <lastmod>2023-08-19T16:39:04.825Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/index.html</loc>
-    <lastmod>2023-08-19T16:39:00.980Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/ml101/engineering/remap-numbers-in-interval/index.html</loc>
-    <lastmod>2023-08-19T16:38:57.604Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/ml101/engineering/sigmoid_loss/index.html</loc>
-    <lastmod>2023-08-19T16:38:56.936Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/ml101/probability_theory/score_function_estimator/index.html</loc>
-    <lastmod>2023-08-19T16:38:55.104Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/ml101/probability_theory/better_score_function_estimator/index.html</loc>
-    <lastmod>2023-08-19T16:38:54.308Z</lastmod>
-  </url>
-  <url>
     <loc>https://borea17.github.io/ml101/probability_theory/pearson_vs_spearman_correlation/index.html</loc>
-    <lastmod>2023-08-19T16:38:53.092Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/ml101/probability_theory/cross_entropy_loss/index.html</loc>
-    <lastmod>2023-08-19T16:38:53.920Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/ml101/probability_theory/evidence_lower_bound/index.html</loc>
-    <lastmod>2023-08-19T16:38:54.708Z</lastmod>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/ml101/probability_theory/linear_regression_and_maximum_likelihood/index.html</loc>
-    <lastmod>2023-08-19T16:38:55.456Z</lastmod>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101/probability_theory/better_score_function_estimator/index.html</loc>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/ml101/engineering/mean_of_means/index.html</loc>
-    <lastmod>2023-08-19T16:38:57.268Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/paper_summaries.html</loc>
-    <lastmod>2023-08-19T16:39:00.692Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/paper_summaries/u_net/index.html</loc>
-    <lastmod>2023-08-19T16:39:02.793Z</lastmod>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/paper_summaries/concrete_distribution/index.html</loc>
-    <lastmod>2023-08-19T16:39:06.061Z</lastmod>
+    <lastmod>2024-01-27T14:39:46.057Z</lastmod>
   </url>
   <url>
-    <loc>https://borea17.github.io/paper_summaries/interaction_network/index.html</loc>
-    <lastmod>2023-08-19T16:39:09.949Z</lastmod>
+    <loc>https://borea17.github.io/paper_summaries/spatial_broadcast_decoder/index.html</loc>
+    <lastmod>2024-01-27T14:39:46.073Z</lastmod>
   </url>
   <url>
-    <loc>https://borea17.github.io/paper_summaries/graph_networks/index.html</loc>
-    <lastmod>2023-08-19T16:39:12.077Z</lastmod>
-  </url>
-  <url>
-    <loc>https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes/index.html</loc>
-    <lastmod>2023-08-19T16:39:14.730Z</lastmod>
+    <loc>https://borea17.github.io/paper_summaries/spatial_transformer/index.html</loc>
+    <lastmod>2024-01-27T14:39:46.181Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/paper_summaries/iwae/index.html</loc>
-    <lastmod>2023-08-19T16:39:17.298Z</lastmod>
+    <lastmod>2024-01-27T14:39:46.065Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/paper_summaries/interaction_network/index.html</loc>
+    <lastmod>2024-01-27T14:39:46.061Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/paper_summaries/multi-object_network/index.html</loc>
+    <lastmod>2024-01-27T14:39:46.069Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/paper_summaries.html</loc>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/index.html</loc>
+    <lastmod>2024-01-27T14:39:45.785Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101.html</loc>
+    <lastmod>2024-01-27T14:39:45.785Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/paper_summaries/schema_networks/index.html</loc>
+    <lastmod>2024-01-27T14:39:46.069Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/paper_summaries/graph_networks/index.html</loc>
+    <lastmod>2024-01-27T14:39:46.061Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/paper_summaries/u_net/index.html</loc>
+    <lastmod>2024-01-27T14:39:46.241Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes/index.html</loc>
+    <lastmod>2024-01-27T14:39:46.057Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/paper_summaries/air/index.html</loc>
+    <lastmod>2024-01-27T14:39:46.053Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101/engineering/sigmoid_loss/index.html</loc>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101/engineering/remap-numbers-in-interval/index.html</loc>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101/probability_theory/score_function_estimator/index.html</loc>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101/probability_theory/evidence_lower_bound/index.html</loc>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101/probability_theory/cross_entropy_loss/index.html</loc>
+    <lastmod>2024-01-27T14:39:45.789Z</lastmod>
   </url>
 </urlset>

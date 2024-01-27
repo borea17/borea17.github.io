@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -48,7 +48,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -57,6 +63,7 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -66,16 +73,43 @@ ul.task-list li input[type="checkbox"] {
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 <link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">borea17</span>
     </a>
@@ -87,17 +121,17 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../paper_summaries.html" rel="" target="">
- <span class="menu-text">Paper Summaries</span></a>
+    <a class="nav-link" href="../../paper_summaries.html"> 
+<span class="menu-text">Paper Summaries</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../ml101.html" rel="" target="">
- <span class="menu-text">ML101</span></a>
+    <a class="nav-link" href="../../ml101.html"> 
+<span class="menu-text">ML101</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools">
-</div>
           </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -153,11 +187,13 @@ ul.task-list li input[type="checkbox"] {
 
 
 
+
 <p><a href="https://arxiv.org/abs/1612.00222">Battaglia et al.&nbsp;(2016)</a> introduce the <em>Interaction Network (IN)</em> as the first general-purpose learnable physics engine capable of zero-shot generalization in terms of varying configurations of objects and relations. The IN leverages object- and relation-based reasoning by defining a message passing scheme on a graph-structured representation of objects as nodes and relations as edges. As a proof of concept, they show that their model successfully learned to predict physical trajectories in gravitational systems, bouncing ball domains and mass string systems, and that it could also learn to estimate abstract properties such as the potential energy. Although its formulation is based on dynamical physical systems, it might also be applicable to other domains that can be abstracted into a graph-structured representation of objects and relations such as model-based reinforcment learning.</p>
 <section id="model-description" class="level2">
 <h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
 <p>In essence, the IN model can be understood as a graph-based simulator (i.e., state is represented as a graph) that predicts a future state (i.e., altered graph) using a message-passing scheme. <a href="https://arxiv.org/abs/1612.00222">Battaglia et al. (2016)</a> used a handcrafted scene encoder/decoder to convert the physical scene into the corresponding graph structure and vice versa.</p>
-<p><strong>Definition</strong>: Let <span class="math inline">\(G=\langle O, R \rangle\)</span> be an attributed, directed multigraph in which the set of nodes <span class="math inline">\(O=\\{o_j\\}_{j=1 \dots N_O}\)</span> represents objects and the set of edges <span class="math inline">\(R = \\{ \langle i, j , r_k \rangle_k \\}\_{1 \dots N_R}\)</span> represents the relations between the objects, i.e., the triplet <span class="math inline">\(\langle i,j, r_k \rangle_k\)</span> defines the <span class="math inline">\(k^{\text{th}}\)</span> relation from sender <span class="math inline">\(o_i\)</span> to receiver <span class="math inline">\(o_j\)</span> with relation attribute <span class="math inline">\(r_k\)</span>. Each object <span class="math inline">\(o_i\)</span> may have several attributes<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, an object state <span class="math inline">\(o_i^{(t)}\)</span> at time <span class="math inline">\(t\)</span> can be understood as a value assignment to all of its attributes. Additionally, let <span class="math inline">\(X=\\{ x_j \\}\_{1 \dots N_O}\)</span> denote external effects (e.g., active control or gravitation) which are applied to each object separately.</p>
+<p><strong>Definition</strong>: Let <span class="math inline">\(G=\langle O, R \rangle\)</span> be an attributed, directed multigraph in which the set of nodes <span class="math inline">\(O=\\{o_j\\}_{j=1 \dots N_O}\)</span> represents objects and the set of edges <span class="math inline">\(R = \\{ \langle i, j , r_k
+\rangle_k \\}\_{1 \dots N_R}\)</span> represents the relations between the objects, i.e., the triplet <span class="math inline">\(\langle i,j, r_k \rangle_k\)</span> defines the <span class="math inline">\(k^{\text{th}}\)</span> relation from sender <span class="math inline">\(o_i\)</span> to receiver <span class="math inline">\(o_j\)</span> with relation attribute <span class="math inline">\(r_k\)</span>. Each object <span class="math inline">\(o_i\)</span> may have several attributes<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, an object state <span class="math inline">\(o_i^{(t)}\)</span> at time <span class="math inline">\(t\)</span> can be understood as a value assignment to all of its attributes. Additionally, let <span class="math inline">\(X=\\{ x_j \\}\_{1 \dots N_O}\)</span> denote external effects (e.g., active control or gravitation) which are applied to each object separately.</p>
 <p><strong><em>Intuition</em></strong>: The ultimate goal of the IN is to predict all future object states <span class="math inline">\(o_i^{(t+1)}\)</span> based on the graph <span class="math inline">\(G\)</span>, the current external effects per object <span class="math inline">\(x_i^{(t)}\)</span> and all current object states <span class="math inline">\(o_i^{(t)}\)</span>. A message passing scheme is defined to achieve this goal in which first effects resulting from interactions are computed (<em>relational reasoning</em>), then these effects (messages) together with the external effects are aggregated towards the objects, lastly the aggregated information is used to update the object states (<em>object reasoning</em>).</p>
 <p>Formally, the basic IN is defined as follows</p>
 <p><span class="math display">\[
@@ -198,7 +234,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="learning-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="learning-the-model">Learning the Model</h2>
 <p>In the IN defintion, there are no limitations whatsoever for the functions and how they operate over their inputs (e.g., objects itself could also be graphs). Thus, learning the underlying dynamics given the graph structured representation and the scene encoder/decoder (and assuming that there is some IN that can simulate the dynamics) without further assumptions remains an intractable quest. To overcome this problem, <a href="https://arxiv.org/abs/1612.00222">Battaglia et al. (2016)</a> present a learnable implementation of the IN which uses deep neural networks as function approximators and a specific object and relation representation using matrices. Then, learning the model comes down to training from data using the standard deep learning framework.</p>
-<p><strong>Implementation</strong>: Let each object <span class="math inline">\(o_i^{(t)}\in \mathbb{R}^{D_s}\)</span> be represented by a <span class="math inline">\(D_s\)</span>-dimensional vector where each entry corresponds to an attribute, i.e., attributes have a predefined order which is fix over all objects. Then, <span class="math inline">\(O\)</span> is defined as a <span class="math inline">\(D_S \times N_O\)</span> matrix where each column represents an object. Similarly, <span class="math inline">\(X\)</span> is defined as a <span class="math inline">\(D_X \times N_O\)</span> matrix where each <span class="math inline">\(D_x\)</span>-dimensional column represents the external effects that correspond to the object defined in the same column of <span class="math inline">\(O\)</span>. Let each relation be formalized into a triple of three vectors <span class="math inline">\(r_k = \langle r_r, r_s, r_a \rangle\)</span> where <span class="math inline">\(r_a \in \mathbb{R}^{D_R}\)</span> represents the (ordered) relational attributes and <span class="math inline">\(r_r, r_s \in \{0, 1\}^{N_O}\)</span> are one-hot encodings of the receiver and sender object, respectively. Then, all relations can be represented by the triplet <span class="math inline">\(R = \langle R_r, R_s, R_a \rangle\)</span> where the matrices <span class="math inline">\(R_r, R_s \in \{0,1\}^{N_O \times N_R}\)</span> and <span class="math inline">\(R_a \in \mathbb{R}^{D_R \times N_R}\)</span> are generated by stacking the relations column-wise.</p>
+<p><strong>Implementation</strong>: Let each object <span class="math inline">\(o_i^{(t)}\in \mathbb{R}^{D_s}\)</span> be represented by a <span class="math inline">\(D_s\)</span>-dimensional vector where each entry corresponds to an attribute, i.e., attributes have a predefined order which is fix over all objects. Then, <span class="math inline">\(O\)</span> is defined as a <span class="math inline">\(D_S \times N_O\)</span> matrix where each column represents an object. Similarly, <span class="math inline">\(X\)</span> is defined as a <span class="math inline">\(D_X \times N_O\)</span> matrix where each <span class="math inline">\(D_x\)</span>-dimensional column represents the external effects that correspond to the object defined in the same column of <span class="math inline">\(O\)</span>. Let each relation be formalized into a triple of three vectors <span class="math inline">\(r_k = \langle
+r_r, r_s, r_a \rangle\)</span> where <span class="math inline">\(r_a \in \mathbb{R}^{D_R}\)</span> represents the (ordered) relational attributes and <span class="math inline">\(r_r, r_s \in \{0, 1\}^{N_O}\)</span> are one-hot encodings of the receiver and sender object, respectively. Then, all relations can be represented by the triplet <span class="math inline">\(R = \langle R_r, R_s, R_a \rangle\)</span> where the matrices <span class="math inline">\(R_r, R_s \in \{0,1\}^{N_O \times N_R}\)</span> and <span class="math inline">\(R_a \in \mathbb{R}^{D_R \times N_R}\)</span> are generated by stacking the relations column-wise.</p>
 <p>It follows that the interaction terms <span class="math inline">\(b_k\)</span> can be vectorized by concatenation of the receiver and sender object attributes and the relational attributes into a <span class="math inline">\((2 D_s + D_R)\)</span>-length vector. The marshalling function <span class="math inline">\(m\)</span> can be stated as follows</p>
 <p><span class="math display">\[
 \begin{align}
@@ -214,7 +251,8 @@ ul.task-list li input[type="checkbox"] {
              = \begin{bmatrix} e_1 &amp; \dots e_{N_R}\end{bmatrix}  = E.
 \end{align}
 \]</span></p>
-<p><span class="math inline">\(f_R\)</span> shall be approximated by a neural network to estimate a <span class="math inline">\(D_E\)</span>-length vector <span class="math inline">\(e_k\)</span> that encodes the resulting effect. Similar to the marshalling function, the aggregation function <span class="math inline">\(a\)</span> constructs vectorized object terms <span class="math inline">\(c_k = \begin{bmatrix} o_k^{(t)} &amp; x_k^{(t)} &amp; \hat{e}_k^{(t)} \end{bmatrix}^{\text{T}}\)</span> by concatenation of the object attributes, the external effects and the aggregated effect (summation of all incoming effects per object):</p>
+<p><span class="math inline">\(f_R\)</span> shall be approximated by a neural network to estimate a <span class="math inline">\(D_E\)</span>-length vector <span class="math inline">\(e_k\)</span> that encodes the resulting effect. Similar to the marshalling function, the aggregation function <span class="math inline">\(a\)</span> constructs vectorized object terms <span class="math inline">\(c_k
+= \begin{bmatrix} o_k^{(t)} &amp; x_k^{(t)} &amp; \hat{e}_k^{(t)} \end{bmatrix}^{\text{T}}\)</span> by concatenation of the object attributes, the external effects and the aggregated effect (summation of all incoming effects per object):</p>
 <p><span class="math display">\[
 \begin{align}
   a(O, R, X, E) = \begin{bmatrix} O &amp; X &amp; E R_r^{\text{T}}
@@ -339,10 +377,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -352,8 +389,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -366,6 +412,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -409,6 +574,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -434,6 +600,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -494,6 +686,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

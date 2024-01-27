@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -24,7 +24,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -82,7 +82,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -91,6 +97,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -100,16 +107,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 <link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">borea17</span>
     </a>
@@ -121,17 +155,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../paper_summaries.html" rel="" target="">
- <span class="menu-text">Paper Summaries</span></a>
+    <a class="nav-link" href="../../paper_summaries.html"> 
+<span class="menu-text">Paper Summaries</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../ml101.html" rel="" target="">
- <span class="menu-text">ML101</span></a>
+    <a class="nav-link" href="../../ml101.html"> 
+<span class="menu-text">ML101</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools">
-</div>
           </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -199,14 +233,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
+
 <!-- nextjournal_link: "https://nextjournal.com/borea17/attend-infer-repeat/" -->
 <p><a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a> introduce the <strong>Importance Weighted Autoencoder (IWAE)</strong> as a simple modification in the training of <a href="https://borea17.github.io/paper_summaries/auto-encoding_variational_bayes">variational autoencoders</a> <strong>(VAEs)</strong>. Notably, they proved that this modification leads to a <strong>strictly tighter lower bound on the data log-likelihood</strong>. Furthermore, the standard VAE formulation is contained within the IWAE framework as a special case. In essence, the modification consists of using multiple samples from the <em>recognition network</em> / <em>encoder</em> and adapting the loss function with <em>importance-weighted sample losses</em>. In their experiments, they could emprically validate that employing IWAEs leads to improved test log-likelihoods and richer latent space representations compared to VAEs.</p>
 <section id="model-description" class="level2">
 <h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
-<p>An IWAE can be understood as a standard VAE in which multiple samples are drawn from the encoder distribution <span class="math inline">\(q_{\boldsymbol{\phi}} \Big( \textbf{z} | \textbf{x} \Big)\)</span> and then fed through the decoder <span class="math inline">\(p_{\boldsymbol{\theta}} \Big( \textbf{z} | \textbf{x} \Big)\)</span>. In principle, this modification has been already proposed in the original VAE paper by <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>. However, <a href="https://arxiv.org/abs/1509.00519">Burda et al. (2016)</a> additionally proposed to use a different objective function. The empirical objective function can be understood as the data log-likelihood <span class="math inline">\(\log p_{\boldsymbol{\theta}} (\textbf{x})\)</span> where the sampling distribution is exchanged to <span class="math inline">\(q_{\boldsymbol{\phi}} \Big( \textbf{z} | \textbf{x} \Big)\)</span> via the method of <em>importance sampling</em>.</p>
+<p>An IWAE can be understood as a standard VAE in which multiple samples are drawn from the encoder distribution <span class="math inline">\(q_{\boldsymbol{\phi}} \Big( \textbf{z} |
+\textbf{x} \Big)\)</span> and then fed through the decoder <span class="math inline">\(p_{\boldsymbol{\theta}}
+\Big( \textbf{z} | \textbf{x} \Big)\)</span>. In principle, this modification has been already proposed in the original VAE paper by <a href="https://arxiv.org/abs/1312.6114">Kingma and Welling (2013)</a>. However, <a href="https://arxiv.org/abs/1509.00519">Burda et al. (2016)</a> additionally proposed to use a different objective function. The empirical objective function can be understood as the data log-likelihood <span class="math inline">\(\log p_{\boldsymbol{\theta}} (\textbf{x})\)</span> where the sampling distribution is exchanged to <span class="math inline">\(q_{\boldsymbol{\phi}} \Big( \textbf{z} |
+\textbf{x} \Big)\)</span> via the method of <em>importance sampling</em>.</p>
 <section id="high-level-overview" class="level3">
 <h3 class="anchored" data-anchor-id="high-level-overview">High-Level Overview</h3>
-<p>The IWAE framework builds upon a standard VAE architecture. There are two neural networks as approximations for the encoder <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right)\)</span> and the decoder distribution <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z} \right)\)</span>. More precisely, the networks estimate the parameters that parametrize these distributions. Typically, the latent distribution is assumed to be a Gaussian <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right) \sim \mathcal{N}\left( \boldsymbol{\mu}_{\text{E}}, \text{diag} \left( \boldsymbol{\sigma}^2_{\text{E}}\right) \right)\)</span> such that the encoder network estimates its the mean <span class="math inline">\(\boldsymbol{\mu}\_{\text{E}}\)</span> and variance<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math inline">\(\boldsymbol{\Sigma} = \text{diag} \left(\boldsymbol{\sigma}^2_{\text{E}}\right)\)</span>. To allow for backpropagation, we apply the reparametrization trick to the latent distribution which essentially consist of transforming samples from some (fixed) random distribution, e.g.&nbsp;<span class="math inline">\(\boldsymbol{\epsilon} \sim \mathcal{N} \left(\textbf{0}, \textbf{I} \right)\)</span>, into the desired distribution using a deterministic mapping.</p>
+<p>The IWAE framework builds upon a standard VAE architecture. There are two neural networks as approximations for the encoder <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right)\)</span> and the decoder distribution <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{x} | \textbf{z} \right)\)</span>. More precisely, the networks estimate the parameters that parametrize these distributions. Typically, the latent distribution is assumed to be a Gaussian <span class="math inline">\(q_{\boldsymbol{\phi}} \left(\textbf{z} | \textbf{x} \right) \sim
+\mathcal{N}\left( \boldsymbol{\mu}_{\text{E}}, \text{diag} \left(
+\boldsymbol{\sigma}^2_{\text{E}}\right) \right)\)</span> such that the encoder network estimates its the mean <span class="math inline">\(\boldsymbol{\mu}\_{\text{E}}\)</span> and variance<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math inline">\(\boldsymbol{\Sigma} = \text{diag}
+\left(\boldsymbol{\sigma}^2_{\text{E}}\right)\)</span>. To allow for backpropagation, we apply the reparametrization trick to the latent distribution which essentially consist of transforming samples from some (fixed) random distribution, e.g.&nbsp;<span class="math inline">\(\boldsymbol{\epsilon} \sim \mathcal{N} \left(\textbf{0},
+\textbf{I} \right)\)</span>, into the desired distribution using a deterministic mapping.</p>
 <p>The main difference between a VAE and an IWAE lies in the objective function which is explained in more detail in the next section.</p>
 <table class="table">
 <colgroup>
@@ -226,7 +268,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="derivation" class="level3">
 <h3 class="anchored" data-anchor-id="derivation">Derivation</h3>
-<p>Let <span class="math inline">\(\textbf{X} = \{\textbf{x}^{(i)}\}_{i=1}^N\)</span> denote a dataset of <span class="math inline">\(N\)</span> i.i.d. samples where each observed datapoint <span class="math inline">\(\textbf{x}^{(i)}\)</span> is obtained by first sampling a latent vector <span class="math inline">\(\textbf{z}\)</span> from the prior <span class="math inline">\(p_{\boldsymbol{\theta}}(\textbf{z})\)</span> and then sampling <span class="math inline">\(\textbf{x}^{(i)}\)</span> itself from the scene model <span class="math inline">\(p_{\boldsymbol{\theta}} \Big( \textbf{x} | \textbf{z} \Big)\)</span>. Now we introduce an auxiliary distribution <span class="math inline">\(q_{\boldsymbol{\phi}} \Big( \textbf{z} | \textbf{x} \Big)\)</span> (with its own paramaters) as an approximation to the true, but unknown posterior <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{z} | \textbf{x} \right)\)</span>. Accordingly, the data likelihood of a one sample <span class="math inline">\(\textbf{x}^{(i)}\)</span> can be stated as follows</p>
+<p>Let <span class="math inline">\(\textbf{X} = \{\textbf{x}^{(i)}\}_{i=1}^N\)</span> denote a dataset of <span class="math inline">\(N\)</span> i.i.d. samples where each observed datapoint <span class="math inline">\(\textbf{x}^{(i)}\)</span> is obtained by first sampling a latent vector <span class="math inline">\(\textbf{z}\)</span> from the prior <span class="math inline">\(p_{\boldsymbol{\theta}}(\textbf{z})\)</span> and then sampling <span class="math inline">\(\textbf{x}^{(i)}\)</span> itself from the scene model <span class="math inline">\(p_{\boldsymbol{\theta}} \Big( \textbf{x} |
+\textbf{z} \Big)\)</span>. Now we introduce an auxiliary distribution <span class="math inline">\(q_{\boldsymbol{\phi}} \Big( \textbf{z} | \textbf{x} \Big)\)</span> (with its own paramaters) as an approximation to the true, but unknown posterior <span class="math inline">\(p_{\boldsymbol{\theta}} \left( \textbf{z} | \textbf{x} \right)\)</span>. Accordingly, the data likelihood of a one sample <span class="math inline">\(\textbf{x}^{(i)}\)</span> can be stated as follows</p>
 <p><span class="math display">\[
 p_{\boldsymbol{\theta}} (\textbf{x}^{(i)}) = \mathbb{E}_{\textbf{z} \sim
 p_{\boldsymbol{\theta}} \Big(\textbf{z} \Big)} \Big[
@@ -278,7 +321,9 @@ D_{KL} \left( q_{\phi} \Big( \textbf{z} |
 \]</span></p>
 While the regularization term can usually be solved analytically, the reconstruction accuracy in its current formulation poses a problem for backpropagation: Gradients cannot backpropagate through a sampling operation. To circumvent this problem, the standard VAE formulation includes the reparametrization trick:
 <center>
-Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\phi}}\)</span> by using a deterministic mapping <span class="math inline">\(\textbf{z} = g_{\boldsymbol{\phi}} (\boldsymbol{\epsilon}, \textbf{x})\)</span> with the differential transformation <span class="math inline">\(g_{\boldsymbol{\phi}}\)</span> of an auxiliary noise variable <span class="math inline">\(\boldsymbol{\epsilon}\)</span> with <span class="math inline">\(\boldsymbol{\epsilon}\sim p(\boldsymbol{\epsilon})\)</span>.
+Substitute sampling <span class="math inline">\(\textbf{z} \sim q_{\boldsymbol{\phi}}\)</span> by using a deterministic mapping <span class="math inline">\(\textbf{z} = g_{\boldsymbol{\phi}}
+(\boldsymbol{\epsilon},
+\textbf{x})\)</span> with the differential transformation <span class="math inline">\(g_{\boldsymbol{\phi}}\)</span> of an auxiliary noise variable <span class="math inline">\(\boldsymbol{\epsilon}\)</span> with <span class="math inline">\(\boldsymbol{\epsilon}\sim p(\boldsymbol{\epsilon})\)</span>.
 </center>
 <p><br> As a result, we can rewrite the EBLO as follows</p>
 <p><span class="math display">\[
@@ -374,7 +419,8 @@ p_{\boldsymbol{\theta}} (\textbf{x} ) =
 l)}\right] \le \log \mathbb{E} \left[ \frac {1}{k} \sum_{l=1}^{k}
 {w}^{(i,l)} \right] = \log p_{\boldsymbol{\theta}} \left( \textbf{x}^{(i)} \right)
 \]</span></p>
-<p>They could prove that with increasing <span class="math inline">\(k\)</span> the lower bound gets strictly tighter and approaches the true data log-likelihood in the limit of <span class="math inline">\(k \rightarrow \infty\)</span>. Note that since the empirical IWAE estimator <span class="math inline">\(\widetilde{\mathcal{L}}_k^{\text{IWAE}}\)</span> can be understood as a Monte-Carlo estimator on the true data log-likelihood, in the empirical case this property can simply be deduced from the properties of Monte-Carlo integration.</p>
+<p>They could prove that with increasing <span class="math inline">\(k\)</span> the lower bound gets strictly tighter and approaches the true data log-likelihood in the limit of <span class="math inline">\(k \rightarrow
+\infty\)</span>. Note that since the empirical IWAE estimator <span class="math inline">\(\widetilde{\mathcal{L}}_k^{\text{IWAE}}\)</span> can be understood as a Monte-Carlo estimator on the true data log-likelihood, in the empirical case this property can simply be deduced from the properties of Monte-Carlo integration.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -403,7 +449,8 @@ p \Big]
 <p>Suppose that we could make <span class="math inline">\(w\)</span> more concentrated about its mean <span class="math inline">\(p(\textbf{x})\)</span>. Clearly, this would yield a tighter lower bound when applying Jensen’s Inequality.</p>
 <p>(rhetorical break)</p>
 <p>Can we make <span class="math inline">\(w\)</span> more concentrated about its mean? YES, WE CAN.</p>
-<p>For example using the sample average <span class="math inline">\(w_k = \frac {1}{k} \sum_{i=1}^k w^{(i)}\)</span>. This leads directly to the true IWAE objective</p>
+<p>For example using the sample average <span class="math inline">\(w_k = \frac {1}{k}
+\sum_{i=1}^k w^{(i)}\)</span>. This leads directly to the true IWAE objective</p>
 <p><span class="math display">\[
 \log p(\textbf{x})  \ge \mathbb{E} \Big[ \log w_k \Big] = \mathbb{E} \left[
 \log \frac {1}{k} \sum_{i=1}^{k} w^{(i)} \right] = \mathcal{L}^{\text{IWAE}}_k
@@ -588,12 +635,13 @@ q_{\boldsymbol{\phi}} \left( \textbf{z} | \textbf{x}^{(i)}\right)} \left[ \log w
 </section>
 <section id="implementation" class="level2">
 <h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
-<p>Let’s put this into practice and compare the standard VAE with an IWAE. We are going to perform a very similar experiment to the density estimation experiment by <a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a>, i.e., we are going to train both a VAE and IWAE with different number of samples <span class="math inline">\(k\in \{1, 10\}\)</span> on the binarized MNIST dataset.</p>
+<p>Let’s put this into practice and compare the standard VAE with an IWAE. We are going to perform a very similar experiment to the density estimation experiment by <a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a>, i.e., we are going to train both a VAE and IWAE with different number of samples <span class="math inline">\(k\in \{1,
+10\}\)</span> on the binarized MNIST dataset.</p>
 <section id="dataset" class="level3">
 <h3 class="anchored" data-anchor-id="dataset">Dataset</h3>
 <p>Let’s first build a binarized version of the MNIST dataset. As noted by <a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a>, <code>the generative modeling literature is inconsistent about the method of binarization</code>. We employ the same procedure as <a href="https://arxiv.org/abs/1509.00519">Burda et al.&nbsp;(2016)</a>: <code>binary-valued observations are sampled with expectations equal to the real values in the training set</code>:</p>
 <div class="cell" data-execution_count="1">
-<details open="">
+<details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.distributions <span class="im">as</span> dists</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -656,7 +704,7 @@ k + \log \left( \sum_{i=1}^k w^{(i,l)} \right) \\
 \]</span></p></li>
 </ul>
 <div class="cell" data-execution_count="2">
-<details open="">
+<details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -853,7 +901,7 @@ w^{(i, l)} \right)}{\exp a} }
 </ol></li>
 </ul>
 <div class="cell" data-execution_count="3">
-<details open="">
+<details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IWAE(VAE):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -893,7 +941,7 @@ w^{(i, l)} \right)}{\exp a} }
 <li><strong>Training Procedure</strong></li>
 </ul>
 <div class="cell" data-execution_count="4">
-<details open="">
+<details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> livelossplot <span class="im">import</span> PlotLosses</span>
@@ -949,7 +997,7 @@ w^{(i, l)} \right)}{\exp a} }
 <h3 class="anchored" data-anchor-id="results">Results</h3>
 <p>Let’s train both models for <span class="math inline">\(k\in \{ 1, 10 \}\)</span>:</p>
 <div class="cell" data-execution_count="5">
-<details open="">
+<details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>train_ds <span class="op">=</span> datasets.MNIST(<span class="st">'./data'</span>, train<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                          download<span class="op">=</span><span class="va">True</span>, transform<span class="op">=</span>transforms.ToTensor())</span>
@@ -966,7 +1014,7 @@ w^{(i, l)} \right)}{\exp a} }
 <p><span class="math inline">\(\textbf{k=1}\)</span> <img src="./img/k_1.png" title="Training k=1" class="img-fluid" alt="Training k=1"> <span class="math inline">\(\textbf{k=10}\)</span> <img src="./img/k_10.png" title="Training k=10" class="img-fluid" alt="Training k=10"></p>
 <p>Note that during training, we compared the <strong>loss of the VAE (ELBO)</strong> with the <strong>loss of the IWAE (empirical estimate of marginal log-likelihood)</strong>. Clearly, for <span class="math inline">\(k=1\)</span> these losses are nearly equal (as expected). For <span class="math inline">\(k=10\)</span>, the difference is much greater (also expected). Now let’s compare the marginal log-likelihood on the test samples. Since the marginal log-likelihood estimator gets more accurate with increasing <span class="math inline">\(k\)</span>, we set <span class="math inline">\(k=200\)</span> for the evaluation on the test set:</p>
 <div class="cell" data-execution_count="6">
-<details open="">
+<details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> prettytable <span class="im">import</span> PrettyTable</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1006,7 +1054,7 @@ w^{(i, l)} \right)}{\exp a} }
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="./img/table.png" title="Results NLL" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Results NLL</figcaption>
+<figcaption>Results NLL</figcaption>
 </figure>
 </div>
 <p>Similar to the paper, the IWAE benefits from an increased <span class="math inline">\(k\)</span> whereas the VAE performs nearly equal.</p>
@@ -1018,7 +1066,7 @@ w^{(i, l)} \right)}{\exp a} }
 <li><strong>Reconstructions</strong></li>
 </ul>
 <div class="cell" data-execution_count="7">
-<details open="">
+<details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.gridspec <span class="im">import</span> GridSpec</span>
@@ -1075,14 +1123,14 @@ w^{(i, l)} \right)}{\exp a} }
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="./img/reconstructions.png" title="Reconstructions k=10" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Reconstructions k=10</figcaption>
+<figcaption>Reconstructions k=10</figcaption>
 </figure>
 </div>
 <ul>
 <li><strong>Latent Traversals</strong></li>
 </ul>
 <div class="cell" data-execution_count="8">
-<details open="">
+<details open="" class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_latent_traversal(vae_model, iwae_model, dataset, SEED<span class="op">=</span><span class="dv">1</span>):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    np.random.seed(SEED)</span>
@@ -1148,7 +1196,7 @@ w^{(i, l)} \right)}{\exp a} }
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="./img/latent_traversal.png" title="Latent Traversal k=10" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Latent Traversal k=10</figcaption>
+<figcaption>Latent Traversal k=10</figcaption>
 </figure>
 </div>
 <hr>
@@ -1161,7 +1209,8 @@ w^{(i, l)} \right)}{\exp a} }
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>Since the variance <span class="math inline">\(\text{diag} \left(\boldsymbol{\sigma}^2_{\text{E}}\right)\)</span> needs to be greater than 0, we typically set the output to the variance in logarithmic units.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>Since the variance <span class="math inline">\(\text{diag}
+\left(\boldsymbol{\sigma}^2_{\text{E}}\right)\)</span> needs to be greater than 0, we typically set the output to the variance in logarithmic units.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -1294,10 +1343,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   if (showAllCode) {
     showAllCode.addEventListener("click", toggleCodeHandler(true));
   }
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1307,8 +1355,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1321,6 +1378,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1364,6 +1540,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1389,6 +1566,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1449,6 +1652,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

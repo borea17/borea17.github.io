@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>borea17 - How to map numbers in an interval \([a, b]\) onto another interval \([c, d]\) ?</title>
+<title>borea17 - How does the attention mechanism (Attention is all you need) work?</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -137,7 +171,7 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">How to map numbers in an interval <span class="math inline">\([a, b]\)</span> onto another interval <span class="math inline">\([c, d]\)</span> ?</h1>
+      <h1 class="title">How does the attention mechanism (<a href="https://arxiv.org/abs/1706.03762">Attention is all you need</a>) work?</h1>
                       </div>
   </div>
     
@@ -161,48 +195,116 @@ window.Quarto = {
 
 
 
-<p>Use the following function for each value <span class="math inline">\(x \in [a, b]\)</span></p>
+<p>In essence, an <strong>attention mechanism</strong> can be intuitively understood as a means to assign individual importance (or rather <em>attention</em>) to each entity in a collection of entities (e.g., words in a sentence or pixels in an image) using some cues as input. Mathmatically, this translates into <strong>computing a weighted average over all entities in which the attention weights are obtained from the attention cues</strong>.</p>
+<p>More abstractly, the attention mechanism can be used to answer the following questions</p>
+<ul>
+<li>What entities (e.g., pixels or words) should we attend to or focus on?</li>
+<li>What entities (e.g., pixels or words) are relevant for the task at hand?</li>
+</ul>
+<p><a href="https://arxiv.org/abs/1706.03762">Vaswani et al.&nbsp;(2017)</a> call their particular attention mechanism <strong>Scaled Dot-Product Attention</strong>. Therein, the collection of entities is termed <strong>values</strong> and the attention cues are termed <strong>queries</strong> and <strong>keys</strong>. Attention to particular values (entities) is obtained by computing the weighted average over all values (entities) in which the <strong>attention weights</strong> are obtained by combining the attention cues.</p>
+<p>The attention cues (queries and keys) are vectors of length <span class="math inline">\(d_k\)</span> defined per value and can be seen as two different answers to the same question: <em>How much attention should we put to this entity?</em> The <strong>alignment</strong> between the attention cues is computed via the dot-product (hence the name), additionally the <strong>alignment scores</strong> are passed through a <em>Softmax</em>-layer to obtain normalized <strong>attention weights</strong>. Finally, these attention weights are used to compute the weighted average.</p>
+<p>To speed things up, queries, keys and values are packed into matrices <span class="math inline">\(\textbf{Q}, \textbf{K}
+\in \mathbb{R}^{N_v \times d_k}\)</span> and <span class="math inline">\(\textbf{V} \in \mathbb{R}^{N_v \times d_v}\)</span>, respectively. As a result, the concise formulation of Scaled Dot-Product Attention is given by</p>
 <p><span class="math display">\[
-  f(x) = c + \frac {d - c} {b -a} \left(x - a\right).
+\text{Attention}(\textbf{Q}, \textbf{K}, \textbf{V}) =
+\underbrace{\text{softmax}
+    \left(
+    %\overbrace{
+    \frac {\textbf{Q} \textbf{K}^{\text{T}}} {\sqrt{d_k}}
+    %}^{\text{attention alignment }  \textbf{L} \in }
+    \right)
+}_{\text{attention weight }\textbf{W} \in \mathbb{R}^{N_v \times N_v}} \textbf{V}
 \]</span></p>
-<p>Note that <span class="math inline">\(f(x)\)</span> is a bijektiv function, i.e., there is a one-to-one correspondence between both intervals (even if the ranges are different).</p>
+<p>in which <span class="math inline">\(\frac{1}{\sqrt{d_k}}\)</span> is an additional scalar which <a href="https://arxiv.org/abs/1706.03762">Vaswani et al.&nbsp;(2017)</a> added to counter vanishing gradients (they hypothesize that for a higher cue dimension <span class="math inline">\(d_k\)</span> the dot-product might grow large in magnitude).</p>
+<p>The figure highlights how the corresponding vectors are packed into matrices, respectively.</p>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/matrix_packing.png" title="Matrix Packing for Dot-Product Attention" class="img-fluid" alt="Matrix Packing for Scaled Dot-Product Attention"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Matrix Packing for Scaled Dot-Product Attention</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Keeping in mind that attention can be seen as computing a weighted average (on each dimension) over all entities <span class="math inline">\(\textbf{V}\)</span>, it is obvious that the result has the same dimension as <span class="math inline">\(\textbf{V}\)</span>. Below is a simple implementation of the attention mechanism. Note that in practice commonly <span class="math inline">\(\textbf{Q}\)</span>, <span class="math inline">\(\textbf{K}\)</span> and <span class="math inline">\(\textbf{V}\)</span> are learnable matrices.</p>
+<div id="2c0a6228" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> attention(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        query_matrix: torch.Tensor, </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        key_matrix: torch.Tensor, </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        value_matrix: torch.Tensor</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> torch.Tensor:</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Simplistic implementation of scaled dot-product attention.</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">        query_matrix (torch.Tensor): shape [batch_size, N_v, d_k]</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">        key_matrix (torch.Tensor):   shape [batch_size, N_v, d_k]</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">        value_matrix (torch.Tensor): shape [batch_size, N_v, d_v]</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">        torch.Tensor:                shape [batch_size, N_v, d_v]</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    scale_factor <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> math.sqrt(query.size(<span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute unnormalized attention weights of shape [batch_size, N_v, N_v] </span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    attn_weights <span class="op">=</span> scale_factor <span class="op">*</span> query_matrix <span class="op">@</span> key_matrix.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># normalize attention weights (i.e., sum over last dimension equal to one)</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    normalized_attn_weights <span class="op">=</span> torch.softmax(attn_weights, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute result of shape [batch_size, N_v, d_v] </span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> normalized_attn_weights <span class="op">@</span> value_matrix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Derivation
+Key, Query, Value - Naming
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
-<p>Let’s derive the above formula which can be done in two steps:</p>
-<ol type="1">
-<li><p><em>Shift the interval</em> <span class="math inline">\([a, b]\)</span> <em>into the unit interval</em> <span class="math inline">\([0, 1]\)</span>.</p>
-<p>Therefore, we start by shifting the lower bound <span class="math inline">\(a\)</span> to <span class="math inline">\(0\)</span> using the following formula:</p>
-<p><span class="math display">\[
-f_{a\rightarrow 0} (x) = x - a
-\]</span></p>
-<p>which results in the new interval <span class="math inline">\([0, b-a]\)</span>. Now we can simply scale each value by the inverse of <span class="math inline">\(b-a\)</span> to shift the interval <span class="math inline">\([0, b-a]\)</span> into the unit interval <span class="math inline">\([0, 1]\)</span>, i.e.,</p>
-<p><span class="math display">\[
-f_{\text{unit}} = \frac {1}{b-a} \left(x-a\right)
-\]</span></p></li>
-<li><p><em>Shit the unit interval</em> <span class="math inline">\([0, 1]\)</span> <em>into the target interval</em> <span class="math inline">\([c, d]\)</span>.</p>
-<p>Actually, we are now just doing the reverse process by firstly adding rescaling each value by the desired length <span class="math inline">\(d-c\)</span>, i.e.,</p>
-<p><span class="math display">\[
-f_{\text{new length}} = \frac {d- c}{b-a} \left(x - a \right)
-\]</span></p>
-<p>which results in the new interval <span class="math inline">\([0, d-c]\)</span>. Finally, we shift the interval towards the desired lower by simply adding <span class="math inline">\(c\)</span> to get the final equation</p>
-<p><span class="math display">\[
-   f(x) = c + \frac {d - c} {b -a} \left(x - a\right).
-\]</span></p></li>
-</ol>
-<section id="acknowledgement" class="level2">
-<h2 class="anchored" data-anchor-id="acknowledgement">Acknowledgement</h2>
-<p>Based on this <a href="https://math.stackexchange.com/a/914843/612615">answer</a>.</p>
-</section>
+<p>Instead of the weighted average formulation above, the attention mechanism could also be viewed as a <strong>retrieval process</strong> in which we have a storage of <strong>key-value</strong> pairs (e.g., <a href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries">dictionaries</a>) and a corresponding <strong>query</strong> input.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Self-Attention
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Multihead-Attention
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+
 </div>
 </div>
 </div>

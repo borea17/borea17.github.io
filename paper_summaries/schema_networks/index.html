@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -48,7 +48,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -57,6 +63,7 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -66,16 +73,43 @@ ul.task-list li input[type="checkbox"] {
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 <link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">borea17</span>
     </a>
@@ -87,17 +121,17 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../paper_summaries.html" rel="" target="">
- <span class="menu-text">Paper Summaries</span></a>
+    <a class="nav-link" href="../../paper_summaries.html"> 
+<span class="menu-text">Paper Summaries</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../ml101.html" rel="" target="">
- <span class="menu-text">ML101</span></a>
+    <a class="nav-link" href="../../ml101.html"> 
+<span class="menu-text">ML101</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools">
-</div>
           </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -160,6 +194,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
+
 <p><a href="https://arxiv.org/abs/1706.04317">Kansky et al.&nbsp;(2017)</a> showed remarkable results of zero-shot transfer in several variations of Breakout by introducing Schema Networks as a generative model for object-oriented reinforcement learning and planning. This model incorporates objects as <em>entities</em>, represents local cause-effect relationships including one or more entities and is based on Probabilistic Graphical Models (PGMs). Due to its foundation in PGMs, Schema Networks support flexible inference and search strategies for planning.</p>
 <section id="model-description" class="level2">
 <h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
@@ -180,7 +215,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 <p><a href="https://arxiv.org/abs/1706.04317">Kansky et al.&nbsp;(2017)</a> define 53 attributes for each entity in the Breakout domain (21 for bricks, 30 for the paddle, 1 for walls, 1 for the ball). However, they do not elaborate on what these attributes describe exactly. Furthermore, each pixel is identified as a part of an object and assigned the corresponding attributes. Accordingly, their representation could rather be understood as a 53-channel image where each entry can either be 0 or 1, e.g., one layer showing the walls. In this form, the entity-based state representation can also be provided to other algorithms such as A3C.</p>
-<p>Similiar to OO-MDPs, state transitions are determined by a change of entity-attributes. However, due to the specific representation in Schema Networks, entity-attributes can only be active or inactive (with an associated probability). An attribute becomes activated if a <em>grounded schema</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> is active. Grounded schemas can include a variable size of entity attributes from a variable number of entities and may include one or more actions. Thus, these schemas can be interpreted as local cause-effect relationships. Formally, a grounded schema <span class="math inline">\(\phi^{k}\)</span> is a binary variable that becomes activated via a probabilistic AND over the binary variables <span class="math inline">\(v_1, \dots, v_n\)</span> that are included in it:</p>
+<p>Similiar to OO-MDPs, state transitions are determined by a change of entity-attributes. However, due to the specific representation in Schema Networks, entity-attributes can only be active or inactive (with an associated probability). An attribute becomes activated if a <em>grounded schema</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> is active. Grounded schemas can include a variable size of entity attributes from a variable number of entities and may include one or more actions. Thus, these schemas can be interpreted as local cause-effect relationships. Formally, a grounded schema <span class="math inline">\(\phi^{k}\)</span> is a binary variable that becomes activated via a probabilistic AND over the binary variables <span class="math inline">\(v_1, \dots,
+v_n\)</span> that are included in it:</p>
 <p><span class="math display">\[
 \begin{align}
   \phi^{k} = \text{AND} (v_1, \dots, v_n) = \prod_{i=1}^n P(v_i = 1).
@@ -244,8 +280,16 @@ ul.task-list li input[type="checkbox"] {
 <section id="notation" class="level3">
 <h3 class="anchored" data-anchor-id="notation">Notation</h3>
 <p>Let <span class="math inline">\(\alpha\_{i,j}^{(t)}\)</span> denote the <span class="math inline">\(j^{th}\)</span> attribute of the <span class="math inline">\(i^{th}\)</span> entity at time <span class="math inline">\(t\)</span> and let <span class="math inline">\(\textbf{e}\_i^{(t)} \in \\{0, 1\\}^{M}\)</span> be an<br>
-<span class="math inline">\(M\)</span>-dimensional binary vector representing all entity-attributes values of the <span class="math inline">\(i^{th}\)</span> entity at time <span class="math inline">\(t\)</span>, i.e., <span class="math inline">\(\textbf{e}\_i^{(t)} = \begin{bmatrix}\alpha\_{i,1}^{(t)} &amp; \dots &amp; \alpha\_{i,M}^{(t)} \end{bmatrix}^{\text{T}}\)</span> where <span class="math inline">\(M\)</span> denotes the number of entity-attributes.</p>
-<p>Let <span class="math inline">\(\boldsymbol{\beta}\_{i}^{(t)}\in \\{0,1\\}^E\)</span> be a row vector representing the attribute values of the <span class="math inline">\(i^{th}\)</span> entity and the entity-attributes of the <span class="math inline">\(R-1\)</span> (fixed radius) spatial neighbors, i.e., <span class="math inline">\(\boldsymbol{\beta}_{i}^{(t)} = \begin{bmatrix} \textbf{e}\_{i}^{(t)} &amp; \textbf{e}\_{i+1}^{(t)} &amp; \dots &amp; \textbf{e}\_{R-1}^{(t)} \end{bmatrix}\)</span> has length <span class="math inline">\(E=M(R-1) + M = MR\)</span>.</p>
+<span class="math inline">\(M\)</span>-dimensional binary vector representing all entity-attributes values of the <span class="math inline">\(i^{th}\)</span> entity at time <span class="math inline">\(t\)</span>, i.e., <span class="math inline">\(\textbf{e}\_i^{(t)} =
+\begin{bmatrix}\alpha\_{i,1}^{(t)} &amp; \dots &amp; \alpha\_{i,M}^{(t)}
+\end{bmatrix}^{\text{T}}\)</span> where <span class="math inline">\(M\)</span> denotes the number of entity-attributes.</p>
+<p>Let <span class="math inline">\(\boldsymbol{\beta}\_{i}^{(t)}\in \\{0,1\\}^E\)</span> be a row vector representing the attribute values of the <span class="math inline">\(i^{th}\)</span> entity and the entity-attributes of the <span class="math inline">\(R-1\)</span> (fixed radius) spatial neighbors, i.e., <span class="math inline">\(\boldsymbol{\beta}_{i}^{(t)} = \begin{bmatrix} \textbf{e}\_{i}^{(t)} &amp;
+\textbf{e}\_{i+1}^{(t)}
+&amp;
+\dots
+&amp;
+\textbf{e}\_{R-1}^{(t)}
+\end{bmatrix}\)</span> has length <span class="math inline">\(E=M(R-1) + M = MR\)</span>.</p>
 <p>Suppose there are <span class="math inline">\(N\)</span> entities observed for <span class="math inline">\(\tau\)</span> timesteps. Then, let <span class="math inline">\(\textbf{X}\in\\{0,1\\}^{D\times E}\)</span> be a binary matrix where each row consists of a <span class="math inline">\(\boldsymbol{\beta}\_{i}^{(t)}\)</span> and there are <span class="math inline">\(D=N\cdot \tau\)</span> rows (all entities and time steps). Similarly, let <span class="math inline">\(\textbf{y}\in\\{0, 1\\}^D\)</span> be a binary vector where each entry refers to the future attribute value <span class="math inline">\(\alpha\_{i,j}^{(t+1)}\)</span> corresonding to the a row of <span class="math inline">\(\textbf{X}\)</span> with entity <span class="math inline">\(i\)</span> and time <span class="math inline">\(t\)</span>, i.e.,</p>
 <p><span class="math display">\[
 \begin{align*}
@@ -269,7 +313,8 @@ ul.task-list li input[type="checkbox"] {
 <p><span class="math display">\[
   \textbf{y} = f_{\textbf{W}} (\textbf{X}) = \overline{\overline{\textbf{X}} \textbf{W}} \textbf{1},
 \]</span></p>
-<p>where <span class="math inline">\(f\_{\textbf{W}}\)</span> denotes the desired function of <em>ungrounded schemas</em> which is applied row-wise to the argument <span class="math inline">\(\textbf{X}\)</span> to produce either active or inactive grounded schemas. <span class="math inline">\(f\_{\textbf{W}}\)</span> is parametrized by a binary matrix <span class="math inline">\(\textbf{W} \in \\{0, 1\\}^{E \times L}\)</span> with each column representing one ungrounded schema for a maximum of <span class="math inline">\(L\)</span> schemas. Each element that is set to 1 in a column of <span class="math inline">\(\textbf{W}\)</span> indicates that for this schema the corresponding input attribute (from <span class="math inline">\(\textbf{X}\)</span>) is necessary for an activated grounded schema. On the right-hand side of the equation above all variables and operations follow Boolean logic: addition corresponds to <code>OR</code>ing and overlining to negation.</p>
+<p>where <span class="math inline">\(f\_{\textbf{W}}\)</span> denotes the desired function of <em>ungrounded schemas</em> which is applied row-wise to the argument <span class="math inline">\(\textbf{X}\)</span> to produce either active or inactive grounded schemas. <span class="math inline">\(f\_{\textbf{W}}\)</span> is parametrized by a binary matrix <span class="math inline">\(\textbf{W} \in \\{0, 1\\}^{E \times
+L}\)</span> with each column representing one ungrounded schema for a maximum of <span class="math inline">\(L\)</span> schemas. Each element that is set to 1 in a column of <span class="math inline">\(\textbf{W}\)</span> indicates that for this schema the corresponding input attribute (from <span class="math inline">\(\textbf{X}\)</span>) is necessary for an activated grounded schema. On the right-hand side of the equation above all variables and operations follow Boolean logic: addition corresponds to <code>OR</code>ing and overlining to negation.</p>
 <blockquote class="blockquote">
 <p>E.g., let <span class="math inline">\(\textbf{w}\_i = \begin{bmatrix} w\_{i_1} &amp; \dots &amp; w\_{i_ E}\end{bmatrix}^{\text{T}}\)</span> denote the <span class="math inline">\(i^{th}\)</span> column of <span class="math inline">\(\hspace{0.1cm}\textbf{W}\)</span> and <span class="math inline">\(\textbf{x}_r = \begin{bmatrix} x\_{r_1} &amp; \dots &amp; x\_{r_E} \end{bmatrix}\)</span> be the <span class="math inline">\(r^{th}\)</span> row of <span class="math inline">\(\hspace{0.1cm}\textbf{X}\)</span>. Then, the (dot) product of the two vectors leads to</p>
 <p><span class="math display">\[
@@ -315,7 +360,8 @@ ul.task-list li input[type="checkbox"] {
 <li><p>Start with an empty set of schemas, i.e., <span class="math inline">\(\textbf{W} = \textbf{0}\)</span>.</p></li>
 <li><p>Greedily select a schema <span class="math inline">\(\textbf{w}\)</span> that perfectly predicts a cluster of input samples:</p>
 <ol type="a">
-<li><p>Randomly select an input sample <span class="math inline">\(\textbf{x}\_n\)</span> for which <span class="math inline">\(y_n = 1\)</span> and <span class="math inline">\(f\_{\textbf{W}} (\textbf{x}\_n) = 0\)</span>.</p></li>
+<li><p>Randomly select an input sample <span class="math inline">\(\textbf{x}\_n\)</span> for which <span class="math inline">\(y_n
+= 1\)</span> and <span class="math inline">\(f\_{\textbf{W}} (\textbf{x}\_n) = 0\)</span>.</p></li>
 <li><p>Put sample in the set <code>solved</code>, then solve the following LP</p>
 <p><span class="math display">\[
 \begin{align}
@@ -452,10 +498,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -465,8 +510,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -479,6 +533,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -522,6 +695,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -547,6 +721,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -607,6 +807,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 
