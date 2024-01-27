@@ -1,6 +1,6 @@
 ---
 title: "How does the attention mechanism ([Attention is all you need](https://arxiv.org/abs/1706.03762)) work?"
-draft: true
+draft: false
 ---
 
 In essence, an **attention mechanism** can be intuitively understood as a means to assign individual
@@ -61,6 +61,7 @@ and $\textbf{V}$ are learnable matrices.
 ```{python}
 #| code-fold: false
 
+import math
 import torch 
 
 
@@ -79,7 +80,7 @@ def attention(
     Returns
         torch.Tensor:                shape [batch_size, N_v, d_v]
     """
-    scale_factor = 1 / math.sqrt(query.size(-1))
+    scale_factor = 1 / math.sqrt(query_matrix.size(-1))
     # compute unnormalized attention weights of shape [batch_size, N_v, N_v] 
     attn_weights = scale_factor * query_matrix @ key_matrix.transpose(-2, -1)
     # normalize attention weights (i.e., sum over last dimension equal to one)
@@ -88,7 +89,7 @@ def attention(
     return normalized_attn_weights @ value_matrix
 ```
 
-::: {.callout-tip collapse=false}
+::: {.callout-tip collapse=true}
 ## Key, Query, Value - Naming 
 
 Instead of the weighted average formulation above, the attention mechanism could also be 
@@ -96,16 +97,48 @@ viewed as a **retrieval process** in which we have a storage of **key-value** pa
 (e.g., [dictionaries](https://docs.python.org/3/tutorial/datastructures.html#dictionaries)) 
 and a corresponding **query** input. 
 
+In this view, we are trying to retrieve the optimal value (representation) to the given query 
+by computing the alignment between query and keys.
 :::
 
 
 ::: {.callout-tip collapse=true}
 ##  Self-Attention
 
+Self-Attention simply means that the matrices $\textbf{Q}$, $\textbf{K}$ and $\textbf{V}$ are derived 
+from the same input embedding, see code below.
+
+```{python}
+
+import torch.nn as nn
+
+
+class SelfAttentionLayer(nn.Module):
+    def __init__(self, x_in: int, d_v: int, d_k: int) -> None:
+        super().__init__()
+
+        self.key_transformation = nn.Linear(x_in, d_k)
+        self.query_transformation = nn.Linear(x_in, d_k)
+        self.value_transformation = nn.Linear(x_in, d_v)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        key_matrix = self.key_transformation(x)
+        query_matrix = self.query_transformation(x)
+        value_matrix = self.value_transformation(x)
+
+        result = attention(
+            query_matrix=query_matrix, 
+            value_matrix=value_matrix,
+            key_matrix=key_matrix,
+        )
+
+        return result
+```
+
 :::
 
 
-::: {.callout-tip collapse=true}
-##  Multihead-Attention
-
-:::
+<!-- ::: {.callout-tip collapse=true} -->
+<!-- ##  Multihead-Attention -->
+<!---->
+<!-- ::: -->

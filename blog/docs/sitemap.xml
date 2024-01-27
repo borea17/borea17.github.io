@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://borea17.github.io/ml101.html</loc>
-    <lastmod>2023-08-19T16:35:01.616Z</lastmod>
+    <lastmod>2024-01-27T15:13:30.440Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/paper_summaries.html</loc>
-    <lastmod>2023-08-19T05:00:40.811Z</lastmod>
+    <lastmod>2024-01-27T14:39:42.565Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/ml101/engineering/sigmoid_loss/index.html</loc>
@@ -22,7 +22,7 @@
   </url>
   <url>
     <loc>https://borea17.github.io/ml101/probability_theory/evidence_lower_bound/index.html</loc>
-    <lastmod>2023-08-19T05:00:42.203Z</lastmod>
+    <lastmod>2024-01-19T11:43:15.257Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/ml101/probability_theory/cross_entropy_loss/index.html</loc>
@@ -42,7 +42,7 @@
   </url>
   <url>
     <loc>https://borea17.github.io/ml101/probability_theory/pearson_vs_spearman_correlation/index.html</loc>
-    <lastmod>2023-08-19T16:35:00.996Z</lastmod>
+    <lastmod>2023-08-31T19:42:46.600Z</lastmod>
   </url>
   <url>
     <loc>https://borea17.github.io/paper_summaries/graph_networks/index.html</loc>
@@ -90,6 +90,10 @@
   </url>
   <url>
     <loc>https://borea17.github.io/index.html</loc>
-    <lastmod>2023-08-19T16:13:35.540Z</lastmod>
+    <lastmod>2024-01-27T14:39:39.417Z</lastmod>
+  </url>
+  <url>
+    <loc>https://borea17.github.io/ml101/engineering/attention_mechanism/index.html</loc>
+    <lastmod>2024-01-27T15:13:29.600Z</lastmod>
   </url>
 </urlset>
