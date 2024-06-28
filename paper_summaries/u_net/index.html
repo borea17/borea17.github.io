@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.549">
+<meta name="generator" content="quarto-1.4.557">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -35,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -104,7 +104,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -231,7 +231,7 @@ window.Quarto = {
 
 <!-- nextjournal_link: "https://nextjournal.com/borea17/u-net/" -->
 <p><a href="https://arxiv.org/abs/1505.04597">Ronneberger et al.&nbsp;(2015)</a> introduced a novel neural network architecture to generate better semantic segmentations (i.e., class label assigend to each pixel) in limited datasets which is a typical challenge in the area of biomedical image processing (see figure below for an example). In essence, their model consists of a U-shaped convolutional neural network (CNN) with skip connections between blocks to capture context information, while allowing for precise localizations. In addition to the network architecture, they describe some data augmentation methods to use available data more efficiently. By the time the paper was published, the proposed architecture won several segmentation challenges in the field of biomedical engineering, outperforming state-of-the-art models by a large margin. Due to its success and efficiency, U-Net has become a standard architecture when it comes to image segmentations tasks even in the non-biomedical area (e.g., <a href="https://arxiv.org/abs/1611.07004">image-to-image translation</a>, <a href="https://arxiv.org/abs/1706.03319">neural style transfer</a>, <a href="https://arxiv.org/abs/1901.11390">Multi-Objetct Network</a>).</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/semantic_segmentation.png" title="Semantic Segmentation Example" class="img-fluid" alt="Semantic Segmentation Example"></th>
@@ -247,7 +247,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
 <p>U-Net builds upon the ideas of <code>Fully Convolutional Networks (FCNs) for Semantic Segmentation</code> by <a href="https://arxiv.org/abs/1411.4038">Long et al.&nbsp;(2015)</a> who successfully trained FCNs (including convolutional prediction, upsampling layers and skip connections) end-to-end (pixels-to-pixels) on semantic segmentation tasks. U-Net is basically a modified version of the FCN by making the architecture more symmetric, i.e., adding a more powerful expansive path. <a href="https://arxiv.org/abs/1505.04597">Ronneberger et al. (2015)</a> argue that this modification yields more precise segmentations due to its capacity to better propagate context information to higher resolution layers.</p>
 <p><strong>FCN architecture</strong>: The main idea of the FCN architecture is to take a standard classification network (such as VGG-16), discard the final classifier layer, convert fully connected layers into convolutions (i.e., prediction layers) and add skip connections to (some) pooling layers, see figure below. The skip connections consist of a prediction (<span class="math inline">\(1 \times 1\)</span> convolutional layer with channel dimension equal to number of possible classes) and a deconvolutional (upsampling) layer.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/FCN_example2.png" title="Example FCN Architecture" class="img-fluid" alt="Example FCN Architecture"></th>
@@ -260,7 +260,7 @@ window.Quarto = {
 </tbody>
 </table>
 <p><strong>U-Net architecture</strong>: The main idea of the U-Net architecture is to build an encoder-decoder FCN with skip connections between corresponding blocks, see figure below. The left side of U-Net, i.e., <em>contractive path</em> or <em>encoder</em>, is very similar to the left side of the FC architecture above. The right side of U-Net, i.e., <em>expansive path</em> or <em>decoder</em>, differs due to its number of feature channels and the convolutional + ReLu layers. Note that the input image size is greater than the output segmentation size, i.e., the network only segments the inner part of the image<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/u_net_architecture.png" title="U-Net Architecture" class="img-fluid" alt="U-Net Architecture"></th>
@@ -286,7 +286,7 @@ window.Quarto = {
 <section id="em-dataset" class="level3">
 <h3 class="anchored" data-anchor-id="em-dataset">EM Dataset</h3>
 <p>Only the first task of the three different U-Net applications is reimplemented: The segmentation of neuronal structures in electron microscopic (EM) recordings. The training data consists of 30 images (<span class="math inline">\(512 \times 512\)</span> pixels with 8-bit grayscale) from the ventral nerve cord of some species of fruit flies together with the corresponding 30 binary segmentation masks (white pixels for segmented objects, black for the rest), see gif below. The dataset formed part of the 2D EM segmentation challenge at the ISBI 2012 conference. Although the workshop competition is done, the challenge remains open for new contributions. Further details about the data can be found at the <a href="http://brainiac2.mit.edu/isbi_challenge/">ISBI Challenge website</a>, where also the training and test data can be downloaded (after registration).</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: center;"><img src="./img/EM_dataset.gif" title="EM training data" class="img-fluid" alt="EM training data."></th>
@@ -333,7 +333,7 @@ window.Quarto = {
 <p>Training neural networks on image data typically requires large amounts of data to make the model robust (i.e., avoid overfitting) and accurate (i.e., avoid underfitting). However, data scarcity is a common problem in biomedical segmentation tasks, since labeling is expensive and time consuming. In such cases, <strong>data augmentation</strong> offers a solution by generating additional data (using plausible transformations) to expand the training dataset. In most image segmentation tasks the function to be learned has some transformation-invariance properties (e.g., translating the input should result in a translated output). The data augmentation applied by <a href="https://arxiv.org/abs/1505.04597">Ronneberger et al.&nbsp;(2015)</a> can be divided into four parts:</p>
 <ul>
 <li><p><strong>Overlap-tile strategy</strong> is used to divide an arbitrary large image into several overlaping parts (each forming an input and label to the training algorithm). Remind that the input to the neural network is greater than the output, in case of the EM dataset the input is even greater than the whole image. Therefore, <a href="https://arxiv.org/abs/1505.04597">Ronneberger et al. (2015)</a> expand the images by mirroring at the sides. The overlap-tile strategy is shown below. Depending on the <code>stride</code> (i.e., how much the next rectangle is shifted to the right), the training dataset is enlarged by a factor greater than 4.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -349,7 +349,7 @@ window.Quarto = {
 </tbody>
 </table></li>
 <li><p><strong>Affine transformations</strong> are mathematically defined as geometric transformations preserving lines and parallelisms, e.g., scaling, translation, rotation, reflection or any mix of them. <a href="https://arxiv.org/abs/1505.04597">Ronneberger et al.&nbsp;(2015)</a> state that in case of microscopical image data mainly translation and rotation invariance (as affine transformation invariances) are desired properties of the resulting function. Note that the overlap-tile strategy itself leads to some translation invariance.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -365,7 +365,7 @@ window.Quarto = {
 </tbody>
 </table></li>
 <li><p><strong>Elastic deformations</strong> are basically distinct affine transformations for each pixel. The term is probably derived from physics in which an elastic deformation describes a temporary change in shape of an elastic material (due to induced force). The transformation result looks similar to the physics phenomenon, see image below. <a href="https://arxiv.org/abs/1505.04597">Ronneberger et al. (2015)</a> noted that elastic deformations seem to be a key concept for successfully training with few samples. A possible reason may be that the model’s generalization capabilities improve more by elastic deformations since the resulting images have more variability than with coherent affine transformations.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -382,7 +382,7 @@ window.Quarto = {
 </table>
 <p>Implementing elastic deformations basically consists of generating random displacement fields, convolving these with a Gaussian filter for smoothening, scaling the result by a predefined factor to control the intensity and then computing the new pixel values for each displacement vector (using interpolation within the old grid), see Best Practices for CNNs by <a href="https://www.researchgate.net/publication/220860992_Best_Practices_for_Convolutional_Neural_Networks_Applied_to_Visual_Document_Analysis">Simard et al. (2003)</a> for more details. <!-- Note that [Ronneberger et al. --> <!-- (2015)](https://arxiv.org/abs/1505.04597) use a slightly different --> <!-- method to generate elastic deformations by directly sampling from a Gaussian --> <!-- distribution instead of convolving uniform sampled random vectors --> <!-- with a Gaussian. --></p></li>
 <li><p><strong>Color variations</strong> or in this case rather <strong>gray value variations</strong> in the input image should make the network invariant to small color changes. This can easily be implemented by adding Gaussian noise (other distributions may also be possible) to the input image, see image below.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -1293,6 +1293,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   if (showAllCode) {
     showAllCode.addEventListener("click", toggleCodeHandler(true));
   }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/borea17\.github\.io\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -1327,7 +1345,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');

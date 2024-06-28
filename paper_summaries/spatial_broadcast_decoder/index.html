@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.549">
+<meta name="generator" content="quarto-1.4.557">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -35,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -104,7 +104,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -246,7 +246,7 @@ table th {
 <section id="model-description" class="level2">
 <h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
 <p>As stated in the title, the model architecture of the Spatial Broadcast decoder is very simple: Take a standard VAE decoder and replace all upsampling deconvolutional layers by tiling the latent code <span class="math inline">\(\textbf{z}\)</span> across the original image space, appending fixed coordinate channels and applying an convolutional network with <span class="math inline">\(1 \times 1\)</span> stride, see the figure below.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/sbd.png" title="Schematic of the Spatial Broadcast VAE" class="img-fluid" alt="Schematic of the Spatial Broadcast VAE"></th>
@@ -262,7 +262,7 @@ table th {
 <p><strong>Motivation</strong>: The presented architecture is mainly motivated by two reasons:</p>
 <ul>
 <li><p><strong>Deconvolution layers cause optimization difficulties</strong>: <a href="https://arxiv.org/abs/1901.07017">Watters et al.&nbsp;(2019)</a> argue that upsampling deconvolutional layers should be avoided, since these are prone to produce checkerboard artifacts, i.e., a checkerboard pattern can be identified on the resulting images (when looking closer), see figure below. These artifacts constrain the reconstruction accuracy and <a href="https://arxiv.org/abs/1901.07017">Watters et al. (2019)</a> hypothesize that the resulting effects may raise problems for learning a disentangled representation in the latent space.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/cherckerboard_artifacts.png" title="Checkerboard Artifacts" class="img-fluid" alt="Checkerboard Artifacts"></th>
@@ -276,7 +276,7 @@ table th {
 </table></li>
 <li><p><strong>Appended coordinate channels improve positional generalization and optimization</strong>: Previous work by <a href="https://arxiv.org/abs/1807.03247">Liu et al. (2018)</a> showed that standard convolution/deconvolution networks (CNNs) perform badly when trying to learn trivial coordinate transformations (e.g., learning a mapping from Cartesian space into one-hot pixel space or vice versa). This behavior may seem counterintuitive (easy task, small dataset), however the feature of translational equivariance (i.e., shifting an object in the input equally shifts its representation in the output) in CNNs<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> hinders learning this task: The filters have by design no information about their position. Thus, coordinate transformations result in complicated functions which makes optimization difficult. E.g., changing the input coordinate slighlty might push the resulting function in a completelty different direction.</p>
 <p><strong>CoordConv Solution</strong>: To overcome this problem, <a href="https://arxiv.org/abs/1807.03247">Liu et al. (2018)</a> propose to append coordinate channels before convolution and term the resulting layer <em>CoordConv</em>, see figure below. In principle, this layer can learn to use or discard translational equivariance and keeps the other advantages of convolutional layers (fast computations, few parameters). Under this modification learning coordinate transformation problems works out of the box with perfect generalization in less time (150 times faster) and less memory (10-100 times fewer parameters). As coordinate transformations are implicitely needed in a variaty of tasks (such as producing bounding boxes in object detection) using CoordConv instead of standard convolutions might increase the performance of several other models.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/CoordConv.png" title="CoordConv Layer" class="img-fluid" alt="CoordConv Layer"></th>
@@ -311,7 +311,7 @@ table th {
 <h3 class="anchored" data-anchor-id="data-generation">Data Generation</h3>
 <p>A dataset that is similar in spirit to the <em>colored sprites dataset</em> will be generated, i.e., procedurally generated objects from known factors of variation. <a href="https://arxiv.org/abs/1901.07017">Watters et al. (2019)</a> use a binary <a href="https://github.com/deepmind/dsprites-dataset">dsprites dataset</a> consisting of 737,280 images and transform these during training into colored images by uniformly sampling from a predefined HSV space (see Appendix A.3). As a result, the dataset has 8 factors of variation (<span class="math inline">\(x\)</span>-position, <span class="math inline">\(y\)</span>-position, size, shape, angle, 3D-color) with infinite samples (due to sampling of color). They used <span class="math inline">\(1.5 \cdot 10^6\)</span> training steps.</p>
 <p>To reduce training time, we are going to generate a much simpler dataset consisting of <span class="math inline">\(3675\)</span> images with a circle (fixed size) inside generated from a predefined set of possible colors and positions such that there are only 3 factors of variation (<span class="math inline">\(x\)</span>-position, <span class="math inline">\(y\)</span>-position, discretized color). In this case <span class="math inline">\(3.4 \cdot 10^2\)</span> training steps suffice for approximate convergence.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: center;"><img src="./img/dataset.png" title="Examples of Dataset" class="img-fluid" alt="Examples of Dataset"></th>
@@ -1135,6 +1135,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   if (showAllCode) {
     showAllCode.addEventListener("click", toggleCodeHandler(true));
   }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/borea17\.github\.io\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -1169,7 +1187,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');

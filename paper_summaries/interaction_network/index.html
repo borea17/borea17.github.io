@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.549">
+<meta name="generator" content="quarto-1.4.557">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -70,7 +70,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -217,7 +217,7 @@ window.Quarto = {
 \end{align}
 \]</span></p>
 <p>In this definition <span class="math inline">\(m\)</span> denotes the marshalling function which rearranges objects and relations into interaction terms <span class="math inline">\(b_k= \langle o_i, o_j, r_k \rangle \in B\)</span> on which the relational function <span class="math inline">\(\phi_R\)</span> can operate (element-wise by applying <span class="math inline">\(f_R\)</span> on each interaction term) to predict the effects of each interaction <span class="math inline">\(e_k\in E\)</span>. The aggregation function <span class="math inline">\(a\)</span> builds a a set of of object model inputs <span class="math inline">\(c_j \in C\)</span> (one per object) by collecting and merging all incoming effects per object and combining the result with the object state <span class="math inline">\(o_{j}^{(t)}\)</span> and the external effects for that object <span class="math inline">\(x_j^{(t)}\)</span>. Lastly, the object model <span class="math inline">\(\phi_O\)</span> predicts for all objects their result <span class="math inline">\(p_j\in P\)</span>, i.e., future object states <span class="math inline">\(o_{j}^{(t+1)}\)</span>, by applying <span class="math inline">\(f_O\)</span> to each <span class="math inline">\(c_j\)</span>. The figure below represents the described procedure of an (exemplary) IN.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/IN.png" title="Schematic of the IN's update procedure" class="img-fluid" alt="Schematic of the IN’s update procedure for an exemplary IN"></th>
@@ -267,7 +267,7 @@ r_r, r_s, r_a \rangle\)</span> where <span class="math inline">\(r_a \in \mathbb
                                                 \begin{bmatrix} o_1^{(t+1)} &amp; \dots &amp; o_{N_O}^{(t+1)} \end{bmatrix}.
 \]</span></p>
 <p>The result can be used to update the graph structured representation. The figure below summarizes the implementation of the IN.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/implementation.png" title="One step roll out of the IN implementation" class="img-fluid" alt="One step roll out of the IN implementation"></th>
@@ -377,6 +377,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/borea17\.github\.io\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -411,7 +429,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');

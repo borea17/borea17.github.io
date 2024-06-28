@@ -1,10 +1,16 @@
 /* css styles */
 
-th:first-child {
+th {
+  box-sizing: border-box;
   border: 10px solid #bfbfbf;
   text-align: center;
-  border-bottom: 10px solid #bfbfbf;
+  border-bottom: 10px solid #bfbfbf !important;
 }
+
+.dropdown-menu {
+  background-color: #4C4C4C;
+}
+
 
 .toc {
   /* border: 1px solid $border-color; */

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.549">
+<meta name="generator" content="quarto-1.4.557">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -35,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -104,7 +104,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -228,7 +228,7 @@ window.Quarto = {
 
 <!-- nextjournal_link: "https://nextjournal.com/borea17/spatial_transformer_networks/" -->
 <p><a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a> introduced the learnable <strong>Spatial Transformer (ST)</strong> module that can be used to empower standard neural networks to actively spatially transform feature maps or input data. In essence, the ST can be understood as a black box that applies some spatial transformation (e.g., crop, scale, rotate) to a given input (or part of it) conditioned on the particular input during a single forward path. In general, STs can also be seen as a learnable attention mechanism (including spatial transformation on the region of interest). Notably, STs can be easily integrated in existing neural network architectures without any supervision or modification to the optimization, i.e., STs are differentiable plug-in modules. The authors could show that STs help the models to learn invariances to translation, scale, rotation and more generic warping which resulted in state-of-the-art performance on several benchmarks, see image below.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/ST_inpractice.gif" title="Spatial Transformer in Practice" class="img-fluid" alt="Spatial Transformer in Practice"></th>
@@ -243,7 +243,7 @@ window.Quarto = {
 <section id="model-description" class="level2">
 <h2 class="anchored" data-anchor-id="model-description">Model Description</h2>
 <p>The aim of STs is to provide neural networks with spatial transformation and attention capabilities in a reasonable and efficient way. Note that standard neural network architectures (e.g., CNNs) are limited in this regard<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Therefore, the ST constitutes parametrized transformations <span class="math inline">\(\mathcal{T}_{\boldsymbol{\theta}}\)</span> that transform the regular input grid to a new sampling grid, see image below. Then, some form of interpolation is used to compute the pixel values in the new sampling grid (i.e., interpolation between values of the old grid).</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/parametrised_sampling_grid.png" title="Parametrized Sampling Grids" class="img-fluid" alt="Parametrized Sampling Grids"></th>
@@ -275,7 +275,7 @@ window.Quarto = {
 <p>defined on the input/source feature map <span class="math inline">\(\textbf{U}\)</span> using a parametrized transformation <span class="math inline">\(\mathcal{T}_{\boldsymbol{\theta}}\)</span>, i.e., <span class="math inline">\(\widetilde{G} =
 T_{\boldsymbol{\theta}} (G)\)</span>. Visualizations have bee created by me, interactive versions can be found <a href="https://github.com/borea17/InteractiveTransformations">here</a>.</p>
 <!-- * <ins>Affine Transformations</ins> -->
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -291,7 +291,7 @@ T_{\boldsymbol{\theta}} (G)\)</span>. Visualizations have bee created by me, int
 </tbody>
 </table>
 <!-- * <ins>(Standard) Attention</ins> -->
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -306,7 +306,7 @@ T_{\boldsymbol{\theta}} (G)\)</span>. Visualizations have bee created by me, int
 </tr>
 </tbody>
 </table>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -345,7 +345,7 @@ y_i^s\end{bmatrix}^{T}\)</span> and <span class="math inline">\(\boldsymbol{\Phi
 \]</span></p></li>
 </ul>
 <p>The figure below summarizes the ST architecture and shows how the individual parts interact with each other.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/spatial_transformer.png" title="Architecture of Spatial Transformer" class="img-fluid" alt="Architecture of Spatial Transformer"></th>
@@ -370,7 +370,7 @@ y_i^s\end{bmatrix}^{T}\)</span> and <span class="math inline">\(\boldsymbol{\Phi
 <section id="rts-distorted-mnist" class="level3">
 <h3 class="anchored" data-anchor-id="rts-distorted-mnist">RTS Distorted MNIST</h3>
 <p>While <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a> explored multiple distortions on the MNIST handwriting dataset, this reimplementation focuses on the rotation-translation-scale (RTS) distorted MNIST, see image below. As described in appendix A.4 of <a href="https://arxiv.org/abs/1506.02025">Jaderberg et al.&nbsp;(2015)</a> this dataset can easily be generated by augmenting the standard MNIST dataset as follows: * randomly rotate by sampling the angle uniformly in <span class="math inline">\([+45^{\circ}, 45^{\circ}]\)</span>, * randomly scale by sampling the factor uniformly in <span class="math inline">\([0.7, 1.2]\)</span>, * translate by picking a random location on a <span class="math inline">\(42\times 42\)</span> image (MNIST digits are <span class="math inline">\(28 \times 28\)</span>).</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -933,6 +933,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   if (showAllCode) {
     showAllCode.addEventListener("click", toggleCodeHandler(true));
   }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/borea17\.github\.io\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -967,7 +985,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.549">
+<meta name="generator" content="quarto-1.4.557">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -35,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -104,7 +104,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -243,7 +243,7 @@ window.Quarto = {
 <li><strong>Repeat</strong>: Lastly, these steps are repreated until the full image is described or the maximum number of repetitions is reached.</li>
 </ul>
 <p>Notably, the model can handle a variable number of objects (upper-bounded) by treating inference as an iterative process. As a proof of concept, they show that AIR could successfully learn to decompose multi-object scenes in multiple datasets (multiple MNIST, Sprites, Omniglot, 3D scenes).</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/paper_results.gif" title="Paper Results" class="img-fluid" alt="Paper Results"></th>
@@ -271,7 +271,7 @@ window.Quarto = {
 <section id="high-level-overview" class="level3">
 <h3 class="anchored" data-anchor-id="high-level-overview">High-Level Overview</h3>
 <p>In essence, the model can be understood as a special VAE architecture in which an image <span class="math inline">\(\textbf{x}\)</span> is encoded to some kind of latent distribution from which we sample the latent representation <span class="math inline">\(\textbf{z}\)</span> which then can be decoded into an reconstructed image <span class="math inline">\(\widetilde{\textbf{x}}\)</span>, see image below. The main idea by <a href="https://arxiv.org/abs/1603.08575">Eslami et al. (2016)</a> consists of imposing additional structure in the model using the inductive bias that real-world scenes can often be approximated as multi-object scenes, i.e., compositions of several (variable number) objects. Additionally, they assume that all of these objects live in the same domain, i.e., each object is an instantiation from the same class.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -287,7 +287,7 @@ window.Quarto = {
 </tbody>
 </table>
 <p>To this end, <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a> replace the encoder with an recurrent, variable-length inference network to obtain a group-structured latent representation. Each group <span class="math inline">\(\textbf{z}^{(i)}\)</span> should ideally correspond to one object where the entries can be understood as the compressed attributes of that object (e.g., type, appearance, pose). The main purpose of the inference network is to explain the whole scene by iteratively updating what remains to be explained, i.e., each step is conditioned on the image and on its knowledge of previously explained objects, see image below. Since they assume that each object lives in the same domain, the decoder is applied group-wise, i.e., each vector <span class="math inline">\(\textbf{z}^{(i)}\)</span> is fed through the same decoder network, see image below.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -306,7 +306,7 @@ window.Quarto = {
 <p>To disentangle <code>what</code>from <code>where</code>, the inference network extracts attentions crops <span class="math inline">\(\textbf{x}^{(i)}_{\text{att}}\)</span> of the image <span class="math inline">\(\textbf{x}\)</span> based on a three-dimensional vector <span class="math inline">\(\textbf{z}^{(i)}_{\text{where}} \left( \textbf{h}^{(i)} \right)\)</span> which specifies the affine parameters <span class="math inline">\((s^{(i)}, t_x^{(i)}, t_y^{(i)})\)</span> of the attention transformation<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. These attention crops are then put through a standard VAE to encode the latent <code>what</code>-vector <span class="math inline">\(\textbf{z}^{(i)}_{\text{what}}\)</span>. Note that each attention crop is put through the same VAE, thereby consistency between compressed object attributes is achieved (i.e., each object is an instantiation of the same class).</p>
 <p>On the decoder side, the reconstructed attention crop <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}_{\text{att}}\)</span> is transformed to <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}\)</span> using the information from <span class="math inline">\(\textbf{z}^{(i)}_{\text{where}}\)</span>. <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}\)</span> can be understood as a reconstructed image of the <span class="math inline">\(i\)</span>-th object in the original image <span class="math inline">\(\textbf{x}\)</span>. Note that <span class="math inline">\(\text{z}^{(i)}_{\text{pres}}\)</span> is used to decide whether the contribution of <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}_{\text{att}}\)</span> is added to the otherwise empty canvas <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}\)</span>.</p>
 <p>The schematic below summarizes the whole AIR architecture.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: center;"><img src="./img/AIR_model2.png" title="Schematic of AIR" class="img-fluid" alt="Schematic of AIR"></th>
@@ -338,7 +338,7 @@ x_k^s &amp; y_k^s \end{bmatrix}^{\text{T}} \}\)</span> defined on the input. The
 <p>where <span class="math inline">\(\left(\textbf{A}^{(i)}\right)^{+}\)</span> denotes the Moore-Penrose inverse of <span class="math inline">\(\textbf{A}^{(i)}\)</span>, and the regular grid <span class="math inline">\(\textbf{G} = \{\begin{bmatrix}
 x_k^t &amp; y_k^t \end{bmatrix}^{\text{T}} \}\)</span> is now defined on the original image space<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. Below is a self-written interactive visualization where <span class="math inline">\(\widetilde{\textbf{x}}^{(i)}_{\text{att}} =
 \textbf{x}^{(i)}_{\text{att}}\)</span>. It shows nicely that the whole process can abstractly be understood as cutting of a crop from the original image and placing the reconstructed version with the inverse scaling and shifting on an otherwise empty (black) canvas. The code and visualization can be found <a href="https://github.com/borea17/InteractiveTransformations">here</a>.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -374,7 +374,7 @@ p_{\boldsymbol{\theta}} (\textbf{x}) = \sum_{n=1}^N p_N (n) \int
 p_{\boldsymbol{\theta}}^z \left( \textbf{z} | n \right)
 p_{\boldsymbol{\theta}}^x \left( \textbf{x} | \textbf{z}\right) d \textbf{z}
 \]</span></p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -512,7 +512,7 @@ D_{KL} &amp; \left(q_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x}^{(i)}
 <h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
 <p>The following reimplementation aims to reproduce the results of the multi-MNIST experiment, see image below. We will make some adaptations inspired by <a href="https://pyro.ai/examples/air.html">this pyro tutorial</a> and <a href="https://github.com/addtt/attend-infer-repeat-pytorch">this pytorch reimplementation</a> from Andrea Dittadi. As a result, the following reimplementation receives a huge speed up in terms of convergence time and can be trained in less than 10 minutes on a Nvidia Tesla K80 (compared to 2 days on a Nvidia Quadro K4000 GPU by <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a>).</p>
 <p>As noted by <a href="https://arxiv.org/abs/1603.08575">Eslami et al.&nbsp;(2016)</a>, their model successfully learned to count the number of digits and their location in each image (i.e., appropriate attention windows) without any supervision. Furthermore, the scanning policy of the inference network (i.e., object assignment policy) converges to spatially divided regions where the direction of the spatial border seems to be random (dependent on random initialization). Lastly, the model also learned that it never needs to assign a third object (all images in the training dataset contained a maximum of two digits). <!-- This ensures that different regions are --> <!-- assigned as different objects. --></p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;"><img src="./img/paper_results.png" title="Multi-MNIST Paper Results" class="img-fluid" alt="Multi-MNIST Paper Results"></th>
@@ -529,7 +529,7 @@ D_{KL} &amp; \left(q_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x}^{(i)}
 <h3 class="anchored" data-anchor-id="multi-mnist-dataset">Multi-MNIST Dataset</h3>
 <p>The multi-MNIST datasets consists of <span class="math inline">\(50 \times 50\)</span> gray-scale images containing zero, one or two non-overlapping random MNIST digits with equal probability, see image below. This dataset can easily be generated by taking a blank <span class="math inline">\(50 \times
 50\)</span> canvas and positioning a random number of digits (drawn uniformly from MNIST dataset) onto it. To ensure that MNIST digits (<span class="math inline">\(28\times28\)</span>) will not overlap, we scale them to <span class="math inline">\(24\times 24\)</span> and then position them such that the centers of two MNIST digits do not overlap. Note that some small overlap may occur which we simply accept. At the same time, we record the number of digits in each generated image to measure the count accuracy during training.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -1229,7 +1229,7 @@ D_{KL} &amp; \left(q_{\boldsymbol{\phi}} \left(\textbf{z}, n | \textbf{x}^{(i)}
 
 <ol>
 <li id="fn1"><p>Visualization of a standard attention transformation, for more details refer to my <a href="https://borea17.github.io/paper_summaries/spatial_transformer#model-description">Spatial Transformer description</a>.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
@@ -1389,6 +1389,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   if (showAllCode) {
     showAllCode.addEventListener("click", toggleCodeHandler(true));
   }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/borea17\.github\.io\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -1423,7 +1441,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');
