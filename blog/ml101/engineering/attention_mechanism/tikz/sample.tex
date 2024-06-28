@@ -1,4 +1,6 @@
 \documentclass[tikz]{standalone}
+\usepackage{lmodern} % Provides more font weight options
+\usepackage{tgheros} % Provides a lighter font option
 \usetikzlibrary{shapes.geometric}    % trapezium
 \usetikzlibrary{arrows}              % arrow tips
 \usepackage{amsmath, amsfonts}
@@ -11,25 +13,54 @@
 \definecolor{myred}{HTML}{CD594A} 
 \definecolor{mygreen}{HTML}{829356} 
 \definecolor{myblue}{HTML}{3C6478} 
+\definecolor{myblue}{HTML}{3C6478} 
+\definecolor{myorange}{HTML}{BD7613} 
 \usepackage{mathtools}
 \usetikzlibrary{decorations.pathreplacing}
 \begin{document}
     \begin{tikzpicture}[>=latex',thick]
 
+      
+      \pgfmathsetmacro{\textY}{2}
+      \pgfmathsetmacro{\valuesY}{1}
+      \pgfmathsetmacro{\keysY}{-1}
+      \pgfmathsetmacro{\queriesY}{-3}
+      \pgfmathsetmacro{\attendY}{-5}
+      \pgfmathsetmacro{\newTextY}{-6}
+
       % TEXT
-      \node at (0,0) {\Large{This}};
-      \node at (2,0) {\Large{is}};
-      \node at (4,0) {\Large{an}};
-      \node at (6,0) {\Large{example}};
+      \node [name=t1] at (0,\textY) {\Large{This}};
+      \node [name=t2] at (2,\textY) {\Large{is}};
+      \node [name=t3] at (4,\textY) {\Large{an}};
+      \node [name=t4] at (6,\textY) {\Large{example}};
+
+      % New Text
+      \node [name=tn1] at (0,\newTextY) {\large{\textbf{This} is \scalebox{0.6}[1]{an example}}};
+
+      % attended
+      \node  at (-2,\attendY) {\large{\textbf{\textcolor{myorange}{attend}}}};
+      \node [name=a1] at (0, \attendY) {\large{\textcolor{myorange}{$\boldsymbol{a}_1$}}};
+      \node [name=a2] at (2, \attendY) {\large{\textcolor{myorange}{$\boldsymbol{a}_2$}}};
+      \node [name=a3] at (4, \attendY) {\large{\textcolor{myorange}{$\boldsymbol{a}_3$}}};
+      \node [name=a4] at (6, \attendY) {\large{\textcolor{myorange}{$\boldsymbol{a}_4$}}};
+      \node at (10, \attendY)
+      {\textcolor{myorange}{$
+          \boldsymbol{a}_i \in \mathbb{R}^{d_v}, 
+          \boldsymbol{A} = \begin{bmatrix}
+            \boldsymbol{a}_1^{\text{T}} \\ \vdots \\
+            \boldsymbol{a}_4^{\text{T}} \end{bmatrix} \in \mathbb{R}^{N_v \times
+            d_v}$}}; 
+
+
 
       % values
-      \node at (-2,-1) {\large{\textbf{\textcolor{myred}{values}}}};
-      \node at (0, -1) {\large{\textcolor{myred}{$\boldsymbol{v}_1$}}};
-      \node at (2, -1) {\large{\textcolor{myred}{$\boldsymbol{v}_2$}}};
-      \node at (4, -1) {\large{\textcolor{myred}{$\boldsymbol{v}_3$}}};
-      \node at (6, -1) {\large{\textcolor{myred}{$\boldsymbol{v}_4$}}};
+      \node  at (-2,\valuesY) {\large{\textbf{\textcolor{myred}{values}}}};
+      \node [name=v1] at (0, \valuesY) {\large{\textcolor{myred}{$\boldsymbol{v}_1$}}};
+      \node [name=v2] at (2, \valuesY) {\large{\textcolor{myred}{$\boldsymbol{v}_2$}}};
+      \node [name=v3] at (4, \valuesY) {\large{\textcolor{myred}{$\boldsymbol{v}_3$}}};
+      \node [name=v4] at (6, \valuesY) {\large{\textcolor{myred}{$\boldsymbol{v}_4$}}};
 
-      \node at (10, -1)
+      \node at (10, \valuesY)
       {\textcolor{myred}{$
           \boldsymbol{v}_i \in \mathbb{R}^{d_v}, 
           \boldsymbol{V} = \begin{bmatrix}
@@ -38,13 +69,14 @@
             d_v}$}}; 
 
       % keys 
-      \node at (-2,-3) {\large{\textbf{\textcolor{mygreen}{keys}}}};
-      \node at (0, -3) {\large{\textcolor{mygreen}{$\boldsymbol{k}_1$}}};
-      \node at (2, -3) {\large{\textcolor{mygreen}{$\boldsymbol{k}_2$}}};
-      \node at (4, -3) {\large{\textcolor{mygreen}{$\boldsymbol{k}_3$}}};
-      \node at (6, -3) {\large{\textcolor{mygreen}{$\boldsymbol{k}_4$}}};
+      \node  at (-2,\keysY) {\large{\textbf{\textcolor{mygreen}{keys}}}};
+      \node [name=k1] at (0, \keysY) {\large{\textcolor{mygreen}{$\boldsymbol{k}_1$}}};
+      \node [name=k2] at (2, \keysY) {\large{\textcolor{mygreen}{$\boldsymbol{k}_2$}}};
+      \node [name=k3] at (4, \keysY) {\large{\textcolor{mygreen}{$\boldsymbol{k}_3$}}};
+      \node [name=k4] at (6, \keysY) {\large{\textcolor{mygreen}{$\boldsymbol{k}_4$}}};
 
-      \node at (10, -3)
+
+      \node at (10, \keysY)
       {\textcolor{mygreen}{$
           \boldsymbol{k}_i \in \mathbb{R}^{d_k}, 
           \boldsymbol{K} = \begin{bmatrix}
@@ -53,13 +85,25 @@
             d_k}$}}; 
 
       % queries
-      \node at (-2,-5) {\large{\textbf{\textcolor{myblue}{queries}}}};
-      \node at (0, -5) {\large{\textcolor{myblue}{$\boldsymbol{q}_1$}}};
-      \node at (2, -5) {\large{\textcolor{myblue}{$\boldsymbol{q}_2$}}};
-      \node at (4, -5) {\large{\textcolor{myblue}{$\boldsymbol{q}_3$}}};
-      \node at (6, -5) {\large{\textcolor{myblue}{$\boldsymbol{q}_4$}}};
+      \node at (-2,\queriesY) {\large{\textbf{\textcolor{myblue}{queries}}}};
+      \node [name=q1] at (0, \queriesY) {\large{\textcolor{myblue}{$\boldsymbol{q}_1$}}};
+      \node [name=q2] at (2, \queriesY) {\large{\textcolor{myblue}{$\boldsymbol{q}_2$}}};
+      \node [name=q3] at (4, \queriesY) {\large{\textcolor{myblue}{$\boldsymbol{q}_3$}}};
+      \node [name=q4] at (6, \queriesY) {\large{\textcolor{myblue}{$\boldsymbol{q}_4$}}};
 
-      \node at (10, -5)
+      \draw [-, thin, color=gray] (a1) -- (q1);
+
+      \draw [-, thin, color=gray] (q1) -- (k1);
+      \draw [-, thin, color=gray] (q1) -- (k2);
+      \draw [-, thin, color=gray] (q1) -- (k3);
+      \draw [-, thin, color=gray] (q1) -- (k4);
+
+      \draw [-, thin, color=gray] (k1) -- (v1);
+      \draw [-, thin, color=gray] (k2) -- (v2);
+      \draw [-, thin, color=gray] (k3) -- (v3);
+      \draw [-, thin, color=gray] (k4) -- (v4);
+
+    \node at (10, \queriesY)
       {\textcolor{myblue}{$
           \boldsymbol{q}_i \in \mathbb{R}^{d_k}, 
           \boldsymbol{Q} = \begin{bmatrix}
@@ -67,80 +111,6 @@
             \boldsymbol{q}_4^{\text{T}} \end{bmatrix} \in \mathbb{R}^{N_v \times
             d_k}$}}; 
 
-      % {$\begin{bmatrix} v_{1,1} \\ \vdots \\ v_{1,d_{v}} \end{bmatrix}$};
-
-
-      % % matrix brackets
-      % \draw (-0.5, 0.8) --++(180:3mm)|-(-0.5,-2.2)
-      % node [pos=.25, above, rotate=90] {};
-
-
-
-      % % row
-      % \draw [decorate,decoration={brace,amplitude=10pt,raise=4pt},
-      % yshift=12pt] (-0.5,0.8) -- (9.5,0.8) node
-      % [black,midway,yshift=0.7cm] {\footnotesize $MR$};
-      % \draw [decorate,decoration={brace,amplitude=10pt,raise=4pt},
-      % yshift=12pt] (0,0) -- (4,0) node
-      % [black,midway,yshift=0.7cm] {\footnotesize $M$ attributes};
-
-      % % time 1
-      % \node [circle, draw=black, fill=green!40,
-      % label={[xshift=0, yshift=-0.08cm]blue}] at (0, 0) {};
-      % \node [circle, draw=black,
-      % label={[xshift=0, yshift=-0.08cm]red}] at (1, 0) {};
-      % \node [circle, draw=black,
-      % label={[xshift=0, yshift=-0.08cm]x=1}] at (2, 0) {};
-      % \node [circle, draw=black, fill=green!40,
-      % label={[xshift=0, yshift=-0.08cm]x=2}] at (3, 0) {};
-      % \node [circle, draw=black,
-      % label={[xshift=0, yshift=-0.08cm]x=3}] at (4, 0) {};
-      % \node [circle, draw=black,
-      % label={[xshift=0, yshift=-0.08cm]blue}] at (5, 0) {};
-      % \node [circle, draw=black, fill=green!40,
-      % label={[xshift=0, yshift=-0.08cm]red}] at (6, 0) {};
-      % \node [circle, draw=black, fill=green!40,
-      % label={[xshift=0, yshift=-0.08cm]x=1}] at (7, 0) {};
-      % \node [circle, draw=black,
-      % label={[xshift=0, yshift=-0.08cm]x=2}] at (8, 0) {};
-      % \node [circle, draw=black,
-      % label={[xshift=0, yshift=-0.08cm]x=3}] at (9, 0) {};
-
-      % % time 2
-      % \node [circle, draw=black, fill=green!40] at (0, -0.6) {};
-      % \node [circle, draw=black] at (1, -0.6) {};
-      % \node [circle, draw=black] at (2, -0.6) {};
-      % \node [circle, draw=black, fill=green!40] at (3, -0.6) {};
-      % \node [circle, draw=black] at (4, -0.6) {};
-      % \node [circle, draw=black] at (5, -0.6) {};
-      % \node [circle, draw=black, fill=green!40] at (6, -0.6) {};
-      % \node [circle, draw=black] at (7, -0.6) {};
-      % \node [circle, draw=black, fill=green!40] at (8, -0.6) {};
-      % \node [circle, draw=black] at (9, -0.6) {};
-
-      % % time 3
-      % \node [circle, draw=black, fill=green!40] at (0, -1.2) {};
-      % \node [circle, draw=black] at (1, -1.2) {};
-      % \node [circle, draw=black] at (2, -1.2) {};
-      % \node [circle, draw=black, fill=green!40] at (3, -1.2) {};
-      % \node [circle, draw=black] at (4, -1.2) {};
-      % \node [circle, draw=black] at (5, -1.2) {};
-      % \node [circle, draw=black, fill=green!40] at (6, -1.2) {};
-      % \node [circle, draw=black] at (7, -1.2) {};
-      % \node [circle, draw=black] at (8, -1.2) {};
-      % \node [circle, draw=black, fill=green!40] at (9, -1.2) {};
-
-      % % time 4
-      % \node [circle, draw=black, fill=green!40] at (0, -1.8) {};
-      % \node [circle, draw=black] at (1, -1.8) {};
-      % \node [circle, draw=black] at (2, -1.8) {};
-      % \node [circle, draw=black, fill=green!40] at (3, -1.8) {};
-      % \node [circle, draw=black] at (4, -1.8) {};
-      % \node [circle, draw=black] at (5, -1.8) {};
-      % \node [circle, draw=black, fill=green!40] at (6, -1.8) {};
-      % \node [circle, draw=black] at (7, -1.8) {};
-      % \node [circle, draw=black] at (8, -1.8) {};
-      % \node [circle, draw=black, fill=green!40] at (9, -1.8) {};
 
 
 

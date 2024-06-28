@@ -6,8 +6,9 @@ draft: false
 In essence, an **attention mechanism** can be intuitively understood as a means to assign individual
 importance (or rather *attention*) to each entity in a collection of entities (e.g., words in a
 sentence or pixels in an image) using some cues as input. Mathmatically, this translates into
-**computing a weighted average over all entities in which the attention weights are obtained from
-the attention cues**. 
+**computing a weighted average over all entities**. In the attention mechansim from the 
+[Attention is all you need](https://arxiv.org/abs/1706.03762), the **attention weights are 
+obtained from the attention cues**. 
 
 More abstractly, the attention mechanism can be used to answer the following questions
 
@@ -21,8 +22,10 @@ obtained by computing the weighted average over all values (entities) in which t
 weights** are obtained by combining the attention cues.
 
 The attention cues (queries and keys) are vectors of length $d_k$ defined per value and can
-be seen as two different answers to the same question: *How much attention should we put to this
-entity?* The **alignment** between the attention cues is computed via the dot-product (hence the
+be seen as representations of questions (queries) and facts (keys): E.g., we could imagine a 
+query representing the question `Are you a noun?` and a corresponding key representing the facts 
+`Noun, positive connotation, important, female.` The **alignment** between the attention cues
+is computed via the dot-product (hence the
 name), additionally the **alignment scores** are passed through a *Softmax*-layer to obtain
 normalized **attention weights**. Finally, these attention weights are used to compute the weighted
 average. 
@@ -40,102 +43,137 @@ $$
 	%}^{\text{attention alignment }  \textbf{L} \in }
 	\right)
 }_{\text{attention weight }\textbf{W} \in \mathbb{R}^{N_v \times N_v}} \textbf{V}
+= \textbf{A}
 $$
 
 in which $\frac{1}{\sqrt{d_k}}$ is an additional scalar which [Vaswani et al. (2017)](https://arxiv.org/abs/1706.03762) 
 added to counter vanishing gradients (they hypothesize that for a higher cue dimension $d_k$ the 
 dot-product might grow large in magnitude). 
 
-The figure highlights how the corresponding vectors are packed into matrices, respectively.
+The figure below highlights how the corresponding vectors are packed into matrices and which vectors 
+are used to obtain the first attention vector $\textbf{a}_1$.
 
-| ![Matrix Packing for Scaled Dot-Product Attention](./img/matrix_packing.png "Matrix Packing for Dot-Product Attention") |
+| ![Scaled Dot-Product Attention](./img/scaled_dot_attention.png "Scaled Dot-Product Attention") |
 | :--         |
-| **Matrix Packing for Scaled Dot-Product Attention** |
+| **Scaled Dot-Product Attention: Matrix Packing and Computation Schematic** |
 
-Keeping in mind that attention can be seen as computing a weighted average (on each dimension) over all 
-entities $\textbf{V}$, it is obvious that the result has the same dimension as $\textbf{V}$. Below is 
-a simple implementation of the attention mechanism. Note that in practice commonly $\textbf{Q}$, $\textbf{K}$ 
-and $\textbf{V}$ are learnable matrices.
+The result matrix $\textbf{A}$ has the same dimensionality as $\textbf{V}$ and in fact each entry $\textbf{a}_i$ 
+is basically a (normalized) linear combination of the vectors $\{\textbf{v}_j\}_{j=1}^{N_v}$
 
+$$
+\textbf{a}_i = \sum_j w_{ij} (\textbf{q}_i, \textbf{k}_j) \textbf{v}_j \quad \text{with} \quad \sum_j w_{ij} (\textbf{q}_i, \textbf{k}_j) = 1.
+$$
 
-```{python}
-#| code-fold: false
-
-import math
-import torch 
-
-
-def attention(
-        query_matrix: torch.Tensor, 
-        key_matrix: torch.Tensor, 
-        value_matrix: torch.Tensor
-    ) -> torch.Tensor:
-    """Simplistic implementation of scaled dot-product attention.
-
-    Args:
-        query_matrix (torch.Tensor): shape [batch_size, N_v, d_k]
-        key_matrix (torch.Tensor):   shape [batch_size, N_v, d_k]
-        value_matrix (torch.Tensor): shape [batch_size, N_v, d_v]
-
-    Returns
-        torch.Tensor:                shape [batch_size, N_v, d_v]
-    """
-    scale_factor = 1 / math.sqrt(query_matrix.size(-1))
-    # compute unnormalized attention weights of shape [batch_size, N_v, N_v] 
-    attn_weights = scale_factor * query_matrix @ key_matrix.transpose(-2, -1)
-    # normalize attention weights (i.e., sum over last dimension equal to one)
-    normalized_attn_weights = torch.softmax(attn_weights, dim=-1)
-    # compute result of shape [batch_size, N_v, d_v] 
-    return normalized_attn_weights @ value_matrix
-```
+In this formulation, it is obvious that scaled-dot product attention means basically **computing a weighted
+average over all entities**. Furthermore, each attention vector $\textbf{a}_i$ has a fixed query
+vector $\textbf{q}_i$ which explains the name **query**.
 
 ::: {.callout-tip collapse=true}
-## Key, Query, Value - Naming 
+## Difference between Attention and Fully Connected Layer
 
-Instead of the weighted average formulation above, the attention mechanism could also be 
-viewed as a **retrieval process** in which we have a storage of **key-value** pairs 
-(e.g., [dictionaries](https://docs.python.org/3/tutorial/datastructures.html#dictionaries)) 
-and a corresponding **query** input. 
+The equation above looks surprisingly similar to a fully connected layer with no bias and 
+same dimensionality between input $\textbf{v}_i \in\mathbb{R}^N$ and output $\textbf{a}_i \in \mathbb{R}^N$. 
+In this case, we could describe the output of a fully connected layer as 
 
-In this view, we are trying to retrieve the optimal value (representation) to the given query 
-by computing the alignment between query and keys.
-:::
+$$
+\text{a}_i = \sum_j w_{ij} \text{v}_j.
+$$
+
+If we would pass the weight matrix $\textbf{W} \in \mathbb{R}^{N\times N}$ through a softmax layer, 
+we could even achieve the following 
+
+$$
+\text{a}_i = \sum_j w_{ij} \text{v}_j \quad \text{with} \quad \sum_{j} w_{ij} = 1.
+$$
+
+*So what's the difference between an attention and a fully connected layer?*
+
+In fact, the only difference is the value dimensionality $d_v$, i.e., 
+in case of $d_v = 1$ there is no difference.
 
 
-::: {.callout-tip collapse=true}
-##  Self-Attention
-
-Self-Attention simply means that the matrices $\textbf{Q}$, $\textbf{K}$ and $\textbf{V}$ are derived 
-from the same input embedding, see code below.
-
-```{python}
-
-import torch.nn as nn
-
-
-class SelfAttentionLayer(nn.Module):
-    def __init__(self, x_in: int, d_v: int, d_k: int) -> None:
-        super().__init__()
-
-        self.key_transformation = nn.Linear(x_in, d_k)
-        self.query_transformation = nn.Linear(x_in, d_k)
-        self.value_transformation = nn.Linear(x_in, d_v)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        key_matrix = self.key_transformation(x)
-        query_matrix = self.query_transformation(x)
-        value_matrix = self.value_transformation(x)
-
-        result = attention(
-            query_matrix=query_matrix, 
-            value_matrix=value_matrix,
-            key_matrix=key_matrix,
-        )
-
-        return result
-```
+| ![Linear Layer](./img/linear_layer.png "Linear Layer") | ![Attention Layer](./img/att_layer.png "Attention Layer")
+| :--         | :-- |
+| **Linear Layer**  | **Attention Layer** |
 
 :::
+
+<!-- ::: {.callout-tip collapse=false} -->
+<!-- ## Implementation and Visualization -->
+<!---->
+<!-- ```{python} -->
+<!-- #| code-fold: false -->
+<!---->
+<!-- import math -->
+<!-- import torch  -->
+<!---->
+<!---->
+<!-- def attention( -->
+<!--         query_matrix: torch.Tensor,  -->
+<!--         key_matrix: torch.Tensor,  -->
+<!--         value_matrix: torch.Tensor -->
+<!--     ) -> torch.Tensor: -->
+<!--     """Simplistic implementation of scaled dot-product attention. -->
+<!---->
+<!--     Args: -->
+<!--         query_matrix (torch.Tensor): shape [batch_size, N_v, d_k] -->
+<!--         key_matrix (torch.Tensor):   shape [batch_size, N_v, d_k] -->
+<!--         value_matrix (torch.Tensor): shape [batch_size, N_v, d_v] -->
+<!---->
+<!--     Returns -->
+<!--         torch.Tensor:                shape [batch_size, N_v, d_v] -->
+<!--     """ -->
+<!--     scale_factor = 1 / math.sqrt(query_matrix.size(-1)) -->
+<!--     # compute unnormalized attention weights of shape [batch_size, N_v, N_v]  -->
+<!--     attn_weights = scale_factor * query_matrix @ key_matrix.transpose(-2, -1) -->
+<!--     # normalize attention weights (i.e., sum over last dimension equal to one) -->
+<!--     normalized_attn_weights = torch.softmax(attn_weights, dim=-1) -->
+<!--     # compute result of shape [batch_size, N_v, d_v]  -->
+<!--     return normalized_attn_weights @ value_matrix -->
+<!-- ``` -->
+<!-- ::: -->
+<!---->
+<!---->
+<!-- ::: {.callout-tip collapse=true} -->
+<!-- ## Causal Attention -->
+<!---->
+<!---->
+<!-- ::: -->
+<!---->
+<!-- ::: {.callout-tip collapse=true} -->
+<!-- ##  Self-Attention -->
+<!---->
+<!-- Self-Attention simply means that the matrices $\textbf{Q}$, $\textbf{K}$ and $\textbf{V}$ are derived  -->
+<!-- from the same input embedding, see code below. -->
+<!---->
+<!-- ```{python} -->
+<!---->
+<!-- import torch.nn as nn -->
+<!---->
+<!---->
+<!-- class SelfAttentionLayer(nn.Module): -->
+<!--     def __init__(self, x_in: int, d_v: int, d_k: int) -> None: -->
+<!--         super().__init__() -->
+<!---->
+<!--         self.key_transformation = nn.Linear(x_in, d_k) -->
+<!--         self.query_transformation = nn.Linear(x_in, d_k) -->
+<!--         self.value_transformation = nn.Linear(x_in, d_v) -->
+<!---->
+<!--     def forward(self, x: torch.Tensor) -> torch.Tensor: -->
+<!--         key_matrix = self.key_transformation(x) -->
+<!--         query_matrix = self.query_transformation(x) -->
+<!--         value_matrix = self.value_transformation(x) -->
+<!---->
+<!--         result = attention( -->
+<!--             query_matrix=query_matrix,  -->
+<!--             value_matrix=value_matrix, -->
+<!--             key_matrix=key_matrix, -->
+<!--         ) -->
+<!---->
+<!--         return result -->
+<!-- ``` -->
+<!---->
+<!-- ::: -->
 
 
 <!-- ::: {.callout-tip collapse=true} -->

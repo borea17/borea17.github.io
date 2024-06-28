@@ -184,7 +184,7 @@ viewof param = Inputs.form(
   Inputs.range([-4, 4], {label: tex`\mu_{\textbf{X}}`, step: 0.1}),
   Inputs.range([-4, 4], {label: tex`\mu_{\textbf{Y}}`, step: 0.1}),
   Inputs.range([1, 2], {label: tex`\text{Var}\big(\textbf{X}\big)`, step: 0.1}),
-  Inputs.range([0, 1], {label: tex`\text{Cov}\big(\textbf{X}, \textbf{Y}\big)`, step: 0.1}),
+  Inputs.range([-1, 1], {label: tex`\text{Cov}\big(\textbf{X}, \textbf{Y}\big)`, step: 0.1}),
   Inputs.range([1, 2], {label: tex`\text{Var}\big(\textbf{Y}\big)`, step: 0.1}),
 ])
 ```
@@ -201,8 +201,9 @@ covarianceMatrix = [
 // compute eigenvalues and eigenvectors of covarianceMatrix
 math_ans = math.eigs(covarianceMatrix)
 // vectors are sorted ascending (we want descending)
-first_eigenvector = math.column(math_ans.vectors, 1)
-second_eigenvector = math.column(math_ans.vectors, 0)
+
+first_eigenvector = math_ans.eigenvectors[0].vector
+second_eigenvector = math_ans.eigenvectors[1].vector
 
 eigenvectors = [
   { "x": first_eigenvector[0][0], "y": first_eigenvector[1][0]},
