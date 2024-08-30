@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.557">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>borea17 - How does the attention mechanism (Attention is all you need) work?</title>
+<title>How does the attention mechanism (Attention is all you need) work? – borea17</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -113,7 +147,7 @@ window.Quarto = {
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -128,7 +162,7 @@ window.Quarto = {
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
-          <div class="quarto-navbar-tools">
+            <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -247,86 +281,148 @@ Difference between Attention and Fully Connected Layer
 </div>
 </div>
 </div>
-<!-- ::: {.callout-tip collapse=false} -->
-<!-- ## Implementation and Visualization -->
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Implementation
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div id="4abd15b5" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch  </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> attention( </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>       query_matrix: torch.Tensor,  </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>       key_matrix: torch.Tensor,  </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>       value_matrix: torch.Tensor </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>   ) <span class="op">-&gt;</span> torch.Tensor: </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>   <span class="co">"""Simplistic implementation of scaled dot-product attention. </span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">   Args: </span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">       query_matrix (torch.Tensor): shape [batch_size, N_v, d_k] </span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">       key_matrix (torch.Tensor):   shape [batch_size, N_v, d_k] </span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">       value_matrix (torch.Tensor): shape [batch_size, N_v, d_v] </span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">   Returns </span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">       torch.Tensor:                shape [batch_size, N_v, d_v] </span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">   """</span> </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>   scale_factor <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> math.sqrt(query_matrix.size(<span class="op">-</span><span class="dv">1</span>)) </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>   <span class="co"># compute unnormalized attention weights of shape [batch_size, N_v, N_v]  </span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>   attn_weights <span class="op">=</span> scale_factor <span class="op">*</span> query_matrix <span class="op">@</span> key_matrix.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>) </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>   <span class="co"># normalize attention weights (i.e., sum over last dimension equal to one) </span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>   normalized_attn_weights <span class="op">=</span> torch.softmax(attn_weights, dim<span class="op">=-</span><span class="dv">1</span>) </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>   <span class="co"># compute result of shape [batch_size, N_v, d_v]  </span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>   <span class="cf">return</span> normalized_attn_weights <span class="op">@</span> value_matrix </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Causal / Masked Attention
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In fact, the attention mechanism defined above allows access to all future values in the sequence, e.g., the first entry <span class="math inline">\(\textbf{a}_1\)</span> is a (normalized) linear combination of all vectors <span class="math inline">\(\{\textbf{v}_j\}_{j=1}^{N_v}\)</span>. This may be problematic when the values are generated on the fly (e.g., next-token prediction).</p>
+<p>To address this, we can rewrite the attention mechanism as follows</p>
+<p><span class="math display">\[
+\textbf{a}_i = \sum_{j=1}^{i} w_{ij} (\textbf{q}_i, \textbf{k}_j) \textbf{v}_j \quad
+  \text{with} \quad \sum_{j=1}^{i} w_{ij} (\textbf{q}_i, \textbf{k}_j) = 1.
+\]</span></p>
+<p>This can be done by using the standard attention mechansim and <strong>masking out</strong> future values</p>
+<p><span class="math display">\[
+w_{ij} (\textbf{q}_i, \textbf{k}_j) = 0 \quad \text{for} \quad j \ge i.
+\]</span></p>
+<p>The weights can be concisely written into a weight matrix <span class="math inline">\(\textbf{W} \in \mathbb{R}^{N_v \times N_v}\)</span> and the above equation basically sets the upper triangular part to zero.</p>
+<p>Thus, it is fairly simple to make the attention mechanism causal, see the implementation below.</p>
+<div id="d452be13" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch  </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> attention( </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>       query_matrix: torch.Tensor,  </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>       key_matrix: torch.Tensor,  </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>       value_matrix: torch.Tensor,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>       is_causal: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>   ) <span class="op">-&gt;</span> torch.Tensor: </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>   <span class="co">"""Simplistic implementation of scaled dot-product attention allowing for causal masking. </span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">   Args: </span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">       query_matrix (torch.Tensor): shape [batch_size, N_v, d_k] </span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">       key_matrix (torch.Tensor):   shape [batch_size, N_v, d_k] </span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">       value_matrix (torch.Tensor): shape [batch_size, N_v, d_v] </span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">       is_causal (bool):            whether to mask out future values</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">   Returns </span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">       torch.Tensor:                shape [batch_size, N_v, d_v] </span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">   """</span> </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>   scale_factor <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> math.sqrt(query_matrix.size(<span class="op">-</span><span class="dv">1</span>)) </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>   <span class="co"># compute unnormalized attention weights of shape [batch_size, N_v, N_v]  </span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>   attn_weights <span class="op">=</span> scale_factor <span class="op">*</span> query_matrix <span class="op">@</span> key_matrix.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>) </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>   <span class="co"># normalize attention weights (i.e., sum over last dimension equal to one) </span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>   normalized_attn_weights <span class="op">=</span> torch.softmax(attn_weights, dim<span class="op">=-</span><span class="dv">1</span>) </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>   <span class="cf">if</span> is_causal:</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>      causal_mask <span class="op">=</span> torch.ones_like(attn_weights).tril(diagonal<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>      normalized_attn_weights <span class="op">=</span> causal_mask.mul(normalized_attn_weights)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>   <span class="co"># compute result of shape [batch_size, N_v, d_v]  </span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>   <span class="cf">return</span> normalized_attn_weights <span class="op">@</span> value_matrix </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<!-- ::: {.callout-tip collapse=true}  -->
+<!-- ##  Self-Attention  -->
 <!---->
-<!-- ```{python} -->
-<!-- #| code-fold: false -->
+<!-- Self-Attention simply means that the matrices $\textbf{Q}$, $\textbf{K}$ and $\textbf{V}$ are derived   -->
+<!-- from the same input embedding, see code below.  -->
 <!---->
-<!-- import math -->
-<!-- import torch  -->
+<!-- ```{python}  -->
 <!---->
-<!---->
-<!-- def attention( -->
-<!--         query_matrix: torch.Tensor,  -->
-<!--         key_matrix: torch.Tensor,  -->
-<!--         value_matrix: torch.Tensor -->
-<!--     ) -> torch.Tensor: -->
-<!--     """Simplistic implementation of scaled dot-product attention. -->
-<!---->
-<!--     Args: -->
-<!--         query_matrix (torch.Tensor): shape [batch_size, N_v, d_k] -->
-<!--         key_matrix (torch.Tensor):   shape [batch_size, N_v, d_k] -->
-<!--         value_matrix (torch.Tensor): shape [batch_size, N_v, d_v] -->
-<!---->
-<!--     Returns -->
-<!--         torch.Tensor:                shape [batch_size, N_v, d_v] -->
-<!--     """ -->
-<!--     scale_factor = 1 / math.sqrt(query_matrix.size(-1)) -->
-<!--     # compute unnormalized attention weights of shape [batch_size, N_v, N_v]  -->
-<!--     attn_weights = scale_factor * query_matrix @ key_matrix.transpose(-2, -1) -->
-<!--     # normalize attention weights (i.e., sum over last dimension equal to one) -->
-<!--     normalized_attn_weights = torch.softmax(attn_weights, dim=-1) -->
-<!--     # compute result of shape [batch_size, N_v, d_v]  -->
-<!--     return normalized_attn_weights @ value_matrix -->
-<!-- ``` -->
-<!-- ::: -->
+<!-- import torch.nn as nn  -->
 <!---->
 <!---->
-<!-- ::: {.callout-tip collapse=true} -->
-<!-- ## Causal Attention -->
+<!-- class SelfAttentionLayer(nn.Module):  -->
+<!--    def __init__(self, x_in: int, d_v: int, d_k: int) -> None:  -->
+<!--        super().__init__()  -->
+<!---->
+<!--        self.key_transformation = nn.Linear(x_in, d_k)  -->
+<!--        self.query_transformation = nn.Linear(x_in, d_k)  -->
+<!--        self.value_transformation = nn.Linear(x_in, d_v)  -->
+<!---->
+<!--    def forward(self, x: torch.Tensor) -> torch.Tensor:  -->
+<!--        key_matrix = self.key_transformation(x)  -->
+<!--        query_matrix = self.query_transformation(x)  -->
+<!--        value_matrix = self.value_transformation(x)  -->
+<!---->
+<!--        result = attention(  -->
+<!--            query_matrix=query_matrix,   -->
+<!--            value_matrix=value_matrix,  -->
+<!--            key_matrix=key_matrix,  -->
+<!--        )  -->
+<!---->
+<!--        return result  -->
+<!-- ```  -->
+<!---->
+<!-- :::  -->
 <!---->
 <!---->
-<!-- ::: -->
+<!-- ::: {.callout-tip collapse=true}  -->
+<!-- ##  Multihead-Attention  -->
 <!---->
-<!-- ::: {.callout-tip collapse=true} -->
-<!-- ##  Self-Attention -->
-<!---->
-<!-- Self-Attention simply means that the matrices $\textbf{Q}$, $\textbf{K}$ and $\textbf{V}$ are derived  -->
-<!-- from the same input embedding, see code below. -->
-<!---->
-<!-- ```{python} -->
-<!---->
-<!-- import torch.nn as nn -->
-<!---->
-<!---->
-<!-- class SelfAttentionLayer(nn.Module): -->
-<!--     def __init__(self, x_in: int, d_v: int, d_k: int) -> None: -->
-<!--         super().__init__() -->
-<!---->
-<!--         self.key_transformation = nn.Linear(x_in, d_k) -->
-<!--         self.query_transformation = nn.Linear(x_in, d_k) -->
-<!--         self.value_transformation = nn.Linear(x_in, d_v) -->
-<!---->
-<!--     def forward(self, x: torch.Tensor) -> torch.Tensor: -->
-<!--         key_matrix = self.key_transformation(x) -->
-<!--         query_matrix = self.query_transformation(x) -->
-<!--         value_matrix = self.value_transformation(x) -->
-<!---->
-<!--         result = attention( -->
-<!--             query_matrix=query_matrix,  -->
-<!--             value_matrix=value_matrix, -->
-<!--             key_matrix=key_matrix, -->
-<!--         ) -->
-<!---->
-<!--         return result -->
-<!-- ``` -->
-<!---->
-<!-- ::: -->
-<!-- ::: {.callout-tip collapse=true} -->
-<!-- ##  Multihead-Attention -->
-<!---->
-<!-- ::: -->
+<!-- :::  -->
 
 
 
@@ -366,18 +462,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -409,7 +494,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp("https:\/\/borea17\.github\.io\/");
@@ -417,7 +524,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
