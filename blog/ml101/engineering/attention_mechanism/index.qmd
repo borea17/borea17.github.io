@@ -98,85 +98,144 @@ in case of $d_v = 1$ there is no difference.
 
 :::
 
-<!-- ::: {.callout-tip collapse=false} -->
-<!-- ## Implementation and Visualization -->
-<!---->
-<!-- ```{python} -->
-<!-- #| code-fold: false -->
-<!---->
-<!-- import math -->
-<!-- import torch  -->
-<!---->
-<!---->
-<!-- def attention( -->
-<!--         query_matrix: torch.Tensor,  -->
-<!--         key_matrix: torch.Tensor,  -->
-<!--         value_matrix: torch.Tensor -->
-<!--     ) -> torch.Tensor: -->
-<!--     """Simplistic implementation of scaled dot-product attention. -->
-<!---->
-<!--     Args: -->
-<!--         query_matrix (torch.Tensor): shape [batch_size, N_v, d_k] -->
-<!--         key_matrix (torch.Tensor):   shape [batch_size, N_v, d_k] -->
-<!--         value_matrix (torch.Tensor): shape [batch_size, N_v, d_v] -->
-<!---->
-<!--     Returns -->
-<!--         torch.Tensor:                shape [batch_size, N_v, d_v] -->
-<!--     """ -->
-<!--     scale_factor = 1 / math.sqrt(query_matrix.size(-1)) -->
-<!--     # compute unnormalized attention weights of shape [batch_size, N_v, N_v]  -->
-<!--     attn_weights = scale_factor * query_matrix @ key_matrix.transpose(-2, -1) -->
-<!--     # normalize attention weights (i.e., sum over last dimension equal to one) -->
-<!--     normalized_attn_weights = torch.softmax(attn_weights, dim=-1) -->
-<!--     # compute result of shape [batch_size, N_v, d_v]  -->
-<!--     return normalized_attn_weights @ value_matrix -->
-<!-- ``` -->
-<!-- ::: -->
-<!---->
-<!---->
-<!-- ::: {.callout-tip collapse=true} -->
-<!-- ## Causal Attention -->
-<!---->
-<!---->
-<!-- ::: -->
-<!---->
-<!-- ::: {.callout-tip collapse=true} -->
-<!-- ##  Self-Attention -->
-<!---->
-<!-- Self-Attention simply means that the matrices $\textbf{Q}$, $\textbf{K}$ and $\textbf{V}$ are derived  -->
-<!-- from the same input embedding, see code below. -->
-<!---->
-<!-- ```{python} -->
-<!---->
-<!-- import torch.nn as nn -->
-<!---->
-<!---->
-<!-- class SelfAttentionLayer(nn.Module): -->
-<!--     def __init__(self, x_in: int, d_v: int, d_k: int) -> None: -->
-<!--         super().__init__() -->
-<!---->
-<!--         self.key_transformation = nn.Linear(x_in, d_k) -->
-<!--         self.query_transformation = nn.Linear(x_in, d_k) -->
-<!--         self.value_transformation = nn.Linear(x_in, d_v) -->
-<!---->
-<!--     def forward(self, x: torch.Tensor) -> torch.Tensor: -->
-<!--         key_matrix = self.key_transformation(x) -->
-<!--         query_matrix = self.query_transformation(x) -->
-<!--         value_matrix = self.value_transformation(x) -->
-<!---->
-<!--         result = attention( -->
-<!--             query_matrix=query_matrix,  -->
-<!--             value_matrix=value_matrix, -->
-<!--             key_matrix=key_matrix, -->
-<!--         ) -->
-<!---->
-<!--         return result -->
-<!-- ``` -->
-<!---->
-<!-- ::: -->
+
+::: {.callout-tip collapse=true} 
+# Implementation 
+
+```{python}
+#| code-fold: false 
+
+import math 
+import torch  
 
 
-<!-- ::: {.callout-tip collapse=true} -->
-<!-- ##  Multihead-Attention -->
+def attention( 
+       query_matrix: torch.Tensor,  
+       key_matrix: torch.Tensor,  
+       value_matrix: torch.Tensor 
+   ) -> torch.Tensor: 
+   """Simplistic implementation of scaled dot-product attention. 
+
+   Args: 
+       query_matrix (torch.Tensor): shape [batch_size, N_v, d_k] 
+       key_matrix (torch.Tensor):   shape [batch_size, N_v, d_k] 
+       value_matrix (torch.Tensor): shape [batch_size, N_v, d_v] 
+
+   Returns 
+       torch.Tensor:                shape [batch_size, N_v, d_v] 
+   """ 
+   scale_factor = 1 / math.sqrt(query_matrix.size(-1)) 
+   # compute unnormalized attention weights of shape [batch_size, N_v, N_v]  
+   attn_weights = scale_factor * query_matrix @ key_matrix.transpose(-2, -1) 
+   # normalize attention weights (i.e., sum over last dimension equal to one) 
+   normalized_attn_weights = torch.softmax(attn_weights, dim=-1) 
+   # compute result of shape [batch_size, N_v, d_v]  
+   return normalized_attn_weights @ value_matrix 
+```
+
+::: 
+
+
+::: {.callout-tip collapse=true} 
+## Causal / Masked Attention  
+
+In fact, the attention mechanism defined above allows access to all future values in the sequence, 
+e.g., the first entry $\textbf{a}_1$ is a (normalized) linear combination of all vectors 
+$\{\textbf{v}_j\}_{j=1}^{N_v}$. This may be problematic when the values are generated on the fly 
+(e.g., next-token prediction). 
+
+To address this, we can rewrite the attention mechanism as follows 
+
+$$
+\textbf{a}_i = \sum_{j=1}^{i} w_{ij} (\textbf{q}_i, \textbf{k}_j) \textbf{v}_j \quad 
+  \text{with} \quad \sum_{j=1}^{i} w_{ij} (\textbf{q}_i, \textbf{k}_j) = 1.
+$$
+
+This can be done by using the standard attention mechansim and **masking out** future values
+
+$$
+w_{ij} (\textbf{q}_i, \textbf{k}_j) = 0 \quad \text{for} \quad j \ge i.
+$$
+
+The weights can be concisely written into a weight matrix $\textbf{W} \in \mathbb{R}^{N_v \times N_v}$ 
+and the above equation basically sets the upper triangular part to zero.
+
+Thus, it is fairly simple to make the attention mechanism causal, see the implementation below.
+
+ 
+```{python} 
+#| code-fold: false 
+
+import math 
+import torch  
+
+def attention( 
+       query_matrix: torch.Tensor,  
+       key_matrix: torch.Tensor,  
+       value_matrix: torch.Tensor,
+       is_causal: bool = False,
+   ) -> torch.Tensor: 
+   """Simplistic implementation of scaled dot-product attention allowing for causal masking. 
+
+   Args: 
+       query_matrix (torch.Tensor): shape [batch_size, N_v, d_k] 
+       key_matrix (torch.Tensor):   shape [batch_size, N_v, d_k] 
+       value_matrix (torch.Tensor): shape [batch_size, N_v, d_v] 
+       is_causal (bool):            whether to mask out future values
+
+   Returns 
+       torch.Tensor:                shape [batch_size, N_v, d_v] 
+   """ 
+   scale_factor = 1 / math.sqrt(query_matrix.size(-1)) 
+   # compute unnormalized attention weights of shape [batch_size, N_v, N_v]  
+   attn_weights = scale_factor * query_matrix @ key_matrix.transpose(-2, -1) 
+   # normalize attention weights (i.e., sum over last dimension equal to one) 
+   normalized_attn_weights = torch.softmax(attn_weights, dim=-1) 
+   if is_causal:
+      causal_mask = torch.ones_like(attn_weights).tril(diagonal=0)
+      normalized_attn_weights = causal_mask.mul(normalized_attn_weights)
+   # compute result of shape [batch_size, N_v, d_v]  
+   return normalized_attn_weights @ value_matrix 
+```
+::: 
+
+<!-- ::: {.callout-tip collapse=true}  -->
+<!-- ##  Self-Attention  -->
 <!---->
-<!-- ::: -->
+<!-- Self-Attention simply means that the matrices $\textbf{Q}$, $\textbf{K}$ and $\textbf{V}$ are derived   -->
+<!-- from the same input embedding, see code below.  -->
+<!---->
+<!-- ```{python}  -->
+<!---->
+<!-- import torch.nn as nn  -->
+<!---->
+<!---->
+<!-- class SelfAttentionLayer(nn.Module):  -->
+<!--    def __init__(self, x_in: int, d_v: int, d_k: int) -> None:  -->
+<!--        super().__init__()  -->
+<!---->
+<!--        self.key_transformation = nn.Linear(x_in, d_k)  -->
+<!--        self.query_transformation = nn.Linear(x_in, d_k)  -->
+<!--        self.value_transformation = nn.Linear(x_in, d_v)  -->
+<!---->
+<!--    def forward(self, x: torch.Tensor) -> torch.Tensor:  -->
+<!--        key_matrix = self.key_transformation(x)  -->
+<!--        query_matrix = self.query_transformation(x)  -->
+<!--        value_matrix = self.value_transformation(x)  -->
+<!---->
+<!--        result = attention(  -->
+<!--            query_matrix=query_matrix,   -->
+<!--            value_matrix=value_matrix,  -->
+<!--            key_matrix=key_matrix,  -->
+<!--        )  -->
+<!---->
+<!--        return result  -->
+<!-- ```  -->
+<!---->
+<!-- :::  -->
+<!---->
+<!---->
+<!-- ::: {.callout-tip collapse=true}  -->
+<!-- ##  Multihead-Attention  -->
+<!---->
+<!-- :::  -->
