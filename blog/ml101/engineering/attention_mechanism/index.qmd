@@ -199,6 +199,87 @@ def attention(
 ```
 ::: 
 
+::: {.callout-tip collapse=true}  
+## Multi-Head Attention
+
+In the transformer architecture introduced by [Vaswani et al. (2017)](https://arxiv.org/abs/1706.03762),
+they use **multi-head attention layers** which are essentially adapted 
+parallelized scaled-dot product attention layers defined as follows 
+
+$$
+\begin{align*}
+&\text{Multi-Head}(\textbf{Q}, \textbf{K}, \textbf{V}) = \text{Concat} (\text{head}_1\, \dots, \text{head}_h) \textbf{W}^O \\
+&\quad \text{with} \quad \text{head}_i = \text{Attention}(\textbf{Q} \textbf{W}_i^Q, \textbf{K} \textbf{W}_i^K, \textbf{V} \textbf{W}_i^V),
+\end{align*}
+$$
+
+where linear projections parametrized by $\textbf{W}_i^Q \in \mathbb{R}^{ d_{\text{model}} \times d_k}, 
+\textbf{W}_i^K \in \mathbb{R}^{ d_{\text{model}} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{\text{model}} \times d_v}$ and $\textbf{W}^O \in \mathbb{R}^{ d_v \times hd_{\text{model}}}$ are learnable parameters (i.e., linear layers without bias).
+
+Note that without $\textbf{W}^O \in \mathbb{R}^{ hd_v \times d_{\text{model}}}$ and adapted linear projections using 
+the folowing dimensions $\textbf{W}_i^Q \in \mathbb{R}^{ d_{k} \times d_k}, 
+\textbf{W}_i^K \in \mathbb{R}^{ d_{k} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{v} \times d_v}$, multi-head 
+attention would just be parallelized scaled-dot-product attention. The projections are simply used to create 
+different representations of the query, key and value matrices (otherwise each head would look exactly the same)..
+
+Using $d_{\text{model}}$ instead of $d_k / d_v$ for the linear projections is an architectural decision 
+to reduce the number of trainable paramters while whithout losing too much expressiveness. The concatenation plus linear 
+layer increases the expresiveness of the model, since it allows the model to combine attention representations of different subspaces.
+
+| ![Multi-Head Attention](./img/multi_head_att.png "Multi-Head Attention") |
+| :--         |
+| **Multi-Head Attention Layer**: Linearly project values, queries and keys $h$-times into model dimension, apply scaled-dot-product attention, concatenate result (attention in different subspaces) and linearly project once again (simply increase the expressiveness). Taken from [Vaswani et al. (2017)](https://arxiv.org/abs/1706.03762). |
+
+Below is a simple implementation of multi-head attention using the masked attention implementation 
+above.
+
+```{python} 
+#| code-fold: false
+
+import math
+import torch
+
+
+class MultiheadAttention(torch.nn.Module):
+    def __init__(self, d_model: int, h: int, is_causal: bool, d_k: int, d_v: int) -> None:
+        super().__init__()
+        self.is_causal = is_causal
+        self.h = h
+        # linear projections for Q, K and V (h times)
+        self.W_Q_i = [torch.nn.Linear(d_k, d_model, bias=False) for _ in range(h)]
+        self.W_K_i = [torch.nn.Linear(d_k, d_model, bias=False) for _ in range(h)]
+        self.W_V_i = [torch.nn.Linear(d_v, d_model, bias=False) for _ in range(h)]
+        # linear projection for concatenated result
+        self.W_o = torch.nn.Linear(d_model*h, d_v, bias=False)
+
+
+    def forward(self, Q: torch.Tensor, K: torch.Tensor, V: torch.tensor) -> torch.tensor:
+        """Forward method for MultiHeadAttention
+
+        Args: 
+           Q (torch.Tensor): shape [batch_size, N_v, d_k] 
+           K (torch.Tensor): shape [batch_size, N_v, d_k] 
+           V (torch.Tensor): shape [batch_size, N_v, d_v] 
+
+        Returns 
+           torch.Tensor:     shape [batch_size, N_v, d_v] 
+        """
+        # compute attention heads [head_1, ..., head_h]
+        # head_i has shape: [batch_size, N_v, d_model]
+        att_heads = [attention(query_matrix=self.W_Q_i[i](Q), 
+                               key_matrix=self.W_K_i[i](K), 
+                               value_matrix=self.W_V_i[i](V), 
+                               is_causal=self.is_causal) 
+                     for i in range(self.h)]
+        # concatenate result shape: [batch_size, N_v, d_model*h
+        concat_heads = torch.concatenate(att_heads, dim=-1)
+        # feed through last linear layer
+        return self.W_o(concat_heads)
+```
+
+
+::: 
+
 <!-- ::: {.callout-tip collapse=true}  -->
 <!-- ##  Self-Attention  -->
 <!---->
