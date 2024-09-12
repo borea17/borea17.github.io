@@ -293,7 +293,7 @@ Implementation
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="d602924d" class="cell" data-execution_count="1">
+<div id="ec20830e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch  </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -348,7 +348,7 @@ w_{ij} (\textbf{q}_i, \textbf{k}_j) = 0 \quad \text{for} \quad j \ge i.
 \]</span></p>
 <p>The weights can be concisely written into a weight matrix <span class="math inline">\(\textbf{W} \in \mathbb{R}^{N_v \times N_v}\)</span> and the above equation basically sets the upper triangular part to zero.</p>
 <p>Thus, it is fairly simple to make the attention mechanism causal, see the implementation below.</p>
-<div id="af338b50" class="cell" data-execution_count="2">
+<div id="ef30db83" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch  </span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -405,8 +405,8 @@ Multi-Head Attention
 <p>where linear projections parametrized by <span class="math inline">\(\textbf{W}_i^Q \in \mathbb{R}^{ d_{\text{model}} \times d_k},
 \textbf{W}_i^K \in \mathbb{R}^{ d_{\text{model}} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{\text{model}} \times d_v}\)</span> and <span class="math inline">\(\textbf{W}^O \in \mathbb{R}^{ d_v \times hd_{\text{model}}}\)</span> are learnable parameters (i.e., linear layers without bias).</p>
 <p>Note that without <span class="math inline">\(\textbf{W}^O\)</span> and adapted linear projections using the folowing dimensions <span class="math inline">\(\textbf{W}_i^Q \in \mathbb{R}^{ d_{k} \times d_k},
-\textbf{W}_i^K \in \mathbb{R}^{ d_{k} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{v} \times d_v}\)</span>, multi-head attention would just be parallelized scaled-dot-product attention. The projections are simply used to create different representations of the query, key and value matrices (otherwise each head would look exactly the same)..</p>
-<p>Using <span class="math inline">\(d_{\text{model}}\)</span> instead of <span class="math inline">\(d_k / d_v\)</span> for the linear projections is an architectural decision to reduce the number of trainable paramters while whithout losing too much expressiveness. The concatenation plus linear layer increases the expresiveness of the model, since it allows the model to combine attention representations of different subspaces.</p>
+\textbf{W}_i^K \in \mathbb{R}^{ d_{k} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{v} \times d_v}\)</span>, multi-head attention would just be parallelized scaled dot-product attention. The projections are simply used to create different representations of the query, key and value matrices (otherwise each head would look exactly the same)..</p>
+<p>Using <span class="math inline">\(d_{\text{model}}\)</span> instead of <span class="math inline">\(d_k / d_v\)</span> for the linear projections is an architectural decision to reduce the number of trainable paramters whithout losing too much expressiveness. The concatenation plus linear layer increases the expresiveness of the model, since it allows the model to combine attention representations of different subspaces.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -420,7 +420,7 @@ Multi-Head Attention
 </tbody>
 </table>
 <p>Below is a simple implementation of multi-head attention using the masked attention implementation above.</p>
-<div id="97a19930" class="cell" data-execution_count="3">
+<div id="c350ad23" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
