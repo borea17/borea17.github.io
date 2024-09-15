@@ -293,7 +293,7 @@ Implementation
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="81659244" class="cell" data-execution_count="2">
+<div id="ef2e5d6c" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch  </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -348,7 +348,7 @@ w_{ij} (\textbf{q}_i, \textbf{k}_j) = 0 \quad \text{for} \quad j \ge i.
 \]</span></p>
 <p>The weights can be concisely written into a weight matrix <span class="math inline">\(\textbf{W} \in \mathbb{R}^{N_v \times N_v}\)</span> and the above equation basically sets the upper triangular part to zero.</p>
 <p>Thus, it is fairly simple to make the attention mechanism causal, see the implementation below.</p>
-<div id="3083eda3" class="cell" data-execution_count="3">
+<div id="a5512918" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch  </span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -389,61 +389,121 @@ w_{ij} (\textbf{q}_i, \textbf{k}_j) = 0 \quad \text{for} \quad j \ge i.
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Self-Attention
+Multi-Head Attention
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Self-Attention simply means that the matrices <span class="math inline">\(\textbf{Q}\)</span>, <span class="math inline">\(\textbf{K}\)</span> and <span class="math inline">\(\textbf{V}\)</span> are derived<br>
-from the same input embedding, see code below.</p>
-<div id="e8361bf6" class="cell" data-execution_count="4">
-<details open="" class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<p>In the transformer architecture introduced by <a href="https://arxiv.org/abs/1706.03762">Vaswani et al.&nbsp;(2017)</a>, they use <strong>multi-head attention layers</strong> which are essentially adapted parallelized scaled-dot product attention layers defined as follows</p>
+<p><span class="math display">\[
+\begin{align*}
+&amp;\text{Multi-Head}(\textbf{Q}, \textbf{K}, \textbf{V}) = \text{Concat} (\text{head}_1\, \dots, \text{head}_h) \textbf{W}^O \\
+&amp;\quad \text{with} \quad \text{head}_i = \text{Attention}(\textbf{Q} \textbf{W}_i^Q, \textbf{K} \textbf{W}_i^K, \textbf{V} \textbf{W}_i^V),
+\end{align*}
+\]</span></p>
+<p>where linear projections parametrized by <span class="math inline">\(\textbf{W}_i^Q \in \mathbb{R}^{ d_{\text{model}} \times d_k},
+\textbf{W}_i^K \in \mathbb{R}^{ d_{\text{model}} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{\text{model}} \times d_v}\)</span> and <span class="math inline">\(\textbf{W}^O \in \mathbb{R}^{ d_v \times hd_{\text{model}}}\)</span> are learnable parameters (i.e., linear layers without bias).</p>
+<p>Note that without <span class="math inline">\(\textbf{W}^O \in \mathbb{R}^{ hd_v \times d_{\text{model}}}\)</span> and adapted linear projections using the folowing dimensions <span class="math inline">\(\textbf{W}_i^Q \in \mathbb{R}^{ d_{k} \times d_k},
+\textbf{W}_i^K \in \mathbb{R}^{ d_{k} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{v} \times d_v}\)</span>, multi-head attention would just be parallelized scaled-dot-product attention. The projections are simply used to create different representations of the query, key and value matrices (otherwise each head would look exactly the same)..</p>
+<p>Using <span class="math inline">\(d_{\text{model}}\)</span> instead of <span class="math inline">\(d_k / d_v\)</span> for the linear projections is an architectural decision to reduce the number of trainable paramters while whithout losing too much expressiveness. The concatenation plus linear layer increases the expresiveness of the model, since it allows the model to combine attention representations of different subspaces.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><img src="./img/multi_head_att.png" title="Multi-Head Attention" class="img-fluid" alt="Multi-Head Attention"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Multi-Head Attention Layer</strong>: Linearly project values, queries and keys <span class="math inline">\(h\)</span>-times into model dimension, apply scaled-dot-product attention, concatenate result (attention in different subspaces) and linearly project once again (simply increase the expressiveness). Taken from <a href="https://arxiv.org/abs/1706.03762">Vaswani et al.&nbsp;(2017)</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>Below is a simple implementation of multi-head attention using the masked attention implementation above.</p>
+<div id="48bd0a93" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SelfAttentionLayer(nn.Module): </span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>   <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, x_in: <span class="bu">int</span>, d_v: <span class="bu">int</span>, d_k: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="va">None</span>: </span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>       <span class="bu">super</span>().<span class="fu">__init__</span>() </span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>       <span class="va">self</span>.key_transformation <span class="op">=</span> nn.Linear(x_in, d_k) </span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>       <span class="va">self</span>.query_transformation <span class="op">=</span> nn.Linear(x_in, d_k) </span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>       <span class="va">self</span>.value_transformation <span class="op">=</span> nn.Linear(x_in, d_v) </span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>   <span class="kw">def</span> forward(<span class="va">self</span>, x: torch.Tensor) <span class="op">-&gt;</span> torch.Tensor: </span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>       key_matrix <span class="op">=</span> <span class="va">self</span>.key_transformation(x) </span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>       query_matrix <span class="op">=</span> <span class="va">self</span>.query_transformation(x) </span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>       value_matrix <span class="op">=</span> <span class="va">self</span>.value_transformation(x) </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MultiheadAttention(torch.nn.Module):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d_model: <span class="bu">int</span>, h: <span class="bu">int</span>, is_causal: <span class="bu">bool</span>, d_k: <span class="bu">int</span>, d_v: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.is_causal <span class="op">=</span> is_causal</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.h <span class="op">=</span> h</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># linear projections for Q, K and V (h times)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_Q_i <span class="op">=</span> [torch.nn.Linear(d_k, d_model, bias<span class="op">=</span><span class="va">False</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(h)]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_K_i <span class="op">=</span> [torch.nn.Linear(d_k, d_model, bias<span class="op">=</span><span class="va">False</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(h)]</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_V_i <span class="op">=</span> [torch.nn.Linear(d_v, d_model, bias<span class="op">=</span><span class="va">False</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(h)]</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># linear projection for concatenated result</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_o <span class="op">=</span> torch.nn.Linear(d_model<span class="op">*</span>h, d_v, bias<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>       result <span class="op">=</span> attention( </span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>           query_matrix<span class="op">=</span>query_matrix,  </span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>           value_matrix<span class="op">=</span>value_matrix, </span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>           key_matrix<span class="op">=</span>key_matrix, </span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>       ) </span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>       <span class="cf">return</span> result </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, Q: torch.Tensor, K: torch.Tensor, V: torch.tensor) <span class="op">-&gt;</span> torch.tensor:</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Forward method for MultiHeadAttention</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">        Args: </span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">           Q (torch.Tensor): shape [batch_size, N_v, d_k] </span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">           K (torch.Tensor): shape [batch_size, N_v, d_k] </span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">           V (torch.Tensor): shape [batch_size, N_v, d_v] </span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns </span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">           torch.Tensor:     shape [batch_size, N_v, d_v] </span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute attention heads [head_1, ..., head_h]</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># head_i has shape: [batch_size, N_v, d_model]</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        att_heads <span class="op">=</span> [attention(query_matrix<span class="op">=</span><span class="va">self</span>.W_Q_i[i](Q), </span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>                               key_matrix<span class="op">=</span><span class="va">self</span>.W_K_i[i](K), </span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>                               value_matrix<span class="op">=</span><span class="va">self</span>.W_V_i[i](V), </span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>                               is_causal<span class="op">=</span><span class="va">self</span>.is_causal) </span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>                     <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.h)]</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        <span class="co"># concatenate result shape: [batch_size, N_v, d_model*h</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        concat_heads <span class="op">=</span> torch.concatenate(att_heads, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># feed through last linear layer</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.W_o(concat_heads)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Multihead-Attention
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-
-</div>
-</div>
-</div>
+<!-- ::: {.callout-tip collapse=true}  -->
+<!-- ##  Self-Attention  -->
+<!---->
+<!-- Self-Attention simply means that the matrices $\textbf{Q}$, $\textbf{K}$ and $\textbf{V}$ are derived   -->
+<!-- from the same input embedding, see code below.  -->
+<!---->
+<!-- ```{python}  -->
+<!---->
+<!-- import torch.nn as nn  -->
+<!---->
+<!---->
+<!-- class SelfAttentionLayer(nn.Module):  -->
+<!--    def __init__(self, x_in: int, d_v: int, d_k: int) -> None:  -->
+<!--        super().__init__()  -->
+<!---->
+<!--        self.key_transformation = nn.Linear(x_in, d_k)  -->
+<!--        self.query_transformation = nn.Linear(x_in, d_k)  -->
+<!--        self.value_transformation = nn.Linear(x_in, d_v)  -->
+<!---->
+<!--    def forward(self, x: torch.Tensor) -> torch.Tensor:  -->
+<!--        key_matrix = self.key_transformation(x)  -->
+<!--        query_matrix = self.query_transformation(x)  -->
+<!--        value_matrix = self.value_transformation(x)  -->
+<!---->
+<!--        result = attention(  -->
+<!--            query_matrix=query_matrix,   -->
+<!--            value_matrix=value_matrix,  -->
+<!--            key_matrix=key_matrix,  -->
+<!--        )  -->
+<!---->
+<!--        return result  -->
+<!-- ```  -->
+<!---->
+<!-- :::  -->
+<!---->
+<!---->
+<!-- ::: {.callout-tip collapse=true}  -->
+<!-- ##  Multihead-Attention  -->
+<!---->
+<!-- :::  -->
 
 
 
