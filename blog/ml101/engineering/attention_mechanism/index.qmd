@@ -217,10 +217,11 @@ where linear projections parametrized by $\textbf{W}_i^Q \in \mathbb{R}^{ d_{\te
 \textbf{W}_i^K \in \mathbb{R}^{ d_{\text{model}} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{\text{model}} \times d_v}$ and $\textbf{W}^O \in \mathbb{R}^{ d_v \times hd_{\text{model}}}$ are learnable parameters (i.e., linear layers without bias).
 
 Note that without $\textbf{W}^O$ and adapted linear projections using 
-the folowing dimensions $\textbf{W}_i^Q \in \mathbb{R}^{ d_{k} \times d_k}, 
+the following dimensions $\textbf{W}_i^Q \in \mathbb{R}^{ d_{k} \times d_k}, 
 \textbf{W}_i^K \in \mathbb{R}^{ d_{k} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{v} \times d_v}$, multi-head 
 attention would just be parallelized scaled dot-product attention. The projections are simply used to create 
-different representations of the query, key and value matrices (otherwise each head would look exactly the same)..
+different representations of the query, key and value matrices (otherwise each head would look exactly the same, e.g., assume 
+that each $\textbf{W}_i^{Q / K / V}$ is an identity matrix).
 
 Using $d_{\text{model}}$ instead of $d_k / d_v$ for the linear projections is an architectural decision 
 to reduce the number of trainable paramters whithout losing too much expressiveness. The concatenation plus linear 
