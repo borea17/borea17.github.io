@@ -228,7 +228,7 @@ to reduce the number of trainable paramters whithout losing too much expressiven
 layer increases the expressiveness of the model, since it allows the model to jointly combine attention representations of 
 different subspaces.
 
-| ![Multi-Head Attention](./img/multi_head_att.png "Multi-Head Attention" |
+| ![Multi-Head Attention](./img/multi_head_att.png "Multi-Head Attention") |
 | :--         |
 | **Multi-Head Attention Layer**: Linearly project values, queries and keys $h$-times into model dimension, apply scaled-dot-product attention, concatenate result (attention in different subspaces) and linearly project once again (simply increase the expressiveness). Image taken from [Vaswani et al. (2017)](https://arxiv.org/abs/1706.03762). |
 

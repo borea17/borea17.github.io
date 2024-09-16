@@ -404,9 +404,9 @@ Multi-Head Attention
 \]</span></p>
 <p>where linear projections parametrized by <span class="math inline">\(\textbf{W}_i^Q \in \mathbb{R}^{ d_{\text{model}} \times d_k},
 \textbf{W}_i^K \in \mathbb{R}^{ d_{\text{model}} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{\text{model}} \times d_v}\)</span> and <span class="math inline">\(\textbf{W}^O \in \mathbb{R}^{ d_v \times hd_{\text{model}}}\)</span> are learnable parameters (i.e., linear layers without bias).</p>
-<p>Note that without <span class="math inline">\(\textbf{W}^O \in \mathbb{R}^{ hd_v \times d_{\text{model}}}\)</span> and adapted linear projections using the folowing dimensions <span class="math inline">\(\textbf{W}_i^Q \in \mathbb{R}^{ d_{k} \times d_k},
-\textbf{W}_i^K \in \mathbb{R}^{ d_{k} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{v} \times d_v}\)</span>, multi-head attention would just be parallelized scaled-dot-product attention. The projections are simply used to create different representations of the query, key and value matrices (otherwise each head would look exactly the same)..</p>
-<p>Using <span class="math inline">\(d_{\text{model}}\)</span> instead of <span class="math inline">\(d_k / d_v\)</span> for the linear projections is an architectural decision to reduce the number of trainable paramters while whithout losing too much expressiveness. The concatenation plus linear layer increases the expresiveness of the model, since it allows the model to combine attention representations of different subspaces.</p>
+<p>Note that without <span class="math inline">\(\textbf{W}^O\)</span> and adapted linear projections using the following dimensions <span class="math inline">\(\textbf{W}_i^Q \in \mathbb{R}^{ d_{k} \times d_k},
+\textbf{W}_i^K \in \mathbb{R}^{ d_{k} \times d_k}, \textbf{W}_i^V \in \mathbb{R}^{ d_{v} \times d_v}\)</span>, multi-head attention would just be parallelized scaled dot-product attention. The projections are simply used to create different representations of the query, key and value matrices (otherwise each head would look exactly the same, e.g., assume that each <span class="math inline">\(\textbf{W}_i^{Q / K / V}\)</span> is an identity matrix).</p>
+<p>Using <span class="math inline">\(d_{\text{model}}\)</span> instead of <span class="math inline">\(d_k / d_v\)</span> for the linear projections is an architectural decision to reduce the number of trainable paramters whithout losing too much expressiveness. The concatenation plus linear layer increases the expressiveness of the model, since it allows the model to jointly combine attention representations of different subspaces.</p>
 <table class="table">
 <thead>
 <tr class="header">
@@ -415,11 +415,11 @@ Multi-Head Attention
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;"><strong>Multi-Head Attention Layer</strong>: Linearly project values, queries and keys <span class="math inline">\(h\)</span>-times into model dimension, apply scaled-dot-product attention, concatenate result (attention in different subspaces) and linearly project once again (simply increase the expressiveness). Taken from <a href="https://arxiv.org/abs/1706.03762">Vaswani et al.&nbsp;(2017)</a>.</td>
+<td style="text-align: left;"><strong>Multi-Head Attention Layer</strong>: Linearly project values, queries and keys <span class="math inline">\(h\)</span>-times into model dimension, apply scaled-dot-product attention, concatenate result (attention in different subspaces) and linearly project once again (simply increase the expressiveness). Image taken from <a href="https://arxiv.org/abs/1706.03762">Vaswani et al.&nbsp;(2017)</a>.</td>
 </tr>
 </tbody>
 </table>
-<p>Below is a simple implementation of multi-head attention using the masked attention implementation above.</p>
+<p>Below is a simplistic implementation of multi-head attention using the masked attention implementation above.</p>
 <div id="48bd0a93" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
