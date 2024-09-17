@@ -7,7 +7,7 @@ In essence, an **attention mechanism** can be intuitively understood as a means 
 importance (or rather *attention*) to each entity in a collection of entities (e.g., words in a
 sentence or pixels in an image) using some cues as input. Mathmatically, this translates into
 **computing a weighted average over all entities**. In the attention mechansim from the 
-[Attention is all you need](https://arxiv.org/abs/1706.03762), the **attention weights are 
+[Attention is all you need](https://arxiv.org/abs/1706.03762) paper, the **attention weights are 
 obtained from the attention cues**. 
 
 More abstractly, the attention mechanism can be used to answer the following questions
