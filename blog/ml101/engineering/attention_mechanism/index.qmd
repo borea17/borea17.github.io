@@ -61,7 +61,12 @@ The result matrix $\textbf{A}$ has the same dimensionality as $\textbf{V}$ and i
 is basically a (normalized) linear combination of the vectors $\{\textbf{v}_j\}_{j=1}^{N_v}$
 
 $$
-\textbf{a}_i = \sum_j w_{ij} (\textbf{q}_i, \textbf{k}_j) \textbf{v}_j \quad \text{with} \quad \sum_j w_{ij} (\textbf{q}_i, \textbf{k}_j) = 1.
+\begin{align*}
+&\textbf{a}_i = \sum_j w_{ij} \textbf{v}_j \quad \text{with} \quad w_{ij} \ge 0 \quad \text{and} \quad \sum_j w_{ij} = 1,\\
+&\text{since} \quad w_{ij} = \text{Softmax} \left( \textbf{q}_i, \textbf{K} \right) =
+\frac {\exp \left(\textbf{q}_i^{\text{T}} \textbf{k}_j \right)}
+{\sum_{j} \exp \left( \textbf{q}_i^{\text{T}} \textbf{k}_j \right)}.
+\end{align*}
 $$
 
 In this formulation, it is obvious that scaled-dot product attention means basically **computing a weighted

@@ -14,7 +14,6 @@ r \left( \textbf{X}, \textbf{Y} \right)
 \left(\textbf{X}\right)} \sqrt{\text{Var}\left(\textbf{Y}\right)}}
 $}
 $$
-
 $$
 \fbox{
 $\textbf{Spearman} \hspace{0.5cm}
