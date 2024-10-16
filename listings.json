@@ -1,5 +1,20 @@
 [
   {
+    "listing": "/ml101.html",
+    "items": [
+      "/ml101/engineering/attention_mechanism/index.html",
+      "/ml101/engineering/remap-numbers-in-interval/index.html",
+      "/ml101/engineering/mean_of_means/index.html",
+      "/ml101/engineering/sigmoid_loss/index.html",
+      "/ml101/probability_theory/score_function_estimator/index.html",
+      "/ml101/probability_theory/cross_entropy_loss/index.html",
+      "/ml101/probability_theory/evidence_lower_bound/index.html",
+      "/ml101/probability_theory/linear_regression_and_maximum_likelihood/index.html",
+      "/ml101/probability_theory/pearson_vs_spearman_correlation/index.html",
+      "/ml101/probability_theory/better_score_function_estimator/index.html"
+    ]
+  },
+  {
     "listing": "/paper_summaries.html",
     "items": [
       "/paper_summaries/multi-object_network/index.html",
@@ -13,21 +28,6 @@
       "/paper_summaries/schema_networks/index.html",
       "/paper_summaries/graph_networks/index.html",
       "/paper_summaries/interaction_network/index.html"
-    ]
-  },
-  {
-    "listing": "/ml101.html",
-    "items": [
-      "/ml101/engineering/remap-numbers-in-interval/index.html",
-      "/ml101/engineering/sigmoid_loss/index.html",
-      "/ml101/engineering/attention_mechanism/index.html",
-      "/ml101/engineering/mean_of_means/index.html",
-      "/ml101/probability_theory/cross_entropy_loss/index.html",
-      "/ml101/probability_theory/better_score_function_estimator/index.html",
-      "/ml101/probability_theory/pearson_vs_spearman_correlation/index.html",
-      "/ml101/probability_theory/linear_regression_and_maximum_likelihood/index.html",
-      "/ml101/probability_theory/score_function_estimator/index.html",
-      "/ml101/probability_theory/evidence_lower_bound/index.html"
     ]
   }
 ]

@@ -235,7 +235,12 @@ window.Quarto = {
 </table>
 <p>The result matrix <span class="math inline">\(\textbf{A}\)</span> has the same dimensionality as <span class="math inline">\(\textbf{V}\)</span> and in fact each entry <span class="math inline">\(\textbf{a}_i\)</span> is basically a (normalized) linear combination of the vectors <span class="math inline">\(\{\textbf{v}_j\}_{j=1}^{N_v}\)</span></p>
 <p><span class="math display">\[
-\textbf{a}_i = \sum_j w_{ij} (\textbf{q}_i, \textbf{k}_j) \textbf{v}_j \quad \text{with} \quad \sum_j w_{ij} (\textbf{q}_i, \textbf{k}_j) = 1.
+\begin{align*}
+&amp;\textbf{a}_i = \sum_j w_{ij} \textbf{v}_j \quad \text{with} \quad w_{ij} \ge 0 \quad \text{and} \quad \sum_j w_{ij} = 1,\\
+&amp;\text{since} \quad w_{ij} = \text{Softmax} \left( \textbf{q}_i, \textbf{K} \right) =
+\frac {\exp \left(\textbf{q}_i^{\text{T}} \textbf{k}_j \right)}
+{\sum_{j} \exp \left( \textbf{q}_i^{\text{T}} \textbf{k}_j \right)}.
+\end{align*}
 \]</span></p>
 <p>In this formulation, it is obvious that scaled-dot product attention means basically <strong>computing a weighted average over all entities</strong>. Furthermore, each attention vector <span class="math inline">\(\textbf{a}_i\)</span> has a fixed query vector <span class="math inline">\(\textbf{q}_i\)</span> which explains the name <strong>query</strong>.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -293,7 +298,7 @@ Implementation
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="ef2e5d6c" class="cell" data-execution_count="2">
+<div id="c7ac0cd2" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch  </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -348,7 +353,7 @@ w_{ij} (\textbf{q}_i, \textbf{k}_j) = 0 \quad \text{for} \quad j \ge i.
 \]</span></p>
 <p>The weights can be concisely written into a weight matrix <span class="math inline">\(\textbf{W} \in \mathbb{R}^{N_v \times N_v}\)</span> and the above equation basically sets the upper triangular part to zero.</p>
 <p>Thus, it is fairly simple to make the attention mechanism causal, see the implementation below.</p>
-<div id="a5512918" class="cell" data-execution_count="3">
+<div id="65737ed6" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch  </span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -420,7 +425,7 @@ Multi-Head Attention
 </tbody>
 </table>
 <p>Below is a simplistic implementation of multi-head attention using the masked attention implementation above.</p>
-<div id="48bd0a93" class="cell" data-execution_count="4">
+<div id="2cffd395" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
